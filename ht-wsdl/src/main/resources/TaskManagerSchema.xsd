@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+			targetNamespace="http://www.intalio.com/BPMS/Workflow/TaskManagementServices-20051109/schema" 			
+			      xmlns:tns="http://www.intalio.com/BPMS/Workflow/TaskManagementServices-20051109/schema">
+                
+                <xsd:element name="getTaskListResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="task" type="tns:taskMetadata" maxOccurs="unbounded" minOccurs="0">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="getTaskListRequest">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="participantToken" type="xsd:string">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="getTaskResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="task" type="tns:task"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="getTaskRequest">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="taskId" type="xsd:string"/>
+						<xsd:element name="participantToken" type="xsd:string">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="setOutputRequest">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="taskId" type="xsd:string"/>
+						<xsd:element name="data">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:any maxOccurs="unbounded" minOccurs="0" />
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>						
+						<xsd:element name="participantToken" type="xsd:string">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="unavailableTaskFault">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="reason" type="xsd:string"/>
+						<xsd:element name="unavailableTaskId" type="xsd:string" maxOccurs="unbounded" minOccurs="1">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="invalidParticipantTokenFault">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="reason" type="xsd:string"/>
+						<xsd:element name="invalidToken" type="xsd:string">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="accessDeniedFault">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="reason" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="invalidInputMessageFault">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="reason" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="completeRequest">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="taskId" type="xsd:string"/>
+						<xsd:element name="participantToken" type="xsd:string">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="setOutputAndCompleteRequest">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="taskId" type="xsd:string"/>
+						<xsd:element name="data">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:any maxOccurs="unbounded" minOccurs="0" />
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+						<xsd:element name="participantToken" type="xsd:string">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="failRequest">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="taskId" type="xsd:string"/>
+						<xsd:element name="code" type="xsd:string"/>
+						<xsd:element name="message" type="xsd:string"/>
+						<xsd:element name="participantToken" type="xsd:string">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="deleteRequest">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="taskId" type="xsd:string" maxOccurs="unbounded" minOccurs="1">
+						</xsd:element>
+						<xsd:element name="participantToken" type="xsd:string">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="createRequest">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="task" type="tns:task"/>
+						<xsd:element name="participantToken" type="xsd:string">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="initRequest">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="taskId" type="xsd:string"/>
+						<xsd:element name="input">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:any maxOccurs="unbounded" minOccurs="0" />
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+						<xsd:element name="participantToken" type="xsd:string">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="okResponse">
+				<xsd:complexType>
+					<xsd:sequence/>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="getAttachmentsRequest">
+			   <xsd:complexType>
+			     <xsd:sequence>
+			       <xsd:element name="taskId" type="xsd:string" />
+			       <xsd:element name="participantToken" type="xsd:string" />
+			     </xsd:sequence>
+			   </xsd:complexType>
+			</xsd:element>
+			<xsd:element name="getAttachmentsResponse">
+			   <xsd:complexType>
+			     <xsd:sequence>
+			       <xsd:element name="attachment" type="tns:attachment" minOccurs="0" maxOccurs="unbounded" />
+			     </xsd:sequence>
+			   </xsd:complexType>
+			</xsd:element>
+			<xsd:element name="addAttachmentRequest">
+			    <xsd:complexType>
+			       <xsd:sequence>
+			         <xsd:element name="taskId" type="xsd:string" />
+			         <xsd:element name="attachment" type="tns:attachment" />
+			         <xsd:element name="participantToken" type="xsd:string" />
+			       </xsd:sequence>
+			    </xsd:complexType>
+			</xsd:element>
+			<xsd:element name="removeAttachmentRequest">
+			     <xsd:complexType>
+			         <xsd:sequence>
+			             <xsd:element name="taskId" type="xsd:string" />
+			             <xsd:element name="attachmentUrl" type="xsd:string" />
+			             <xsd:element name="participantToken" type="xsd:string" />
+			         </xsd:sequence>
+			     </xsd:complexType>
+			</xsd:element>
+  			<xsd:complexType name="attachmentMetadata">
+			 <xsd:sequence>
+			   <xsd:element name="mimeType" type="xsd:string" />
+			   <xsd:element name="fileName" type="xsd:string" />
+			   <xsd:element name="title" type="xsd:string" />
+			   <xsd:element name="description" type="xsd:string" />
+			   <xsd:element name="creationDate" type="xsd:dateTime" />
+ 			 </xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="attachment">
+			 <xsd:sequence>
+			   <xsd:element name="attachmentMetadata" type="tns:attachmentMetadata" />
+			   <xsd:element name="payloadUrl" type="xsd:string" />
+			 </xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="taskMetadata">
+				<xsd:sequence>
+					<xsd:element name="taskId" type="xsd:string"/>
+					<xsd:element name="taskState" type="xsd:token" maxOccurs="1" minOccurs="0"/>
+					<xsd:element name="taskType" type="xsd:token"/>
+					<xsd:element name="description" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+					<xsd:element name="processId" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+					<xsd:element name="creationDate" type="xsd:dateTime" maxOccurs="1" minOccurs="0">
+					</xsd:element>
+					<xsd:element name="userOwner" type="xsd:string" maxOccurs="unbounded" minOccurs="0">
+					</xsd:element>
+					<xsd:element name="roleOwner" type="xsd:string" maxOccurs="unbounded" minOccurs="0">
+					</xsd:element>
+					<xsd:element name="formUrl" type="xsd:anyURI"/>
+					<xsd:element name="failureCode" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+					<xsd:element name="failureReason" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+					<xsd:element name="userProcessCompleteSOAPAction" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+					<xsd:element name="attachments">
+					 <xsd:complexType>
+					   <xsd:sequence>
+					     <xsd:element name="attachment" type="tns:attachment" minOccurs="0" maxOccurs="unbounded" />
+					   </xsd:sequence>
+					 </xsd:complexType>
+					</xsd:element>
+  				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="task">
+				<xsd:sequence>
+					<xsd:element name="metadata" type="tns:taskMetadata">
+					</xsd:element>
+					<xsd:element name="input">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:any maxOccurs="unbounded" minOccurs="0" />
+							</xsd:sequence>
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="output">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:any maxOccurs="unbounded" minOccurs="0" />
+							</xsd:sequence>
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:sequence>
+			</xsd:complexType>
+
+</xsd:schema>

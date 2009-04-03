@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://pl.touk/schema/ws-humantask-proxy-api"
+            xmlns:tns="http://pl.touk/schema/ws-humantask-proxy-api"
+            elementFormDefault="qualified" xmlns:ns="http://www.example.org/WS-HT/api">
+    
+    <!--xsd:import namespace="http://www.example.org/WS-HT/api"
+                schemaLocation="ws-humantask-api.xsd" /-->
+    <!--xsd:import namespace="http://www.example.org/WS-HT"
+                schemaLocation="ws-humantask.xsd" /-->
+    
+    <xsd:element name="getTaskRequest">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="taskIdentifier" type="xsd:string"></xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="getTaskResponse">
+       <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="taskData" type="xsd:anyType" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="standardFault">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="errorCode" type="xsd:string"></xsd:element>
+                <xsd:element name="errorDsc" type="xsd:string"></xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="completeRequest">
+       <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="taskId">
+                    <xsd:simpleType>
+                        <xsd:restriction base="xsd:string"/>
+                    </xsd:simpleType>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="completeResponse">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="status">
+                    <xsd:simpleType>
+                        <xsd:restriction base="xsd:string"/>
+                    </xsd:simpleType>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
