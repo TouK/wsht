@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>       
+        <property name="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</property>
+        <property name="hibernate.hbm2ddl.auto">create-drop</property>
+
+        <!-- Persistent classes -->
+        <mapping class="pl.touk.humantask.model.Deadline"/>
+        <mapping class="pl.touk.humantask.model.Assignee"/>
+        <mapping class="pl.touk.humantask.model.Person"/>
+        <mapping class="pl.touk.humantask.model.Group"/>
+		<mapping class="pl.touk.humantask.model.Attachment"/>
+        <mapping class="pl.touk.humantask.model.Comment"/>
+        <mapping class="pl.touk.humantask.model.Task"/>
+        
+
+    </session-factory>   
+</hibernate-configuration>
