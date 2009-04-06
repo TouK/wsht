@@ -9,7 +9,6 @@ import java.util.List;
 
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Task;
-
 import pl.touk.humantask.spec.TaskDefinition;
 
 /**

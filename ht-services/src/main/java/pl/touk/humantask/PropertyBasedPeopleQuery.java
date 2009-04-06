@@ -12,15 +12,12 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.io.Resource;
 
 import pl.touk.humantask.dao.impl.HibernateAssigneeDao;
-
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
-
 import pl.touk.humantask.spec.HumanInteractionsFactoryBean;
 import pl.touk.humantask.spec.TaskDefinition;
 

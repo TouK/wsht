@@ -33,7 +33,7 @@ import pl.touk.humantask.Services;
 @WebService
 public class TaskOperationsImpl implements TaskOperations {
 
-    protected Services services;
+    private Services services;
 
     public void activate(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // String username = Session.getUserName();
@@ -228,6 +228,14 @@ public class TaskOperationsImpl implements TaskOperations {
     public void suspendUntil(String identifier, TTime time) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
 
+    }
+
+    public void setServices(Services services) {
+        this.services = services;
+    }
+
+    public Services getServices() {
+        return services;
     }
 
 }

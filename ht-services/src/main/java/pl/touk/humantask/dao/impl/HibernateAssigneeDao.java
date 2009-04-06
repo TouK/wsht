@@ -3,10 +3,10 @@ package pl.touk.humantask.dao.impl;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 
-import com.trg.dao.dao.original.GenericDAOImpl;
-
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Person;
+
+import com.trg.dao.dao.original.GenericDAOImpl;
 
 public class HibernateAssigneeDao extends GenericDAOImpl<Assignee, Long> {
 

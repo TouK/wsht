@@ -14,13 +14,13 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.example.ws_ht.api.wsdl.IllegalArgumentFault;
+import org.example.ws_ht.api.wsdl.IllegalOperationFault;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.dao.impl.HibernateAssigneeDao;
 import pl.touk.humantask.dao.impl.HibernateTaskDao;
-
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Attachment;
 import pl.touk.humantask.model.Group;

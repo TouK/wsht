@@ -1,22 +1,16 @@
 package pl.touk.humantask.dao.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.hibernate.Criteria;
-import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 
-import com.trg.dao.dao.original.GenericDAOImpl;
-
 import pl.touk.humantask.model.Assignee;
-import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
+
+import com.trg.dao.dao.original.GenericDAOImpl;
 
 /**
  * Implements simple hibernate dao for Task {@link Task} and convenience search
