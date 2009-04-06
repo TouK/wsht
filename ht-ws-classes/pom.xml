@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>ht-ws-classes</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>TouK Human Task API Classes</name>
 	<dependencies>
 		<dependency>
