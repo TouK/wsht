@@ -109,12 +109,6 @@ public class TaskOperationsImpl implements TaskOperations {
         return null;
     }
 
-    public void getFault(String identifier, Holder<String> faultName, Holder<Object> faultData) throws IllegalArgumentFault, IllegalStateFault,
-            IllegalOperationFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-
-    }
-
     public Object getInput(String identifier, String part) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
         return null;
@@ -236,6 +230,12 @@ public class TaskOperationsImpl implements TaskOperations {
 
     public Services getServices() {
         return services;
+    }
+
+    public void getFault(String identifier, Holder<String> faultName, Holder<Object> faultData) throws IllegalAccessFault, IllegalStateFault,
+            IllegalArgumentFault, IllegalOperationFault {
+        // TODO Auto-generated method stub
+        
     }
 
 }
