@@ -105,7 +105,8 @@ public class Task {
     @Column(nullable = false)
     private Status status;
 
-    private Status statBeforeSuspend;
+    @Enumerated(EnumType.STRING)
+    private Status statusBeforeSuspend;
 
     /**
      * People assigned to different generic human roles.
@@ -115,16 +116,13 @@ public class Task {
     private Assignee actualOwner;
 
     /**
-     * This element is used to specify the priority of the task. It is an
-     * optional element which value is an integer expression. If not present,
-     * the priority of the task is unspecified. 0 is the highest priority,
-     * larger numbers identify lower priorities.
+     * This element is used to specify the priority of the task. It is an optional element which value is an integer expression. If not present, the priority of
+     * the task is unspecified. 0 is the highest priority, larger numbers identify lower priorities.
      */
     private Integer priority;
 
     /**
-     * Task initiator. Depending on how the task has been instantiated the task
-     * initiator may or may not be defined.
+     * Task initiator. Depending on how the task has been instantiated the task initiator may or may not be defined.
      */
     private String createdBy;
 
@@ -170,11 +168,36 @@ public class Task {
     private List<Attachment> attachments = new ArrayList<Attachment>();
 
     // TODO deadlines
+    
+    /***************************************************************
+     * Constructors                                                *
+     ***************************************************************/
+    
+    
+
+    /***************************************************************
+     * Getters & Setters                                           *
+     ***************************************************************/
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
 
     public Status getStatus() {
         return status;
     }
 
+    /**
+     * Sets Task status. Not to be called directly, see: @.
+     * TODO must not be used from services.
+     * @param status
+     * @throws HumanTaskException
+     */
+    @Deprecated 
     public void setStatus(Status status) throws HumanTaskException {
 
         boolean isOk = false;
@@ -194,8 +217,7 @@ public class Task {
 
             case READY:
 
-                if (status == Status.RESERVED || status == Status.IN_PROGRESS
-                        || status == Status.SUSPENDED) {
+                if (status == Status.RESERVED || status == Status.IN_PROGRESS || status == Status.SUSPENDED) {
                     isOk = true;
                 }
 
@@ -203,9 +225,7 @@ public class Task {
 
             case RESERVED:
 
-                if (status == Status.IN_PROGRESS || status == Status.READY
-                        || status == Status.SUSPENDED
-                        || status == Status.RESERVED) {
+                if (status == Status.IN_PROGRESS || status == Status.READY || status == Status.SUSPENDED || status == Status.RESERVED) {
                     isOk = true;
                 }
 
@@ -213,9 +233,7 @@ public class Task {
 
             case IN_PROGRESS:
 
-                if (status == Status.COMPLETED || status == Status.FAILED
-                        || status == Status.RESERVED || status == Status.READY
-                        || status == Status.SUSPENDED) {
+                if (status == Status.COMPLETED || status == Status.FAILED || status == Status.RESERVED || status == Status.READY || status == Status.SUSPENDED) {
                     isOk = true;
                 }
 
@@ -231,7 +249,7 @@ public class Task {
                 LOG.info("Changing Task status : " + this + " status from: " + getStatus() + " to: " + status);
 
                 if (status.equals(Status.SUSPENDED)) {
-                    statBeforeSuspend = this.status;
+                    statusBeforeSuspend = this.status;
                 }
 
                 this.status = status;
@@ -239,7 +257,8 @@ public class Task {
             } else {
 
                 LOG.error("Changing Task status: " + this + " status from: " + getStatus() + " to: " + status + " is not allowed.");
-                throw new HumanTaskException("Changing Task's: " + this + " status from: " + getStatus() + " to: " + status + " is not allowed, or task is SUSPENDED");
+                throw new HumanTaskException("Changing Task's: " + this + " status from: " + getStatus() + " to: " + status
+                        + " is not allowed, or task is SUSPENDED");
 
             }
 
@@ -252,25 +271,6 @@ public class Task {
 
     }
 
-    /**
-     * Removing suspended
-     */
-    // resume while suspended
-    //TODO test it
-    public void resume() {
-        if ((statBeforeSuspend == Status.READY
-                || statBeforeSuspend == Status.IN_PROGRESS || statBeforeSuspend == Status.RESERVED)
-                && this.status == Status.SUSPENDED)
-            this.status = statBeforeSuspend;
-
-        // exceptions ??
-    };
-
-    public void deleteOutput() {
-        outputXml = null;
-        partName = null;
-    }
-
     public void setOutput(String partName, String outputXml) throws HumanTaskException {
 
         if (partName != null) {
@@ -281,7 +281,7 @@ public class Task {
     }
 
     /**
-     * set fault name and foult data
+     * Sets fault name and faults data.
      * 
      * @param fName
      * @param fXml
@@ -406,6 +406,11 @@ public class Task {
         this.escalated = escalated;
     }
 
+    /**
+     * Sets task definition and TaskDefinitionKey used to retrieve task definition when {@link Task} is instantiated from persistent store.
+     * 
+     * @param taskDefinition
+     */
     public void setTaskDefinition(TaskDefinition taskDefinition) {
         this.taskDefinition = taskDefinition;
         this.setTaskDefinitionKey(taskDefinition.getKey());
@@ -413,14 +418,6 @@ public class Task {
 
     public TaskDefinition getTaskDefinition() {
         return taskDefinition;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public void setTaskDefinitionKey(String taskDefinitionKey) {
@@ -479,10 +476,36 @@ public class Task {
         return notificationRecipients;
     }
 
+    /***************************************************************
+     * Business methods.                                           *
+     ***************************************************************/
+    
+    /**
+     * Resumes suspended task.
+     */
+    public void resume() {
+
+        if ((statusBeforeSuspend == Status.READY || statusBeforeSuspend == Status.IN_PROGRESS || statusBeforeSuspend == Status.RESERVED)
+                && this.status == Status.SUSPENDED) {
+            this.status = statusBeforeSuspend;
+        }
+        // exceptions ??
+    }
+
+    public void deleteOutput() {
+        outputXml = null;
+        partName = null;
+    }
+
+    
     @Override
     public String toString() {
         BeanMap bm = new BeanMap(this);
         return bm.toString();
+    }
+
+    public void reserve() throws HumanTaskException {
+        this.setStatus(Status.RESERVED);        
     }
 
 }

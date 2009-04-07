@@ -161,7 +161,7 @@ public class Services {
      * thus they may not reserve or start the task.
      * 
      * @param task
-     * @param perso
+     * @param assigneeName
      * @return
      * @throws HumanTaskException
      */
@@ -169,7 +169,7 @@ public class Services {
     public Task claimTask(Task task, String assigneeName) throws HumanTaskException {
 
         Person person = assigneeDao.getPerson(assigneeName);
-        log.info("Claim: " + task + " Person: " + person);
+        log.info("Claiming: " + task + " Person: " + person);
 
         if (task.getId() == null) {
             log.error("Task has to be persisted before performing any operation.");
@@ -195,7 +195,8 @@ public class Services {
 
         }
 
-        task.setStatus(Status.RESERVED);
+        //task.setStatus(Status.RESERVED);
+        task.reserve();
 
         taskDao.update(task);
 
