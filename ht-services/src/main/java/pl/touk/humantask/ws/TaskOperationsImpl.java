@@ -12,6 +12,8 @@ import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.example.ws_ht.TOrganizationalEntity;
 import org.example.ws_ht.api.TAttachment;
 import org.example.ws_ht.api.TAttachmentInfo;
@@ -29,11 +31,27 @@ import org.example.ws_ht.api.wsdl.TaskOperations;
 import org.example.ws_ht.api.xsd.TTime;
 
 import pl.touk.humantask.Services;
+import pl.touk.security.context.SecurityContextInterface;
 
+/**
+ * Implementation of WS-HT API.
+ * 
+ * @author Witek Wołejszo
+ */
 @WebService
 public class TaskOperationsImpl implements TaskOperations {
 
+    protected final Log log = LogFactory.getLog(TaskOperationsImpl.class);
+
+    /**
+     * Implementation of WH-HT services.
+     */
     private Services services;
+
+    /**
+     * Security context used to retrieve implicit user information.
+     */
+    private SecurityContextInterface securityContext;
 
     public void activate(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // String username = Session.getUserName();
@@ -224,6 +242,12 @@ public class TaskOperationsImpl implements TaskOperations {
 
     }
 
+    public void getFault(String identifier, Holder<String> faultName, Holder<Object> faultData) throws IllegalAccessFault, IllegalStateFault,
+            IllegalArgumentFault, IllegalOperationFault {
+        // TODO Auto-generated method stub
+
+    }
+
     public void setServices(Services services) {
         this.services = services;
     }
@@ -232,10 +256,12 @@ public class TaskOperationsImpl implements TaskOperations {
         return services;
     }
 
-    public void getFault(String identifier, Holder<String> faultName, Holder<Object> faultData) throws IllegalAccessFault, IllegalStateFault,
-            IllegalArgumentFault, IllegalOperationFault {
-        // TODO Auto-generated method stub
-        
+    public void setSecurityContext(SecurityContextInterface securityContext) {
+        this.securityContext = securityContext;
+    }
+
+    public SecurityContextInterface getSecurityContext() {
+        return securityContext;
     }
 
 }

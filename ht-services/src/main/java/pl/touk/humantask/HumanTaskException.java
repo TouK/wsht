@@ -6,7 +6,7 @@
 package pl.touk.humantask;
 
 /**
- * Human Task lifecycle exception.
+ * Human Task exception.
  * 
  * @author Witek Wołejszo
  */

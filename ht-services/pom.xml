@@ -116,6 +116,17 @@
 			<artifactId>ht-ws-classes</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>pl.touk</groupId>
+            <artifactId>touk-security</artifactId>
+            <version>1.0.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.security</groupId>
+                    <artifactId>spring-security-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
@@ -204,12 +215,12 @@
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-common-utilities</artifactId>
 			<version>${cxf.version}</version> </dependency>
-		-->
 		<dependency>
 			<groupId>opensymphony</groupId>
 			<artifactId>quartz</artifactId>
 			<version>1.5.2</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>

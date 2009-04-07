@@ -18,7 +18,6 @@ import pl.touk.humantask.dao.impl.HibernateAssigneeDao;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.spec.HumanInteractionsFactoryBean;
 import pl.touk.humantask.spec.TaskDefinition;
 
 /**
@@ -27,9 +26,9 @@ import pl.touk.humantask.spec.TaskDefinition;
  * 
  * @author Witek Wołejszo
  */
-public class PropertyBasedPeopleQuery implements PeopleQuery {
+public final class PropertyBasedPeopleQuery implements PeopleQuery {
 
-    private final Log log = LogFactory.getLog(HumanInteractionsFactoryBean.class);
+    private final Log log = LogFactory.getLog(PropertyBasedPeopleQuery.class);
 
     private Resource configuration;
 

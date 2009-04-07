@@ -5,7 +5,9 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.xml.ws.Endpoint;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,12 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.example.ws_ht.api.wsdl.IllegalArgumentFault;
 import org.example.ws_ht.api.wsdl.IllegalOperationFault;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import org.quartz.SchedulerException;
-
-import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalTests;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -26,20 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.dao.impl.HibernateAssigneeDao;
 import pl.touk.humantask.dao.impl.HibernateTaskDao;
-
-import pl.touk.humantask.model.Assignee;
-import pl.touk.humantask.model.Attachment;
-import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.Status;
 
-import pl.touk.humantask.spec.TaskDefinition;
-
 @ContextConfiguration(locations = "classpath:/test.xml")
-public class ServicesTest extends AbstractTransactionalJUnit4SpringContextTests {
+public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
 
-    private static final Log LOG = LogFactory.getLog(ServicesTest.class);
+    private static final Log LOG = LogFactory.getLog(ServicesIntegrationTest.class);
 
     @Resource(name = "humanTaskServices")
     Services services;
@@ -187,7 +177,7 @@ public class ServicesTest extends AbstractTransactionalJUnit4SpringContextTests 
     @Test
     @Transactional
     @Rollback
-    public void testGetOutput() throws HumanTaskException, SchedulerException, IllegalArgumentFault, IllegalOperationFault, InterruptedException {
+    public void testGetOutput() throws HumanTaskException, IllegalArgumentFault, IllegalOperationFault, InterruptedException {
 
         Task task = services.createTask("ApproveClaim", "kamil", "request");
 

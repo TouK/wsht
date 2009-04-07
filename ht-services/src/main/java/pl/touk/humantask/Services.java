@@ -39,11 +39,24 @@ public class Services {
 
     private final Log log = LogFactory.getLog(Services.class);
 
+    /**
+     * DAO for accessing {@link Task}s.
+     */
     private HibernateTaskDao taskDao;
+    
+    /**
+     * DAO for accessing {@link Assignee}s.
+     */
     private HibernateAssigneeDao assigneeDao;
 
+    /**
+     * {@link PeopleQuery} implementation for user evaluation.
+     */
     private PeopleQuery peopleQuery;
 
+    /**
+     * Definitions of tasks available in WSHT.
+     */
     private List<TaskDefinition> taskDefinitions;
     
     /**
