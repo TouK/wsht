@@ -6,7 +6,7 @@
 	<artifactId>wsht</artifactId>
 	<packaging>pom</packaging>
 	<version>1.0.0-SNAPSHOT</version>
-	<name>wsht</name>
+	<name>TouK Human Task</name>
 	<parent>
 		<groupId>pl.touk</groupId>
 		<artifactId>touk-superpom</artifactId>
