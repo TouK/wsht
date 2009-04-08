@@ -67,7 +67,7 @@ public class Services {
     /**
      * Work in progress.
      */
-
+    
     /**
      * Creates {@link Task} instance.
      * 
@@ -82,24 +82,32 @@ public class Services {
 
         log.info("Creating task: " + taskName + " , createdBy: " + createdBy);
 
-        Task newTask = new Task();
-        newTask.setId(null);
-
         // TODO proper status ?
-        newTask.setStatus(Task.Status.CREATED);
-        newTask.setRequestXml(requestXml);
+//        newTask.setStatus(Task.Status.CREATED);
+//        newTask.setRequestXml(requestXml);
 
         // setOutput(pName, output)
+        TaskDefinition x = null;
         for (TaskDefinition taskDefinition : taskDefinitions) {
             if (taskName.equals(taskDefinition.getName()) && taskDefinition.getInstantiable()) {
-                newTask.setTaskDefinition(taskDefinition);
+                //newTask.setTaskDefinition(taskDefinition);
+                x = taskDefinition;
                 break;
             }
         }
 
-        if (newTask.getTaskDefinition() == null) {
-            throw new HumanTaskException("No definition found for task: " + taskName);
+        Person actualOwner = assigneeDao.getPerson(createdBy);
+        if (actualOwner == null) {
+            actualOwner = new Person(createdBy);
+            assigneeDao.create(actualOwner);
         }
+        
+        Task newTask = new Task(actualOwner, x);
+        newTask.setRequestXml(requestXml);
+        
+//        if (newTask.getTaskDefinition() == null) {
+//            throw new HumanTaskException("No definition found for task: " + taskName);
+//        }
 
         // evaluate logical people groups
         List<TaskDefinition.LogicalPeopleGroup> logicalPeopleGroups = newTask.getTaskDefinition().getLogicalpeopleGroups();
@@ -154,6 +162,21 @@ public class Services {
         return newTask;
 
     }
+    
+    /**
+     * Returns task owned by specified person.
+     * 
+     * @param owner
+     * @return
+     */
+    public List<Task> getMyTasks(String personName) {
+        Person person = assigneeDao.getPerson(personName);
+        return taskDao.getTasks(person);
+    }
+    
+    /**
+     * Later.
+     */
 
     /**
      * Claims task. Sets status to Reserved. Only potential owners can claim the
@@ -244,19 +267,18 @@ public class Services {
 
     /**
      * Loads single task from persistent store.
-     * 
+     * TODO implement
      * @return
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public Task loadTask(Long taskId) {
 
         Task task = taskDao.fetch(taskId);
-        task.setTaskDefinition(findTaskDefinitionByKey(task.getTaskDefinitionKey()));
+        //task.setTaskDefinition(findTaskDefinitionByKey(task.getTaskDefinitionKey()));
         
         // TODO throw an exception if no definition found
 
         return task;
-
     }
 
     /**
@@ -367,17 +389,6 @@ public class Services {
     }
 
     /**
-     * Returns task owned by specified person.
-     * 
-     * @param owner
-     * @return
-     */
-    public List<Task> getMyTasks(String personName) {
-        Person person = assigneeDao.getPerson(personName);
-        return taskDao.getTasks(person);
-    }
-
-    /**
      * releases task from Inprogress and Reserved state
      * 
      * @param task
@@ -436,7 +447,6 @@ public class Services {
         }
 
         return null;
-
     }
 
     /**

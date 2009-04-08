@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Test;
 
 import org.apache.commons.logging.Log;
@@ -66,8 +66,8 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         Task t = services.createTask("ApproveClaim", "ww", "request");
 
-        LOG.info("Task key: " + t.getTaskDefinition().getKey());
-        LOG.info("Task description: " + t.getTaskDefinition().getDescription("en-US", "text/plain"));
+        //LOG.info("Task key: " + t.getTaskDefinition().getKey());
+        //LOG.info("Task description: " + t.getTaskDefinition().getDescription("en-US", "text/plain"));
 
     }
 
@@ -76,25 +76,16 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Rollback
     public void testGetMyTasks() throws HumanTaskException {
 
-        // Services services = (Services)
-        // applicationContext.getBean("humanTaskServices");
+        Task t1 = services.createTask("ApproveClaim", "user", "request1");
+        Task t2 = services.createTask("ApproveClaim", "user", "request2");
 
-        //IAssigneeDao assigneeDao = (IAssigneeDao) applicationContext.getBean("assigneeDao");
-
-        Task t1 = services.createTask("ApproveClaim", "ww", "request");
-        services.claimTask(t1, "witek");
-
-        Task t2 = services.createTask("ApproveClaim", "ww", "request");
-        //services.claimTask(t2, "kamil");
-
-//        Task t3 = services.createTask("ApproveClaim", "ww", "request");
-//        services.claimTask(t3, "witek");
-
-        List<Task> tasks = services.getMyTasks("witek");
+        List<Task> tasks = services.getMyTasks("user");
 
         for (Task task : tasks) {
             LOG.info("Task: " + task);
         }
+        
+        assertEquals(2, tasks.size());
 
     }
 
@@ -123,7 +114,8 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         //ApproveClaim has several potential owners, so it is not reserved
         Task t = services.createTask("ApproveClaim", "ww", "request");
-        Assert.assertEquals(Task.Status.READY, t.getStatus());
+        
+        assertEquals(Task.Status.READY, t.getStatus());
 
         //TODO the rest of default lifecycle
     }
@@ -207,10 +199,10 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         }
 
         task1 = taskDao.fetch(task1.getId());
-        Assert.assertEquals(task1.getStatus(), Status.READY);
+        assertEquals(task1.getStatus(), Status.READY);
 
         task2 = services.loadTask(task2.getId());
-        Assert.assertEquals(task2.getStatus(), Status.READY);
+        assertEquals(task2.getStatus(), Status.READY);
 
     }
 

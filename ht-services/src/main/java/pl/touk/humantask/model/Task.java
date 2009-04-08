@@ -41,6 +41,7 @@ import pl.touk.humantask.spec.TaskDefinition;
 /**
  * Holds task instance information.
  * 
+ * @author Kamil Eisenbart
  * @author Witek Wołejszo
  */
 @Entity
@@ -58,7 +59,7 @@ public class Task {
     @Basic
     @Index(name = "TAKS_DEFKEY_IDX")
     @Column(name = "DEFKEY", nullable = false)
-    private String taskDefinitionKey;
+    protected String taskDefinitionKey;
 
     public static enum Status {
 
@@ -172,8 +173,40 @@ public class Task {
     /***************************************************************
      * Constructors                                                *
      ***************************************************************/
+
+//    /**
+//     * Package scope constructor.
+//     */
+//    private Task() {
+//        super();
+//    }
     
-    
+    /**
+     * Task constructor.
+     * 
+     * TODO actualOwner or evaluatedPeopleGroups or people group definitions?
+     * TODO ws xml request in constructor?
+     * 
+     * @param actualOwner 
+     * @param taskDefinition
+     * @throws HumanTaskException 
+     */
+    public Task(Person actualOwner, TaskDefinition taskDefinition) throws HumanTaskException {
+        
+        if (taskDefinition == null) {
+            throw new NullPointerException("Task definition must not be null.");
+        }
+        
+        this.actualOwner = actualOwner;
+        this.taskDefinition = taskDefinition;
+        this.taskDefinitionKey = taskDefinition.getKey();
+        
+        if (actualOwner != null) {
+            this.setStatus(Status.RESERVED);
+        } else {
+            this.setStatus(Status.READY);
+        }
+    }
 
     /***************************************************************
      * Getters & Setters                                           *
@@ -406,23 +439,23 @@ public class Task {
         this.escalated = escalated;
     }
 
-    /**
-     * Sets task definition and TaskDefinitionKey used to retrieve task definition when {@link Task} is instantiated from persistent store.
-     * 
-     * @param taskDefinition
-     */
-    public void setTaskDefinition(TaskDefinition taskDefinition) {
-        this.taskDefinition = taskDefinition;
-        this.setTaskDefinitionKey(taskDefinition.getKey());
-    }
-
+//    /**
+//     * Sets task definition and TaskDefinitionKey used to retrieve task definition when {@link Task} is instantiated from persistent store.
+//     * 
+//     * @param taskDefinition
+//     */
+//    public void setTaskDefinition(TaskDefinition taskDefinition) {
+//        this.taskDefinition = taskDefinition;
+//        this.setTaskDefinitionKey(taskDefinition.getKey());
+//    }
+//
     public TaskDefinition getTaskDefinition() {
         return taskDefinition;
     }
-
-    public void setTaskDefinitionKey(String taskDefinitionKey) {
-        this.taskDefinitionKey = taskDefinitionKey;
-    }
+//
+//    public void setTaskDefinitionKey(String taskDefinitionKey) {
+//        this.taskDefinitionKey = taskDefinitionKey;
+//    }
 
     public String getTaskDefinitionKey() {
         return taskDefinitionKey;
@@ -497,15 +530,16 @@ public class Task {
         partName = null;
     }
 
+    public void reserve() throws HumanTaskException {
+        this.setStatus(Status.RESERVED);        
+    }
     
     @Override
     public String toString() {
         BeanMap bm = new BeanMap(this);
         return bm.toString();
     }
-
-    public void reserve() throws HumanTaskException {
-        this.setStatus(Status.RESERVED);        
-    }
+    
+    
 
 }

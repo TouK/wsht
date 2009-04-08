@@ -59,8 +59,7 @@ public final class PropertyBasedPeopleQuery implements PeopleQuery {
 
                 if (person == null) {
 
-                    person = new Person();
-                    person.setName(name);
+                    person = new Person(name);
                     assigneeDao.create(person);
                 }
 
@@ -71,9 +70,11 @@ public final class PropertyBasedPeopleQuery implements PeopleQuery {
 
             // Access error should not affect evaluation TODO: ref to specs
             try {
+                
                 log.error("Error reading: " + configuration.getURL());
             } catch (IOException e1) {
             } finally {
+                
                 log.error("Error reading file.");
             }
 

@@ -27,6 +27,7 @@ public interface PeopleQuery {
      * @param logicalPeopleGroup
      * @param task
      * @return
+     * TODO remove task, logicalPeopleGroup -> name?, parameters?
      */
     List<Assignee> evaluate(TaskDefinition.LogicalPeopleGroup logicalPeopleGroup, Task task);
 

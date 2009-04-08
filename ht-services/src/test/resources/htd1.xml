@@ -62,7 +62,7 @@
                         </htd:argument>
                     </htd:from>
                 </htd:potentialOwners>
-            
+                
                 <htd:potentialOwners>
                     <htd:from logicalPeopleGroup="regionalClerks">
                         <htd:argument name="region"> htd:getInput("ClaimApprovalRequest")/region
