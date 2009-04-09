@@ -208,9 +208,7 @@ public class Task {
         this.status = Status.CREATED;
         if (actualOwner != null) {
             this.setStatus(Status.RESERVED);
-        } else {
-            this.setStatus(Status.READY);
-        }
+        } 
     }
 
     /***************************************************************
