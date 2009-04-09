@@ -70,10 +70,33 @@ public class Services {
     
     /**
      * Creates {@link Task} instance basing on a definition.
-     * 
+     * The definitions come from the service.
+     * We assume that the task is activated upon creation provided that it has any potential owners.
+     * Upon creation the sets of people related to the task and having the
+     * following roles are evaluated: <ul>
+     * <li>task stakeholders</li>
+     * <li>potential owners</li>
+     * <li>excluded owners</li>
+     * <li>business administrators</li>
+     * <li>notification recipients</li>
+     * </ul>
+     * The source of a group is a part of the definition - it can
+     * be a logical group, a set of people or a set of groups, which can be
+     * evaluated basing on the requestXml contents.
+     * The status after the operation depends on the count of potential owners:<br/>
+     * 0 - CREATED, it is now due to the administrator to add potential owners<br/>
+     * 1 - RESERVED, since there's only one possibility;<br/>
+     * 2 or more - READY - the potential owners are welcome to take the task.<br/>
+     * Request data depends on the task definition, e.g. approving a claim requires a money amount,
+     * which may not make sense in case of another task. Request data might be empty
+     * in some cases.
+     * Depending on the situation, createdBy may be empty.
+     * At the end, the new task is stored.
+     *
+     * <p>
      * @param taskName name of the task template from the definition file
      * @param createdBy user creating task
-     * @param requestXml xml request used to invoke business method; contains task-specific attributes, like first name, last name, amount, etc.
+     * @param requestXml xml request used to invoke business method; can contain task-specific attributes, like last name, amount, etc.
      * @return created Task
      * @throws HumanTaskException
      */
@@ -81,9 +104,6 @@ public class Services {
     public Task createTask(String taskName, String createdBy, String requestXml) throws HumanTaskException {
 
         log.info("Creating task: " + taskName + " , createdBy: " + createdBy);
-
-        // TODO proper status ?
-//        newTask.setStatus(Task.Status.CREATED);
 
         // setOutput(pName, output)
         TaskDefinition taskDefinition = null;
