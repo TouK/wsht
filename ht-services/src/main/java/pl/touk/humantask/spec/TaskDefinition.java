@@ -138,7 +138,7 @@ public class TaskDefinition {
 
                 Node n = nl.item(i);
 
-                String logicalGroupName = (String) n.getAttributes().getNamedItem("logicalPeopleGroup").getNodeValue();
+                String logicalGroupName = n.getAttributes().getNamedItem("logicalPeopleGroup").getNodeValue();
 
                 // String newname = (String)
                 // n.getAttributes().getNamedItem("logicalPeopleGroup").getAttributes().toString();

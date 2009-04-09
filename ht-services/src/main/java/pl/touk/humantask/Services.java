@@ -69,11 +69,11 @@ public class Services {
      */
     
     /**
-     * Creates {@link Task} instance.
+     * Creates {@link Task} instance basing on a definition.
      * 
-     * @param taskName name of the task
+     * @param taskName name of the task template from the definition file
      * @param createdBy user creating task
-     * @param requestXml xml request used to invoke business method
+     * @param requestXml xml request used to invoke business method; contains task-specific attributes, like first name, last name, amount, etc.
      * @return created Task
      * @throws HumanTaskException
      */
@@ -84,14 +84,13 @@ public class Services {
 
         // TODO proper status ?
 //        newTask.setStatus(Task.Status.CREATED);
-//        newTask.setRequestXml(requestXml);
 
         // setOutput(pName, output)
-        TaskDefinition x = null;
-        for (TaskDefinition taskDefinition : taskDefinitions) {
-            if (taskName.equals(taskDefinition.getName()) && taskDefinition.getInstantiable()) {
+        TaskDefinition taskDefinition = null;
+        for (TaskDefinition taskDefinitionConfigured : taskDefinitions) {
+            if (taskName.equals(taskDefinitionConfigured.getName()) && taskDefinitionConfigured.getInstantiable()) {
                 //newTask.setTaskDefinition(taskDefinition);
-                x = taskDefinition;
+                taskDefinition = taskDefinitionConfigured;
                 break;
             }
         }
@@ -102,12 +101,12 @@ public class Services {
             assigneeDao.create(actualOwner);
         }
         
-        Task newTask = new Task(actualOwner, x);
+        Task newTask = new Task(actualOwner, taskDefinition);
         newTask.setRequestXml(requestXml);
         
-//        if (newTask.getTaskDefinition() == null) {
-//            throw new HumanTaskException("No definition found for task: " + taskName);
-//        }
+        if (newTask.getTaskDefinition() == null) {
+            throw new HumanTaskException("No definition found for task: " + taskName);
+        }
 
         // evaluate logical people groups
         List<TaskDefinition.LogicalPeopleGroup> logicalPeopleGroups = newTask.getTaskDefinition().getLogicalpeopleGroups();

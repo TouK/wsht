@@ -28,6 +28,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SecondaryTable;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 import javax.persistence.Transient;
 
 import org.apache.commons.collections.BeanMap;
@@ -59,7 +60,7 @@ public class Task {
     @Basic
     @Index(name = "TAKS_DEFKEY_IDX")
     @Column(name = "DEFKEY", nullable = false)
-    protected String taskDefinitionKey;
+    protected String taskDefinitionKey; // task definition
 
     public static enum Status {
 
@@ -95,10 +96,8 @@ public class Task {
     @Column(table = "TASK_IO")
     private String faultXml;
 
-    @Column
     private String partName;
 
-    @Column
     private String faultName;
 
     @Enumerated(EnumType.STRING)
@@ -127,16 +126,22 @@ public class Task {
      */
     private String createdBy;
 
+    @Temporal(javax.persistence.TemporalType.DATE)
     private Date activationTime;
 
+    @Temporal(javax.persistence.TemporalType.DATE)
     private Date expirationTime;
 
-    @Column
-    private Date suspentionTime;
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date suspensionTime;
 
-    private boolean isSkipable;
+    private boolean skippable;
 
     private boolean escalated;
+
+    private String presName; // The task’s presentation name.
+
+    private String presSubject; // The task’s presentation subject.
 
     // Human roles assigned to Task instance during creation
 
@@ -200,7 +205,7 @@ public class Task {
         this.actualOwner = actualOwner;
         this.taskDefinition = taskDefinition;
         this.taskDefinitionKey = taskDefinition.getKey();
-        
+        this.status = Status.CREATED;
         if (actualOwner != null) {
             this.setStatus(Status.RESERVED);
         } else {
@@ -250,7 +255,7 @@ public class Task {
 
             case READY:
 
-                if (status == Status.RESERVED || status == Status.IN_PROGRESS || status == Status.SUSPENDED) {
+                if (status == Status.RESERVED || status == Status.IN_PROGRESS || status == Status.READY || status == Status.SUSPENDED) {
                     isOk = true;
                 }
 
@@ -367,11 +372,11 @@ public class Task {
     }
 
     public void setSuspentionTime(Date date) {
-        suspentionTime = date;
+        suspensionTime = date;
     }
 
     public Date getSuspentionTime() {
-        return suspentionTime;
+        return suspensionTime;
     }
 
     public String getOutput(String pName) {
@@ -423,12 +428,12 @@ public class Task {
         this.expirationTime = expirationTime;
     }
 
-    public boolean isSkipable() {
-        return isSkipable;
+    public boolean isSkippable() {
+        return skippable;
     }
 
-    public void setSkipable(boolean isSkipable) {
-        this.isSkipable = isSkipable;
+    public void setSkippable(boolean skippable) {
+        this.skippable = skippable;
     }
 
     public boolean isEscalated() {
@@ -522,7 +527,8 @@ public class Task {
                 && this.status == Status.SUSPENDED) {
             this.status = statusBeforeSuspend;
         }
-        // exceptions ??
+        //TODO exception
+        /*else throw new HumanTaskException("status before suspend is invalid: "+statusBeforeSuspend.toString()); */
     }
 
     public void deleteOutput() {
