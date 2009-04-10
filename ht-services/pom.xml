@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -11,6 +12,7 @@
 	<version>1.0.1-SNAPSHOT</version>
 	<name>TouK Human Task Services</name>
 	<build>
+        <!-- 
         <resources>
             <resource>
                 <directory>${build.dir}</directory>
@@ -19,6 +21,7 @@
                 </excludes>
             </resource>
         </resources>
+         -->
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -115,14 +118,7 @@
 			<artifactId>ht-ws-classes</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-            <version>2.0.4</version>
-            <scope>compile</scope>
-        </dependency>
-        
+        <!-- 
         <dependency>
             <groupId>pl.touk</groupId>
             <artifactId>touk-security</artifactId>
@@ -134,6 +130,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        -->
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
@@ -164,18 +161,36 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-annotations</artifactId>
-			<version>3.3.0.ga</version>
+			<version>3.4.0.GA</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate</artifactId>                
+                </exclusion>
+            </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>javax.transaction</groupId>
 			<artifactId>jta</artifactId>
 			<version>1.0.1B</version>
 		</dependency>
+        <!-- 
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate</artifactId>
 			<version>3.2.6.ga</version>
 		</dependency>
+         -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>3.4.0.GA</version>
+		</dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jboss-archive-browsing</artifactId>
+            <version>5.0.0.Alpha</version>
+        </dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>ejb3-persistence</artifactId>
@@ -183,13 +198,14 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-annotations</artifactId>
-			<version>3.3.0.ga</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-commons-annotations</artifactId>
 			<version>3.3.0.ga</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate</artifactId>                
+                </exclusion>
+            </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>commons-jxpath</groupId>

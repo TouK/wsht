@@ -17,6 +17,7 @@ import javax.xml.ws.Holder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.example.ws_ht.TOrganizationalEntity;
 import org.example.ws_ht.api.TAttachment;
 import org.example.ws_ht.api.TAttachmentInfo;
@@ -39,7 +40,6 @@ import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.TaskType;
 import pl.touk.humantask.model.TaskTypes;
-import pl.touk.security.context.SecurityContextInterface;
 
 /**
  * Implementation of WS-HT API.
@@ -162,6 +162,7 @@ public class TaskOperationsImpl implements TaskOperations {
         }
     }
 
+    //TODO move outside
     private List<TTask> translateTaskAPI(List<Task> in){
         List<TTask> result = new ArrayList<TTask>();
         for (Task task: in ) {
