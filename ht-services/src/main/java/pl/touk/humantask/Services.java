@@ -2,7 +2,6 @@
  * Copyright (C) 2009 TouK sp. z o.o. s.k.a.
  * All rights reserved
  */
-
 package pl.touk.humantask;
 
 import java.util.ArrayList;
@@ -23,10 +22,12 @@ import pl.touk.humantask.dao.impl.HibernateAssigneeDao;
 import pl.touk.humantask.dao.impl.HibernateTaskDao;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Attachment;
+import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.Status;
+import pl.touk.humantask.model.TaskTypes;
 import pl.touk.humantask.spec.TaskDefinition;
 
 /**
@@ -38,36 +39,23 @@ import pl.touk.humantask.spec.TaskDefinition;
 public class Services {
 
     private final Log log = LogFactory.getLog(Services.class);
-
     /**
      * DAO for accessing {@link Task}s.
      */
     private HibernateTaskDao taskDao;
-    
     /**
      * DAO for accessing {@link Assignee}s.
      */
     private HibernateAssigneeDao assigneeDao;
-
     /**
      * {@link PeopleQuery} implementation for user evaluation.
      */
     private PeopleQuery peopleQuery;
-
     /**
      * Definitions of tasks available in WSHT.
      */
     private List<TaskDefinition> taskDefinitions;
-    
-    /**
-     * Fully implemented methods.
-     */
 
-    
-    /**
-     * Work in progress.
-     */
-    
     /**
      * Creates {@link Task} instance basing on a definition.
      * The definitions are provided by the services. They can come from a file,
@@ -161,19 +149,19 @@ public class Services {
         }
 
         switch (potentialOwners.size()) {
-        case 0:
-            // pozostajemy w stanie Created i czekamy na dodanie ownersów przez
-            // admina
-            break;
-        case 1:
-            newTask.setActualOwner(potentialOwners.get(0));
-            newTask.setPotentialOwners(potentialOwners);
-            newTask.setStatus(Status.RESERVED);
-            break;
-        default:
-            newTask.setPotentialOwners(potentialOwners);
-            newTask.setStatus(Status.READY);
-            break;
+            case 0:
+                // pozostajemy w stanie Created i czekamy na dodanie ownersów przez
+                // admina
+                break;
+            case 1:
+                newTask.setActualOwner(potentialOwners.get(0));
+                newTask.setPotentialOwners(potentialOwners);
+                newTask.setStatus(Status.RESERVED);
+                break;
+            default:
+                newTask.setPotentialOwners(potentialOwners);
+                newTask.setStatus(Status.READY);
+                break;
         }
 
         newTask.setCreatedBy(createdBy);
@@ -297,7 +285,7 @@ public class Services {
 
         Task task = taskDao.fetch(taskId);
         //task.setTaskDefinition(findTaskDefinitionByKey(task.getTaskDefinitionKey()));
-        
+
         // TODO throw an exception if no definition found
 
         return task;
@@ -411,6 +399,29 @@ public class Services {
     }
 
     /**
+     * Retrieve the task details. This operation is used to obtain the data required
+    to display a task list, as well as the details for the individual tasks.
+     * @param personName If specified and no work queue has been specified then only personal tasks are
+    returned, classified by genericHumanRole.
+     * @param taskType one of ALL, NOTIFICATIONS, TASKS.
+     * @param genericHumanRole A classifier of names contained in the task. 
+     * @param workQueue  If the work queue is specified then only tasks having a 
+     * work queue and generic human role are returned.
+     * @param statusList selects the tasks whose status is one of those specified in List.
+     * @param whereClause - an [Hibernate] SQL Expression added to the criteria 
+     * These additional fields may be used 
+     * (ID,TaskType,Name,Status,Priority,CreatedOn,ActivationTime,ExpirationTime
+     * ,StartByExists,CompleteByExists,RenderMethExists,Escalated,PrimarySearchBy);
+     * @param createdOnClause - an [Hibernate] SQL Expression performed on an xsd:date. 
+     * @param maxTasks - the maximum number of results returned in the List after ordering by activationTime.
+     * @return List of Tasks which meet the criteria.
+     */
+    public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status, String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException {
+        Person person = assigneeDao.getPerson(personName);
+        return taskDao.getTasks(person, taskType, genericHumanRole, workQueue, status, whereClause, createdOnClause, maxTasks);
+    }
+
+    /**
      * releases task from Inprogress and Reserved state
      * 
      * @param task
@@ -507,8 +518,7 @@ public class Services {
 
         Person person = (Person) assigneeDao.getPerson(personName);
 
-        if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY) || task.getActualOwner().equals(person) || task
-                .getBusinessAdministrators().equals(person))) {
+        if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY) || task.getActualOwner().equals(person) || task.getBusinessAdministrators().equals(person))) {
             log.error("you don't have a permission to suspend the task");
             throw new HumanTaskException("you don't have a permission to suspend the task");
         }
@@ -527,8 +537,7 @@ public class Services {
 
         Person person = (Person) assigneeDao.getPerson(personName);
 
-        if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY) || task.getActualOwner().equals(person) || task
-                .getBusinessAdministrators().equals(person))) {
+        if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY) || task.getActualOwner().equals(person) || task.getBusinessAdministrators().equals(person))) {
             log.error("you don't have a permission to resume the task");
             throw new HumanTaskException("you don't have a permission to resume the task");
         }
@@ -567,7 +576,6 @@ public class Services {
      * @param personName
      * @throws HumanTaskException
      */
-
     public void setTaskOutput(Task task, String dataSetXml, String personName) throws HumanTaskException {
 
         this.setTaskOutput(task, dataSetXml, null, personName);
@@ -810,8 +818,9 @@ public class Services {
      * @throws Exception
      */
     public void addPotentialOwner(Task task, List<Person> list) {
-        for (Person person : list)
+        for (Person person : list) {
             this.addPotentialOwner(task, person);
+        }
     }
 
     // TODO move to Task
@@ -819,9 +828,9 @@ public class Services {
 
         List<Assignee> owners = new ArrayList<Assignee>();
         owners = task.getPotentialOwners();
-        if (!owners.contains(assignee))
+        if (!owners.contains(assignee)) {
             owners.add(assignee);
-
+        }
         task.setPotentialOwners(owners);
 
         taskDao.update(task);
@@ -876,5 +885,4 @@ public class Services {
     public PeopleQuery getPeopleQuery() {
         return peopleQuery;
     }
-    
 }

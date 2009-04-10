@@ -6,8 +6,11 @@
 package pl.touk.humantask.ws;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
@@ -30,12 +33,23 @@ import org.example.ws_ht.api.wsdl.RecipientNotAllowed;
 import org.example.ws_ht.api.wsdl.TaskOperations;
 import org.example.ws_ht.api.xsd.TTime;
 
+import pl.touk.humantask.HumanTaskException;
 import pl.touk.humantask.Services;
+import pl.touk.humantask.model.GenericHumanRole;
+import pl.touk.humantask.model.Task;
+import pl.touk.humantask.model.TaskType;
+import pl.touk.humantask.model.TaskTypes;
 import pl.touk.security.context.SecurityContextInterface;
 
 /**
  * Implementation of WS-HT API.
- * 
+ * Operations are executed by end users, i.e. actual or potential owners. The identity of
+ * the user is implicitly passed when invoking any of the operations listed in the table
+ * below. The participant operations listed below only apply to tasks unless explicitly
+ * noted otherwise. The authorization column indicates people of which roles are
+ * authorized to perform the operation. Stakeholders of the task are not mentioned
+ * explicitly. They have the same authorization rights as business administrators.
+ *
  * @author Witek Wołejszo
  */
 @WebService
@@ -138,10 +152,75 @@ public class TaskOperationsImpl implements TaskOperations {
         return null;
     }
 
-    public List<TTask> getMyTasks(String taskType, String genericHumanRole, String workQueue, List<TStatus> status, String whereClause, String createdOnClause,
-            Integer maxTasks) throws IllegalArgumentFault, IllegalStateFault {
-        // TODO Auto-generated method stub
-        return null;
+    public List<TTask> getMyTasks(String taskType, String genericHumanRole, String workQueue, List<TStatus> status, String whereClause, String createdOnClause, Integer maxTasks) throws IllegalArgumentFault, IllegalStateFault {
+        try {
+            return translateTaskAPI(services.getMyTasks(securityContext.getLoggedInUser().getUsername(), TaskTypes.valueOf(taskType), GenericHumanRole.valueOf(genericHumanRole), workQueue, translateStatusAPI(status), whereClause, createdOnClause, maxTasks));
+        } catch (HumanTaskException xHT) {
+            throw new IllegalStateFault(xHT.getMessage(), xHT);
+        } catch (RuntimeException xR) {
+            throw new IllegalArgumentFault(xR.getMessage(), xR);
+        }
+    }
+
+    private List<TTask> translateTaskAPI(List<Task> in){
+        List<TTask> result = new ArrayList<TTask>();
+        for (Task task: in ) {
+            TTask ttask;
+            result.add(ttask = new TTask());
+
+            ttask.setId(Long.toString(task.getId()));
+            ttask.setTaskType(TaskType.TASK.toString());
+            /*
+            ttask.setName(task.getName());
+            */
+            ttask.setStatus(translateStatusAPI(task.getStatus()));
+            /*
+            ttask.setPriority(task.getPriority());
+            */
+            //ttask.setTaskInitiator(task.getCreatedBy());
+            /*ttask.setTaskStakeholders(task.getTaskStakeholders());
+            ttask.setPotentialOwners(task.getPotentialOwners());
+            ttask.setBusinessAdministrators(task.getBusinessAdministrators());
+            ttask.setActualOwner(task.getActualOwner());
+            ttask.setNotificationRecipients(task.getNotificationRecipients());
+            */
+            //ttask.setCreatedOn(task.getCreatedOn());
+            ttask.setCreatedBy(task.getCreatedBy());
+            ttask.setActivationTime(task.getActivationTime());
+            ttask.setExpirationTime(task.getExpirationTime());
+            ttask.setIsSkipable(task.isSkipable());
+            /*ttask.setHasPotentialOwners(task.getHasPotentialOwners());
+            ttask.setStartByExists(task.getStartByExists());
+            ttask.setCompleteByExists(task.getCompleteByExists());
+            ttask.setPresentationName(task.getPresentationName());
+            ttask.setPresentationSubject(task.getPresentationSubject());
+            ttask.setRenderingMethodExists(task.getRenderingMethodExists());
+            ttask.setHasOutput(task.getHasOutput());
+             */
+            
+            ttask.setHasFault(null!=task.getFault());
+            ttask.setHasAttachments(!task.getAttachments().isEmpty());
+            //ttask.setHasComments(!task.getComments().isEmpty());
+            
+            ttask.setEscalated(task.isEscalated());
+            /*
+             ttask.setPrimarySearchBy(task.getPrimarySearchBy());
+            */
+        }
+
+        return result;
+    }
+    
+    private List<Task.Status> translateStatusAPI(List<TStatus> in) {
+        List<Task.Status> result = new ArrayList<Task.Status>();
+        for (TStatus status: in ) { 
+            result.add(Task.Status.fromValue(in.toString()));
+        }
+
+        return result;
+    }
+    private TStatus translateStatusAPI(Task.Status in) {
+        return TStatus.fromValue(in.toString());
     }
 
     public Object getOutput(String identifier, String part) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
