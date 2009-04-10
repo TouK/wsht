@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="1.0">
+    <persistence-unit name="TOUK-WSHT-PU">
+        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+        <class>pl.touk.humantask.model.Assignee</class>
+        <class>pl.touk.humantask.model.Attachment</class>
+        <class>pl.touk.humantask.model.Base</class>
+        <class>pl.touk.humantask.model.Comment</class>
+        <class>pl.touk.humantask.model.Deadline</class>
+        <class>pl.touk.humantask.model.Group</class>
+        <class>pl.touk.humantask.model.Person</class>
+        <class>pl.touk.humantask.model.Task</class>
+        <exclude-unlisted-classes/>
+    </persistence-unit>
+</persistence>
+
+
+
+
+
+
+
+

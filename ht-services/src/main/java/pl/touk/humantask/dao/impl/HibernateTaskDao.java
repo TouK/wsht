@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2009 TouK sp. z o.o. s.k.a.
+ * All rights reserved
+ */
+
 package pl.touk.humantask.dao.impl;
 
 import java.util.Date;
@@ -22,6 +27,7 @@ import static pl.touk.humantask.model.GenericHumanRole.*;
  * 
  * @author Witek Wołejszo
  */
+@Deprecated
 public class HibernateTaskDao extends GenericDAOImpl<Task, Long> {
 
     /**
@@ -112,11 +118,12 @@ public class HibernateTaskDao extends GenericDAOImpl<Task, Long> {
         return criteria.list();
     }
 
-    public List<Task> getTasksToResume(Task.Status status, Date date) {
+//    public List<Task> getTasksToResume(Task.Status status, Date date) {
+//
+//        Criteria criteria = getSession().createCriteria(Task.class);
+//        criteria.add(Expression.eq("status", status));
+//
+//        return criteria.list();
+//    }
 
-        Criteria criteria = getSession().createCriteria(Task.class);
-        criteria.add(Expression.eq("status", status));
-
-        return criteria.list();
-    }
 }

@@ -8,6 +8,12 @@ import pl.touk.humantask.model.Person;
 
 import com.trg.dao.dao.original.GenericDAOImpl;
 
+/**
+ * 
+ *
+ * @author Witek Wołejszo
+ */
+@Deprecated
 public class HibernateAssigneeDao extends GenericDAOImpl<Assignee, Long> {
 
     public Person getPerson(String name) {
