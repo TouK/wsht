@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
- * 
+ * TODO JUNIT4
  * @author Witek Wołejszo
  */
 public class TaskDefinitionTest extends TestCase {

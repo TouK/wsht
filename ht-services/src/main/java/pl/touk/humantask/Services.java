@@ -18,16 +18,16 @@ import org.example.ws_ht.api.wsdl.IllegalOperationFault;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import pl.touk.humantask.dao.impl.HibernateAssigneeDao;
-import pl.touk.humantask.dao.impl.HibernateTaskDao;
+import pl.touk.humantask.dao.AssigneeDao;
+import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Attachment;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.model.TaskTypes;
+import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.spec.TaskDefinition;
 
 /**
@@ -39,18 +39,22 @@ import pl.touk.humantask.spec.TaskDefinition;
 public class Services {
 
     private final Log log = LogFactory.getLog(Services.class);
+    
     /**
      * DAO for accessing {@link Task}s.
      */
-    private HibernateTaskDao taskDao;
+    private TaskDao taskDao;
+    
     /**
      * DAO for accessing {@link Assignee}s.
      */
-    private HibernateAssigneeDao assigneeDao;
+    private AssigneeDao assigneeDao;
+    
     /**
      * {@link PeopleQuery} implementation for user evaluation.
      */
     private PeopleQuery peopleQuery;
+    
     /**
      * Definitions of tasks available in WSHT.
      */
@@ -270,7 +274,8 @@ public class Services {
         }
 
         task.setStatus(Status.IN_PROGRESS);
-        taskDao.update(task);
+        //TODO was update
+        taskDao.create(task);
 
         return task;
     }
@@ -836,29 +841,29 @@ public class Services {
         taskDao.update(task);
     }
 
-    // TODO przenies do DAO i raczej powinno byc to zrobione w spring-sie
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void refresh() {
+//    // TODO przenies do DAO i raczej powinno byc to zrobione w spring-sie
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    public void refresh() {
+//
+//        Calendar cal = Calendar.getInstance();
+//        cal.setTimeInMillis(System.currentTimeMillis());
+//
+//        List<Task> list = taskDao.getTasksToResume(Status.SUSPENDED, cal.getTime());
+//
+//        for (Task task : list) {
+//            if (cal.getTime().compareTo(task.getSuspentionTime()) > 0) {
+//                task.resume();
+//                log.info("refreshing tasks status");
+//                taskDao.update(task);
+//            }
+//        }
+//    }
 
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(System.currentTimeMillis());
-
-        List<Task> list = taskDao.getTasksToResume(Status.SUSPENDED, cal.getTime());
-
-        for (Task task : list) {
-            if (cal.getTime().compareTo(task.getSuspentionTime()) > 0) {
-                task.resume();
-                log.info("refreshing tasks status");
-                taskDao.update(task);
-            }
-        }
-    }
-
-    public HibernateTaskDao getTaskDao() {
+    public TaskDao getTaskDao() {
         return taskDao;
     }
 
-    public void setTaskDao(HibernateTaskDao taskDao) {
+    public void setTaskDao(TaskDao taskDao) {
         this.taskDao = taskDao;
     }
 
@@ -870,11 +875,11 @@ public class Services {
         this.taskDefinitions = taskDefinitions;
     }
 
-    public void setAssigneeDao(HibernateAssigneeDao assigneeDao) {
+    public void setAssigneeDao(AssigneeDao assigneeDao) {
         this.assigneeDao = assigneeDao;
     }
 
-    public HibernateAssigneeDao getAssigneeDao() {
+    public AssigneeDao getAssigneeDao() {
         return assigneeDao;
     }
 
