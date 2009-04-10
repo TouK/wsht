@@ -86,6 +86,9 @@
 		<property name="instantiable" value="true" />
 	</bean>
 
+    <bean id="taskManager" class="pl.touk.humantask.spec.TaskDefinitionManagerImpl">
+        <constructor-arg type="org.springframework.core.io.Resource" value="classpath:htd1.xml"/>
+    </bean>    
 	<bean id="humanTaskServices" class="pl.touk.humantask.Services">
 		<property name="taskDao" ref="taskDao" />
 		<property name="assigneeDao" ref="assigneeDao" />
