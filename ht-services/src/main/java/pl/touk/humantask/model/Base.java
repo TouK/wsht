@@ -5,14 +5,8 @@
 
 package pl.touk.humantask.model;
 
-import java.lang.reflect.Method;
-
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
-import org.apache.commons.collections.BeanMap;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**

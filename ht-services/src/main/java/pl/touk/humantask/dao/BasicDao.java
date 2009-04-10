@@ -7,8 +7,6 @@ package pl.touk.humantask.dao;
 
 import java.io.Serializable;
 
-import org.springframework.stereotype.Repository;
-
 import pl.touk.humantask.model.Base;
 
 /**

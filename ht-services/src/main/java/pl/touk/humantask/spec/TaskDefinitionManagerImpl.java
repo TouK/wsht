@@ -5,6 +5,16 @@
 
 package pl.touk.humantask.spec;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
 import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,17 +22,9 @@ import org.example.ws_ht.THumanInteractions;
 import org.example.ws_ht.TLogicalPeopleGroup;
 import org.example.ws_ht.TTask;
 import org.springframework.core.io.Resource;
+
 import pl.touk.humantask.HumanTaskException;
 import pl.touk.humantask.model.Group;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /* 
  * PoC for the task definition manager.

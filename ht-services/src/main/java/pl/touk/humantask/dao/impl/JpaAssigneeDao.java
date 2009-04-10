@@ -15,7 +15,6 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 
 import pl.touk.humantask.dao.AssigneeDao;
-import pl.touk.humantask.dao.BasicDao;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Person;
 

@@ -5,10 +5,10 @@
 
 package pl.touk.humantask.spec;
 
-import pl.touk.humantask.model.Group;
-import pl.touk.humantask.HumanTaskException;
-
 import java.util.List;
+
+import pl.touk.humantask.HumanTaskException;
+import pl.touk.humantask.model.Group;
 
 /*
  *

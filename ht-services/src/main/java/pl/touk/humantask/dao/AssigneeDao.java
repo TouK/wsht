@@ -5,13 +5,10 @@
 
 package pl.touk.humantask.dao;
 
-import java.util.List;
-
 import org.springframework.stereotype.Repository;
 
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Person;
-import pl.touk.humantask.model.Task;
 
 /**
  * 

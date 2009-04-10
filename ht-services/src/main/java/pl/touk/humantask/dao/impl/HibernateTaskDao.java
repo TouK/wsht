@@ -5,7 +5,12 @@
 
 package pl.touk.humantask.dao.impl;
 
-import java.util.Date;
+import static pl.touk.humantask.model.GenericHumanRole.ACTUAL_OWNER;
+import static pl.touk.humantask.model.GenericHumanRole.NOTIFICATION_RECIPIENTS;
+import static pl.touk.humantask.model.GenericHumanRole.POTENTIAL_OWNERS;
+import static pl.touk.humantask.model.GenericHumanRole.TASK_INITIATOR;
+import static pl.touk.humantask.model.GenericHumanRole.TASK_STAKEHOLDERS;
+
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -13,13 +18,11 @@ import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 
 import pl.touk.humantask.model.Assignee;
+import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
+import pl.touk.humantask.model.TaskTypes;
 
 import com.trg.dao.dao.original.GenericDAOImpl;
-import org.example.ws_ht.api.TStatus;
-import pl.touk.humantask.model.GenericHumanRole;
-import pl.touk.humantask.model.TaskTypes;
-import static pl.touk.humantask.model.GenericHumanRole.*;
 
 /**
  * Implements simple hibernate dao for Task {@link Task} and convenience search

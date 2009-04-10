@@ -15,8 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
 
 import pl.touk.humantask.dao.AssigneeDao;
-import pl.touk.humantask.dao.impl.HibernateAssigneeDao;
-import pl.touk.humantask.dao.impl.JpaAssigneeDao;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
