@@ -188,7 +188,7 @@ public class TaskOperationsImpl implements TaskOperations {
             ttask.setCreatedBy(task.getCreatedBy());
             ttask.setActivationTime(task.getActivationTime());
             ttask.setExpirationTime(task.getExpirationTime());
-            ttask.setIsSkipable(task.isSkipable());
+            ttask.setIsSkipable(task.isSkippable());
             /*ttask.setHasPotentialOwners(task.getHasPotentialOwners());
             ttask.setStartByExists(task.getStartByExists());
             ttask.setCompleteByExists(task.getCompleteByExists());
