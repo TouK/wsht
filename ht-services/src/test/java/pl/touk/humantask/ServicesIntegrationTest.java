@@ -9,6 +9,8 @@ import javax.annotation.Resource;
 
 import junit.framework.Assert;
 import static org.junit.Assert.*;
+
+import org.hibernate.SessionFactory;
 import org.junit.Test;
 
 import org.apache.commons.logging.Log;
@@ -25,10 +27,17 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.transaction.annotation.Transactional;
 
+import pl.touk.humantask.dao.AssigneeDao;
+import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.dao.impl.HibernateAssigneeDao;
 import pl.touk.humantask.dao.impl.HibernateTaskDao;
+
+import pl.touk.humantask.dao.impl.JpaAssigneeDao;
+import pl.touk.humantask.dao.impl.JpaTaskDao;
+
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
+
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.Status;
@@ -44,10 +53,13 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     Services services;
     
     @Resource(name = "taskDao")
-    HibernateTaskDao taskDao;
+    TaskDao taskDao;
 
     @Resource(name = "assigneeDao")
-    HibernateAssigneeDao assigneeDao;
+    AssigneeDao assigneeDao;
+    
+    //@Resource(name = "hibernateSessionFactory")
+    //SessionFactory sessionFactory;
     
     // ApplicationContext applicationContext;
 
@@ -88,6 +100,11 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Task t1 = services.createTask("ApproveClaim", "user", "request1");
         Task t2 = services.createTask("ApproveClaim", "user", "request2");
 
+        //TODO replace with JPA
+        //sessionFactory.getCurrentSession().flush();
+        //sessionFactory.getCurrentSession().clear();
+        //taskDao.getJpaTemplate().flush();
+        
         List<Task> tasks = services.getMyTasks("user");
 
         
@@ -116,28 +133,26 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         
         Person jacek = new Person();
         jacek.setName("Jacek");
-        jacek.setId(Long.valueOf(99));
        
         assigneeDao.create(jacek);
         
         final Task task = new Task(jacek,taskDefinition);
        
-        task.setId(Long.valueOf(88));
         task.setRequestXml("<?xml version='1.0'?><root/>");
                 
         Person admin = new Person();
         admin.setName("Admin");
-        admin.setId(Long.valueOf(98));
+
         assigneeDao.create(admin);
         
-        
-        task.setBusinessAdministrators(Arrays.asList((Assignee)admin));
+        task.setTaskStakeholders(Arrays.asList((Assignee)jacek));
         task.setActualOwner(jacek);
       
         task.setStatus(Status.IN_PROGRESS);
        
         taskDao.create(task);
-        List<Task> results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.BUSINESS_ADMINISTRATORS, "admin", Arrays.asList(Status.IN_PROGRESS,Status.OBSOLETE), null, null,1);
+        List<Task> results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, "admin", Arrays.asList(Status.IN_PROGRESS,Status.OBSOLETE), null, null, 1);
+        //TODO wrong order
         Assert.assertEquals( results.size(), 1);
        
         Task taskToCheck = results.get(0);
