@@ -18,7 +18,7 @@ import javax.persistence.ManyToOne;
 import org.apache.commons.collections.BeanMap;
 
 @Entity
-public class Comment {
+public class Comment extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,15 +32,6 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "TASK_ID")
     private Task task;
-
-    /**
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        BeanMap bm = new BeanMap(this);
-        return bm.toString();
-    }
 
     public void setDate(Date date) {
         this.date = date;

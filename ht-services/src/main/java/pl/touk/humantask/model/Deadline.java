@@ -17,7 +17,7 @@ import javax.persistence.Id;
  * 
  */
 @Entity
-public class Deadline {
+public class Deadline extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

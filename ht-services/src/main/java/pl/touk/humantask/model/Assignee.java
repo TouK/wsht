@@ -16,7 +16,7 @@ import org.apache.commons.collections.BeanMap;
  * @author Witek Wołejszo
  */
 @Entity
-public abstract class Assignee {
+public abstract class Assignee extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -54,12 +54,6 @@ public abstract class Assignee {
 
         return getId().equals(((Assignee) obj).getId());
 
-    }
-
-    @Override
-    public String toString() {
-        BeanMap bm = new BeanMap(this);
-        return bm.toString();
     }
 
 }

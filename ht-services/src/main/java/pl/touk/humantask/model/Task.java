@@ -25,15 +25,16 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SecondaryTable;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
 
-import org.apache.commons.collections.BeanMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.hibernate.annotations.Index;
 
 import pl.touk.humantask.HumanTaskException;
@@ -48,11 +49,8 @@ import pl.touk.humantask.spec.TaskDefinition;
 @Entity
 @Table(name = "TASK")
 @SecondaryTable(name = "TASK_IO", pkJoinColumns = { @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id") })
-public class Task {
+public class Task extends Base {
 
-    public Task(){
-    }
-            
     @Transient
     private final Log LOG = LogFactory.getLog(Task.class);
 
@@ -193,12 +191,20 @@ public class Task {
      * Constructors                                                *
      ***************************************************************/
 
-//    /**
-//     * Package scope constructor.
-//     */
-//    private Task() {
-//        super();
-//    }
+    /**
+     * Package scope constructor.
+     */
+    Task() {
+        super();
+    }
+    
+    /**
+     * 
+     */
+    @PostLoad
+    public void postLoad() {
+        LOG.info("Post load.");
+    }
     
     /**
      * Task constructor.
@@ -384,15 +390,15 @@ public class Task {
     }
 
     public void setSuspentionTime(Date date) {
-        suspensionTime = date;
+        this.suspensionTime = (date == null) ? null : (Date) date.clone();
     }
 
     public Date getSuspentionTime() {
-        return suspensionTime;
+        return (this.suspensionTime == null) ? null : (Date) this.suspensionTime.clone();
     }
 
+    //TODO what pName is for?
     public String getOutput(String pName) {
-
         return outputXml;
     }
 
@@ -433,11 +439,11 @@ public class Task {
     }
 
     public Date getExpirationTime() {
-        return expirationTime;
+        return (expirationTime == null) ? null : (Date) expirationTime.clone(); 
     }
 
     public void setExpirationTime(Date expirationTime) {
-        this.expirationTime = expirationTime;
+        this.expirationTime = (expirationTime == null) ? null : (Date) expirationTime.clone();
     }
 
     public boolean isSkippable() {
@@ -551,13 +557,5 @@ public class Task {
     public void reserve() throws HumanTaskException {
         this.setStatus(Status.RESERVED);        
     }
-    
-    @Override
-    public String toString() {
-        BeanMap bm = new BeanMap(this);
-        return bm.toString();
-    }
-    
-    
 
 }

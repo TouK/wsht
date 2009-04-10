@@ -18,7 +18,7 @@ import javax.persistence.ManyToOne;
 import org.apache.commons.collections.BeanMap;
 
 @Entity
-public class Attachment {
+public class Attachment extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -46,12 +46,6 @@ public class Attachment {
     @JoinColumn(name = "TASK_ID")
     private Task task;
 
-    @Override
-    public String toString() {
-        BeanMap bm = new BeanMap(this);
-        return bm.toString();
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -77,11 +71,11 @@ public class Attachment {
     }
 
     public Date getAttachedAt() {
-        return attachedAt;
+        return (this.attachedAt == null) ? null : (Date) this.attachedAt.clone();
     }
 
     public void setAttachedAt(Date attachedAt) {
-        this.attachedAt = attachedAt;
+        this.attachedAt = (attachedAt == null) ? null : (Date) attachedAt.clone();
     }
 
     public long getUserId() {
