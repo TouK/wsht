@@ -14,6 +14,9 @@ public class Person extends Assignee {
     @Column(unique = true)
     private String name;
     
+    public Person(){    
+    }
+    
     public Person(String name) {
         this.name = name;
     }

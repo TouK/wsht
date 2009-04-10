@@ -50,6 +50,9 @@ import pl.touk.humantask.spec.TaskDefinition;
 @SecondaryTable(name = "TASK_IO", pkJoinColumns = { @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id") })
 public class Task {
 
+    public Task(){
+    }
+            
     @Transient
     private final Log LOG = LogFactory.getLog(Task.class);
 
@@ -61,6 +64,14 @@ public class Task {
     @Index(name = "TAKS_DEFKEY_IDX")
     @Column(name = "DEFKEY", nullable = false)
     protected String taskDefinitionKey; // task definition
+
+    public Date getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = createdOn;
+    }
 
     public static enum Status {
 
@@ -125,6 +136,9 @@ public class Task {
      * Task initiator. Depending on how the task has been instantiated the task initiator may or may not be defined.
      */
     private String createdBy;
+
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date createdOn;
 
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date activationTime;
