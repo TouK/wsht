@@ -1,11 +1,13 @@
 package pl.touk.humantask;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import junit.framework.Assert;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -15,6 +17,9 @@ import org.apache.commons.logging.LogFactory;
 import org.example.ws_ht.api.wsdl.IllegalArgumentFault;
 import org.example.ws_ht.api.wsdl.IllegalOperationFault;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.lib.legacy.ClassImposteriser;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -22,9 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.dao.impl.HibernateAssigneeDao;
 import pl.touk.humantask.dao.impl.HibernateTaskDao;
+import pl.touk.humantask.model.Assignee;
+import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.Status;
+import pl.touk.humantask.model.TaskTypes;
+import pl.touk.humantask.spec.TaskDefinition;
 
 @ContextConfiguration(locations = "classpath:/test.xml")
 public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
@@ -70,7 +79,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         //LOG.info("Task description: " + t.getTaskDefinition().getDescription("en-US", "text/plain"));
 
     }
-
+    
     @Test
     @Transactional
     @Rollback
@@ -81,12 +90,60 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         List<Task> tasks = services.getMyTasks("user");
 
+        
         for (Task task : tasks) {
             LOG.info("Task: " + task);
         }
         
         assertEquals(2, tasks.size());
 
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetMyTasksNoCreate() throws HumanTaskException {
+        
+        Mockery mockery = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);  
+        }};
+        
+        final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
+        
+        mockery.checking(new Expectations() {{
+            one(taskDefinition).getKey(); will(returnValue("taskLookupKey"));
+        }});
+        
+        Person jacek = new Person();
+        jacek.setName("Jacek");
+        jacek.setId(Long.valueOf(99));
+       
+        assigneeDao.create(jacek);
+        
+        final Task task = new Task(jacek,taskDefinition);
+       
+        task.setId(Long.valueOf(88));
+        task.setRequestXml("<?xml version='1.0'?><root/>");
+                
+        Person admin = new Person();
+        admin.setName("Admin");
+        admin.setId(Long.valueOf(98));
+        assigneeDao.create(admin);
+        
+        
+        task.setBusinessAdministrators(Arrays.asList((Assignee)admin));
+        task.setActualOwner(jacek);
+      
+        task.setStatus(Status.IN_PROGRESS);
+       
+        taskDao.create(task);
+        List<Task> results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.BUSINESS_ADMINISTRATORS, "admin", Arrays.asList(Status.IN_PROGRESS,Status.OBSOLETE), null, null,1);
+        Assert.assertEquals( results.size(), 1);
+       
+        Task taskToCheck = results.get(0);
+        Assert.assertEquals(task.getActualOwner(), taskToCheck.getActualOwner());
+        
+        mockery.assertIsSatisfied();
     }
 
     /**
@@ -147,7 +204,8 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         task2 = services.startTask(task2, "kamil");
 
         List<Task> tasks = new ArrayList<Task>();
-        tasks = services.getMyTasks("kamil");
+        tasks = services.getMyTasks("kamil",TaskTypes.ALL,null,null,null,null,null,null);
+        
 
         // taking person from IAssigneeDao
 
