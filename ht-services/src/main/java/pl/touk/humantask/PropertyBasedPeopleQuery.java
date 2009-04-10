@@ -14,7 +14,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
 
+import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.impl.HibernateAssigneeDao;
+import pl.touk.humantask.dao.impl.JpaAssigneeDao;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
@@ -32,7 +34,7 @@ public final class PropertyBasedPeopleQuery implements PeopleQuery {
 
     private Resource configuration;
 
-    private HibernateAssigneeDao assigneeDao;
+    private AssigneeDao assigneeDao;
 
     /**
      * 
@@ -91,11 +93,11 @@ public final class PropertyBasedPeopleQuery implements PeopleQuery {
         return configuration;
     }
 
-    public void setAssigneeDao(HibernateAssigneeDao assigneeDao) {
+    public void setAssigneeDao(AssigneeDao assigneeDao) {
         this.assigneeDao = assigneeDao;
     }
 
-    public HibernateAssigneeDao getAssigneeDao() {
+    public AssigneeDao getAssigneeDao() {
         return assigneeDao;
     }
 
