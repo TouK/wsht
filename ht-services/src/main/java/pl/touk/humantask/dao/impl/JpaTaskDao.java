@@ -56,7 +56,7 @@ public class JpaTaskDao implements TaskDao {
     }
 
     /**
-     * Returns tasks. See {@link Services#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
+     * Returns tasks. See {@link HumanTaskServicesInterface#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
      * for method contract.
      * 
      * @param owner

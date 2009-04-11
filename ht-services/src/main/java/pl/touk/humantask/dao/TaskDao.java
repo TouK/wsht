@@ -34,7 +34,7 @@ public interface TaskDao extends BasicDao<Task, Long> {
     List<Task> getTasks(Person owner);
 
     /**
-     * Returns tasks. See {@link Services#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
+     * Returns tasks. See {@link HumanTaskServicesInterface#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
      * for method contract.
      * 
      * @param owner

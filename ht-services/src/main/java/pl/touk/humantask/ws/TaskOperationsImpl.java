@@ -32,6 +32,7 @@ import org.example.ws_ht.api.wsdl.RecipientNotAllowed;
 import org.example.ws_ht.api.wsdl.TaskOperations;
 import org.example.ws_ht.api.xsd.TTime;
 
+import pl.touk.humantask.HumanTaskServicesInterface;
 import pl.touk.humantask.Services;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.GenericHumanRole;
@@ -58,7 +59,7 @@ public class TaskOperationsImpl implements TaskOperations {
     /**
      * Implementation of WH-HT services.
      */
-    private Services services;
+    private HumanTaskServicesInterface services;
 
     /**
      * Security context used to retrieve implicit user information.
@@ -326,11 +327,11 @@ public class TaskOperationsImpl implements TaskOperations {
 
     }
 
-    public void setServices(Services services) {
+    public void setServices(HumanTaskServicesInterface services) {
         this.services = services;
     }
 
-    public Services getServices() {
+    public HumanTaskServicesInterface getServices() {
         return services;
     }
 
