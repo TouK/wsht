@@ -54,4 +54,14 @@ public class Comment extends Base {
     public void setTask(Task task) {
         this.task = task;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
+    @Override
+    public int hashCode() {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
 }

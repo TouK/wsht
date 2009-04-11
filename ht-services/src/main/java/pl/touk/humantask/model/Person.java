@@ -8,12 +8,14 @@ package pl.touk.humantask.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+
 @Entity
 public class Person extends Assignee {
 
     @Column(unique = true)
     private String name;
-    
+
     public Person() {
         super();
     }
@@ -32,29 +34,20 @@ public class Person extends Assignee {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        int result = ((name == null) ? 0 : name.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (obj instanceof Person == false) {
+            return false;
+        }
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Person other = (Person) obj;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        return true;
+        }
+        Person rhs = (Person) obj;
+        return new EqualsBuilder().append(name, rhs.name).isEquals();
     }
-    
-    
 
 }

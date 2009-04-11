@@ -20,7 +20,7 @@ public class Attachment extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
     @Column
     private String attachment;
@@ -98,6 +98,16 @@ public class Attachment extends Base {
 
     public void setTask(Task task) {
         this.task = task;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
+    @Override
+    public int hashCode() {
+        throw new UnsupportedOperationException("Not yet implemented.");
     }
 
 }

@@ -32,11 +32,12 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Index;
 
-import pl.touk.humantask.HumanTaskException;
+import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.spec.TaskDefinition;
 
 /**
@@ -185,9 +186,9 @@ public class Task extends Base {
     private List<Attachment> attachments = new ArrayList<Attachment>();
 
     // TODO deadlines
-    
+
     /***************************************************************
-     * Constructors                                                *
+     * Constructors *
      ***************************************************************/
 
     /**
@@ -196,7 +197,7 @@ public class Task extends Base {
     Task() {
         super();
     }
-    
+
     /**
      * 
      */
@@ -204,36 +205,35 @@ public class Task extends Base {
     public void postLoad() {
         LOG.info("Post load.");
     }
-    
+
     /**
      * Task constructor.
      * 
-     * TODO actualOwner or evaluatedPeopleGroups or people group definitions?
-     * TODO ws xml request in constructor?
+     * TODO actualOwner or evaluatedPeopleGroups or people group definitions? TODO ws xml request in constructor?
      * 
-     * @param actualOwner 
+     * @param actualOwner
      * @param taskDefinition
-     * @throws HumanTaskException 
+     * @throws HumanTaskException
      */
     public Task(Person actualOwner, TaskDefinition taskDefinition) throws HumanTaskException {
-        
+
         if (taskDefinition == null) {
             throw new NullPointerException("Task definition must not be null.");
         }
-        
+
         this.actualOwner = actualOwner;
         this.taskDefinition = taskDefinition;
         this.taskDefinitionKey = taskDefinition.getKey();
         this.status = Status.CREATED;
         if (actualOwner != null) {
             this.setStatus(Status.RESERVED);
-        } 
+        }
     }
 
     /***************************************************************
-     * Getters & Setters                                           *
+     * Getters & Setters *
      ***************************************************************/
-    
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -247,12 +247,12 @@ public class Task extends Base {
     }
 
     /**
-     * Sets Task status. Not to be called directly, see: @.
-     * TODO must not be used from services.
+     * Sets Task status. Not to be called directly, see: @. TODO must not be used from services.
+     * 
      * @param status
      * @throws HumanTaskException
      */
-    @Deprecated 
+    @Deprecated
     public void setStatus(Status status) throws HumanTaskException {
 
         boolean isOk = false;
@@ -396,7 +396,7 @@ public class Task extends Base {
         return (this.suspensionTime == null) ? null : (Date) this.suspensionTime.clone();
     }
 
-    //TODO what pName is for?
+    // TODO what pName is for?
     public String getOutput(String pName) {
         return outputXml;
     }
@@ -438,7 +438,7 @@ public class Task extends Base {
     }
 
     public Date getExpirationTime() {
-        return (expirationTime == null) ? null : (Date) expirationTime.clone(); 
+        return (expirationTime == null) ? null : (Date) expirationTime.clone();
     }
 
     public void setExpirationTime(Date expirationTime) {
@@ -461,23 +461,24 @@ public class Task extends Base {
         this.escalated = escalated;
     }
 
-//    /**
-//     * Sets task definition and TaskDefinitionKey used to retrieve task definition when {@link Task} is instantiated from persistent store.
-//     * 
-//     * @param taskDefinition
-//     */
-//    public void setTaskDefinition(TaskDefinition taskDefinition) {
-//        this.taskDefinition = taskDefinition;
-//        this.setTaskDefinitionKey(taskDefinition.getKey());
-//    }
-//
+    // /**
+    // * Sets task definition and TaskDefinitionKey used to retrieve task definition when {@link Task} is instantiated from persistent store.
+    // *
+    // * @param taskDefinition
+    // */
+    // public void setTaskDefinition(TaskDefinition taskDefinition) {
+    // this.taskDefinition = taskDefinition;
+    // this.setTaskDefinitionKey(taskDefinition.getKey());
+    // }
+    //
     public TaskDefinition getTaskDefinition() {
         return taskDefinition;
     }
-//
-//    public void setTaskDefinitionKey(String taskDefinitionKey) {
-//        this.taskDefinitionKey = taskDefinitionKey;
-//    }
+
+    //
+    // public void setTaskDefinitionKey(String taskDefinitionKey) {
+    // this.taskDefinitionKey = taskDefinitionKey;
+    // }
 
     public String getTaskDefinitionKey() {
         return taskDefinitionKey;
@@ -532,9 +533,9 @@ public class Task extends Base {
     }
 
     /***************************************************************
-     * Business methods.                                           *
+     * Business methods. *
      ***************************************************************/
-    
+
     /**
      * Resumes suspended task.
      */
@@ -544,8 +545,8 @@ public class Task extends Base {
                 && this.status == Status.SUSPENDED) {
             this.status = statusBeforeSuspend;
         }
-        //TODO exception
-        /*else throw new HumanTaskException("status before suspend is invalid: "+statusBeforeSuspend.toString()); */
+        // TODO exception
+        /* else throw new HumanTaskException("status before suspend is invalid: "+statusBeforeSuspend.toString()); */
     }
 
     public void deleteOutput() {
@@ -554,7 +555,29 @@ public class Task extends Base {
     }
 
     public void reserve() throws HumanTaskException {
-        this.setStatus(Status.RESERVED);        
+        this.setStatus(Status.RESERVED);
+    }
+
+    /***************************************************************
+     * Infrastructure methods. *
+     ***************************************************************/
+
+    @Override
+    public int hashCode() {
+        int result = ((id == null) ? 0 : id.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Task == false) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+        Task rhs = (Task) obj;
+        return new EqualsBuilder().append(id, rhs.id).isEquals();
     }
 
 }

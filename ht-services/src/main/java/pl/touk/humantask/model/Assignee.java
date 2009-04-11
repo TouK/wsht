@@ -28,30 +28,4 @@ public abstract class Assignee extends Base {
         return id;
     }
 
-    @Override
-    public int hashCode() {
-
-        if (getId() == null) {
-            return super.hashCode();
-        }
-
-        return getId().hashCode();
-
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (getId() == null) {
-            return super.equals(obj);
-        }
-
-        if (obj == null) {
-            return false;
-        }
-
-        return getId().equals(((Assignee) obj).getId());
-
-    }
-
 }

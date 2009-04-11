@@ -23,4 +23,14 @@ public class Deadline extends Base {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Override
+    public boolean equals(Object obj) {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
+    @Override
+    public int hashCode() {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
 }

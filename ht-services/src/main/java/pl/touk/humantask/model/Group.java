@@ -12,6 +12,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+
+/**
+ * TODO what is group?
+ *
+ * @author Witek Wołejszo
+ * @author Kamil Eisenbart
+ */
 @Entity
 public class Group extends Assignee {
 
@@ -39,6 +47,24 @@ public class Group extends Assignee {
 
     public void setPeople(List<Person> people) {
         this.people = people;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Task == false) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+        Group rhs = (Group) obj;
+        return new EqualsBuilder().append(name, rhs.name).isEquals();
     }
 
 }

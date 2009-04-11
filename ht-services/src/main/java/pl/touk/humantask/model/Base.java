@@ -22,48 +22,9 @@ public abstract class Base {
         return new ToStringBuilder(this).toString();
     }
 
-    // @Override
-    // public final int hashCode() {
-    //        
-    // HashCodeBuilder builder = new HashCodeBuilder();
-    //
-    // Method[] methods = this.getClass().getMethods();
-    //
-    // for (Method method : methods) {
-    // if (method.isAnnotationPresent(Id.class)) {
-    // try {
-    // builder.append(method.invoke(this, (Object[]) null));
-    // } catch (Exception e) {
-    // }
-    // }
-    // }
-    //
-    // return builder.toHashCode();
-    // }
-    //
-    // @Override
-    // public final boolean equals(Object obj) {
-    // if (this == obj) {
-    // return true;
-    // }
-    //
-    // if (obj == null || obj.getClass() != this.getClass()) {
-    // return false;
-    // }
-    //
-    // EqualsBuilder builder = new EqualsBuilder();
-    //
-    // Method[] methods = this.getClass().getMethods();
-    //
-    // for (Method method : methods) {
-    // if (method.isAnnotationPresent(Id.class)) {
-    // try {
-    // builder.append(method.invoke(this, (Object[]) null), method.invoke(obj, (Object[]) null));
-    // } catch (Exception e) {
-    // }
-    // }
-    // }
-    //
-    // return builder.isEquals();
-    // }
+    @Override
+    public abstract int hashCode();
+    
+    @Override
+    public abstract boolean equals(Object obj);
 }
