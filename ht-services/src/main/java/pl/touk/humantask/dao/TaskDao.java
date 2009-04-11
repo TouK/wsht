@@ -9,26 +9,45 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
+import pl.touk.humantask.Services;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
+import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.TaskTypes;
 
 /**
+ * DAO operations specific to {@link Task}.
  * 
- *
  * @author Witek Wołejszo
+ * @author Warren Crossing
  */
 @Repository
 public interface TaskDao extends BasicDao<Task, Long> {
 
     /**
-     * Returns tasks currently owned by specified person.
+     * Returns all {@link Task}s currenty owned by specifed {@link Person}.
+     * 
+     * @param   owner the owner's name
+     * @return  list of {@link Task}s
+     */
+    List<Task> getTasks(Person owner);
+
+    /**
+     * Returns tasks. See {@link Services#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
+     * for method contract.
+     * 
      * @param owner
+     * @param taskType
+     * @param genericHumanRole
+     * @param workQueue
+     * @param status
+     * @param whereClause
+     * @param createdOnClause
+     * @param maxTasks
      * @return
      */
-    List<Task> getTasks(Assignee owner);
-    
-    List<Task> getTasks(Assignee owner, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status, String whereClause, String createdOnClause, Integer maxTasks);
-    
+    List<Task> getTasks(Assignee owner, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status, String whereClause,
+            String createdOnClause, Integer maxTasks);
+
 }

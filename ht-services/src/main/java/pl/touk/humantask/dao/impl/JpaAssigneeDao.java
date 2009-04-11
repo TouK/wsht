@@ -19,7 +19,8 @@ import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Person;
 
 /**
- * 
+ * Implements basic JPA DAO for {@link Assignee} and convenience search
+ * methods.
  *
  * @author Witek Wołejszo
  */
@@ -32,18 +33,12 @@ public class JpaAssigneeDao implements AssigneeDao {
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
     
-    public Assignee fetch(Long id) {
-        return entityManager.find(Assignee.class, id);
-    }
-    
-    public void update(Assignee entity) {
-        entityManager.merge(entity);
-    }
-    
-    public void create(Assignee entity) {
-        entityManager.persist(entity);
-    }
-    
+    /**
+     * Returns {@link Person} by name.
+     * 
+     * @param name the name of a person.
+     * @return the {@link Person} with specified name or null if no {@link Person} can be found
+     */
     public Person getPerson(String name) {
 
         Query query = entityManager.createQuery("SELECT p FROM Person p WHERE p.name = :name");
@@ -58,6 +53,31 @@ public class JpaAssigneeDao implements AssigneeDao {
         }
     }
 
+    /**
+     * Retrieves domain object from persistent store.
+     * @param id
+     * @return
+     */
+    public Assignee fetch(Long id) {
+        return entityManager.find(Assignee.class, id);
+    }
+    
+    /**
+     * Saves domain object in persistent store. 
+     * @param entity
+     */
+    public void update(Assignee entity) {
+        entityManager.merge(entity);
+    }
+    
+    /**
+     * Creates domain object in persistent store. 
+     * @param entity
+     */
+    public void create(Assignee entity) {
+        entityManager.persist(entity);
+    }
+    
     public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
     }

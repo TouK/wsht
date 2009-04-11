@@ -17,18 +17,21 @@ import javax.persistence.Query;
 
 import org.springframework.stereotype.Repository;
 
+import pl.touk.humantask.Services;
 import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
+import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.TaskTypes;
 import pl.touk.humantask.model.Task.Status;
 
 /**
- * Implements simple JPA dao for Task {@link Task} and convenience search
+ * Implements basic JPA DAO for Task {@link Task} and convenience search
  * methods.
  * 
  * @author Witek Wołejszo
+ * @author Warren Crossing
  */
 @Repository
 public class JpaTaskDao implements TaskDao {
@@ -39,13 +42,33 @@ public class JpaTaskDao implements TaskDao {
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
     
-    public List<Task> getTasks(Assignee owner) {
+    /**
+     * Returns all {@link Task}s currenty owned by specifed {@link Person}.
+     * 
+     * @param   owner the owner's name
+     * @return  list of {@link Task}s
+     */
+    public List<Task> getTasks(Person owner) {
 
         Query query = entityManager.createQuery("SELECT t FROM Task t WHERE t.actualOwner = :owner");
         query.setParameter("owner", owner);
         return query.getResultList();
     }
 
+    /**
+     * Returns tasks. See {@link Services#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
+     * for method contract.
+     * 
+     * @param owner
+     * @param taskType
+     * @param genericHumanRole
+     * @param workQueue
+     * @param status
+     * @param whereClause
+     * @param createdOnClause
+     * @param maxTasks
+     * @return
+     */
     public List<Task> getTasks(Assignee owner, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Status> statuses,
             String whereClause, String createdOnClause, Integer maxTasks) {
 
@@ -156,14 +179,27 @@ public class JpaTaskDao implements TaskDao {
         return query.getResultList();
     }
 
+    /**
+     * Retrieves domain object from persistent store.
+     * @param id
+     * @return
+     */
     public Task fetch(Long id) {
         return entityManager.find(Task.class, id);
     }
     
+    /**
+     * Saves domain object in persistent store. 
+     * @param entity
+     */
     public void update(Task entity) {
         entityManager.merge(entity);
     }
     
+    /**
+     * Creates domain object in persistent store. 
+     * @param entity
+     */
     public void create(Task entity) {
         entityManager.persist(entity);
     }
