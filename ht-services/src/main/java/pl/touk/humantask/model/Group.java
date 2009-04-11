@@ -57,7 +57,7 @@ public class Group extends Assignee {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Task == false) {
+        if (obj instanceof Group == false) {
             return false;
         }
         if (this == obj) {
