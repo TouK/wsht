@@ -23,13 +23,13 @@ import org.example.ws_ht.TLogicalPeopleGroup;
 import org.example.ws_ht.TTask;
 import org.springframework.core.io.Resource;
 
-import pl.touk.humantask.HumanTaskException;
+import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.Group;
 
 /* 
  * PoC for the task definition manager.
  * TODO: dowiedzieć się więcej n.t. obiektu HumanInteractions, czy będzie on nadal potrzebny w sposób, w jaki jest używany przez HumanInteractionsFactoryBean oraz Services ??
- *
+ * TODO cannot depend on model
  * @author Jakub Kurlenda
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
  * 

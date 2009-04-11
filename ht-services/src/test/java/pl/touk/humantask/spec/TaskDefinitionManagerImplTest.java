@@ -11,7 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import pl.touk.humantask.HumanTaskException;
+
+import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.Group;
 
 import java.util.List;

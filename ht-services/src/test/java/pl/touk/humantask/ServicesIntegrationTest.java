@@ -34,6 +34,7 @@ import pl.touk.humantask.dao.impl.HibernateTaskDao;
 
 import pl.touk.humantask.dao.impl.JpaAssigneeDao;
 import pl.touk.humantask.dao.impl.JpaTaskDao;
+import pl.touk.humantask.exceptions.HumanTaskException;
 
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
@@ -47,7 +48,7 @@ import pl.touk.humantask.spec.TaskDefinition;
 @ContextConfiguration(locations = "classpath:/test.xml")
 public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
 
-    private static final Log LOG = LogFactory.getLog(ServicesIntegrationTest.class);
+    private final Log LOG = LogFactory.getLog(ServicesIntegrationTest.class);
 
     @Resource(name = "humanTaskServices")
     Services services;

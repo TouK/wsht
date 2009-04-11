@@ -12,11 +12,10 @@ import pl.touk.humantask.model.Task;
 import pl.touk.humantask.spec.TaskDefinition;
 
 /**
- * People queries are evaluated during the creation of a human task or a
- * notification. If a people query fails then the human task or notification is
- * created anyway.
+ * A People Query evaluation interface. People queries are evaluated during the creation of a human task or a notification. If a people query fails then the
+ * human task or notification is created anyway.
  * 
- * People queries return either one person, a set of people, or the name of one or many groups of people.
+ * TODO clarify below statement People queries return either one person, a set of people, or the name of one or many groups of people.
  * 
  * @author Witek Wołejszo
  */
@@ -24,10 +23,11 @@ public interface PeopleQuery {
 
     /**
      * Returns list of potential {@link Assignee}s that are members of logical people group.
+     * TODO Assignees or Pesons?
+     * 
      * @param logicalPeopleGroup
      * @param task
-     * @return
-     * TODO remove task, logicalPeopleGroup -> name?, parameters?
+     * @return TODO remove task, logicalPeopleGroup -> name?, parameters?
      */
     List<Assignee> evaluate(TaskDefinition.LogicalPeopleGroup logicalPeopleGroup, Task task);
 

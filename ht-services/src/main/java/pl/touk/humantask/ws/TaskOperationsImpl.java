@@ -15,6 +15,7 @@ import javax.xml.ws.Holder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.example.ws_ht.TOrganizationalEntity;
 import org.example.ws_ht.api.TAttachment;
 import org.example.ws_ht.api.TAttachmentInfo;
@@ -31,8 +32,8 @@ import org.example.ws_ht.api.wsdl.RecipientNotAllowed;
 import org.example.ws_ht.api.wsdl.TaskOperations;
 import org.example.ws_ht.api.xsd.TTime;
 
-import pl.touk.humantask.HumanTaskException;
 import pl.touk.humantask.Services;
+import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.TaskType;

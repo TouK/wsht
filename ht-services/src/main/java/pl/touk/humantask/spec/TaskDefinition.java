@@ -35,7 +35,7 @@ public class TaskDefinition {
     private final Log log = LogFactory.getLog(TaskDefinition.class);
 
     private String name;
-    private HumanInteractions definition;
+    private HumanInteractions humanInteractions;
     private boolean instantiable;
 
     private XPathFactory xPathFactory;
@@ -54,11 +54,11 @@ public class TaskDefinition {
     }
 
     public void setDefinition(HumanInteractions definition) {
-        this.definition = definition;
+        this.humanInteractions = definition;
     }
 
     public HumanInteractions getDefinition() {
-        return definition;
+        return humanInteractions;
     }
 
     public void setName(String name) {
@@ -96,7 +96,7 @@ public class TaskDefinition {
             XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" + name
                     + "']/htd:presentationElements/htd:description[@xml:lang='" + lang + "' and @contentType='" + contentType + "']");
 
-            Node node = (Node) expr.evaluate(definition.getDocument(), XPathConstants.NODE);
+            Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);
 
             if ("text/html".equals(contentType)) {
 
@@ -132,7 +132,7 @@ public class TaskDefinition {
             XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" + name
                     + "']/htd:peopleAssignments/htd:potentialOwners/htd:from[@logicalPeopleGroup]");
 
-            NodeList nl = (NodeList) expr.evaluate(definition.getDocument(), XPathConstants.NODESET);
+            NodeList nl = (NodeList) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODESET);
 
             for (int i = 0; i < nl.getLength(); i++) {
 
@@ -169,7 +169,7 @@ public class TaskDefinition {
      * Returns globally unique key identifying task.
      */
     public String getKey() {
-        return name + "_" + definition.getMd5();
+        return name + "_" + humanInteractions.getMd5();
     }
 
     public List<LogicalPeopleGroup> getLogicalpeopleGroups() {
@@ -183,7 +183,7 @@ public class TaskDefinition {
 
             XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:logicalPeopleGroups/htd:logicalPeopleGroup");
 
-            NodeList nl = (NodeList) expr.evaluate(definition.getDocument(), XPathConstants.NODESET);
+            NodeList nl = (NodeList) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODESET);
             for (int i = 0; i < nl.getLength(); i++) {
 
                 Node n = nl.item(i);

@@ -7,18 +7,19 @@ package pl.touk.humantask.spec;
 
 import java.util.List;
 
-import pl.touk.humantask.HumanTaskException;
+import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.Group;
 
 /*
  *
  * This interface introduces methods for task retrieving.
+ * TODO cannot depend on model
  *
  * @author Jakub Kurlenda
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
  */
-
 public interface TaskDefinitionManagerInterface {
+    
     /*
      * Method for retrieving task definition, according to its name
      *
@@ -34,7 +35,6 @@ public interface TaskDefinitionManagerInterface {
     *
     * @return java.util.List implementation, containing TaskDefinition instances
     */
-
     public List<TaskDefinition> getTaskDefinitions();
 
     /*
@@ -45,7 +45,6 @@ public interface TaskDefinitionManagerInterface {
     *
     * @throws HumanTaskException in case when no such people group was found
     */
-
     public Group getLogicalPeopleGroupByName(String groupName) throws HumanTaskException;
 
     /*
@@ -53,6 +52,5 @@ public interface TaskDefinitionManagerInterface {
     *
     * @return java.util.List implementation, containing Group instances
     */
-    
     public List<Group> getLogicalPeopleGroups();
 }

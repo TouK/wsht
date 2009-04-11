@@ -1,33 +1,32 @@
+/*
+ * Copyright (c) 2009 TouK sp. z o.o. s.k.a.
+ * All rights reserved
+ */
+
 package pl.touk.humantask.spec;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 /**
- * TODO JUNIT4
+ * TODO switch to unit test
  * @author Witek Wołejszo
  */
-public class TaskDefinitionTest extends TestCase {
+@ContextConfiguration(locations = "classpath:/test.xml")
+public class TaskDefinitionIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
 
-    private final Log log = LogFactory.getLog(TaskDefinitionTest.class);
+    private final Log log = LogFactory.getLog(TaskDefinitionIntegrationTest.class);
 
-    ApplicationContext applicationContext;
-
-    @Override
-    protected void setUp() throws Exception {
-
-        super.setUp();
-        applicationContext = new ClassPathXmlApplicationContext("test.xml");
-
-    }
-
-    public void xtestGetDescriptionPlain() {
+    //@Test
+    public void testGetDescriptionPlain() {
 
         TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
         String description = td.getDescription("en-US", "text/plain");
@@ -38,7 +37,8 @@ public class TaskDefinitionTest extends TestCase {
 
     }
 
-    public void xtestGetDescriptionHtml() {
+    //@Test
+    public void testGetDescriptionHtml() {
 
         TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
         String description = td.getDescription("en-US", "text/html");
@@ -49,19 +49,14 @@ public class TaskDefinitionTest extends TestCase {
 
     }
 
-    public void xtestGetPotentialOwners() {
+    @Test
+    public void testGetPotentialOwners() {
 
         TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
         List<String> r = td.getPotentialOwners();
 
-        log.debug(r);
-
         assertTrue(r.contains("regionalClerks"));
 
-    }
-    
-    public void testX() {
-        assertTrue(true);
     }
 
 }
