@@ -17,6 +17,7 @@ import pl.touk.humantask.spec.TaskDefinition;
  * 
  * TODO clarify below statement People queries return either one person, a set of people, or the name of one or many groups of people.
  * 
+ * @author Kamil Eisenbart
  * @author Witek Wołejszo
  */
 public interface PeopleQuery {

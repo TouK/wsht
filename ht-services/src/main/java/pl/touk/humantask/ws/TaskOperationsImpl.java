@@ -33,7 +33,6 @@ import org.example.ws_ht.api.wsdl.TaskOperations;
 import org.example.ws_ht.api.xsd.TTime;
 
 import pl.touk.humantask.HumanTaskServicesInterface;
-import pl.touk.humantask.Services;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;

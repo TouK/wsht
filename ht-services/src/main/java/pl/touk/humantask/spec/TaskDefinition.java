@@ -29,13 +29,19 @@ import org.w3c.dom.NodeList;
  * - HumanInteractions object - task name (reference to single task in HumanInteractions object)
  * 
  * @author Witek Wołejszo
+ * @author Kamil Eisenbart
  */
 public class TaskDefinition {
 
     private final Log log = LogFactory.getLog(TaskDefinition.class);
 
-    private String name;
+    /**
+     * Human Interactions specification containing this {@link TaskDefinition}.
+     */
     private HumanInteractions humanInteractions;
+
+    private String name;
+    
     private boolean instantiable;
 
     private XPathFactory xPathFactory;
@@ -169,7 +175,7 @@ public class TaskDefinition {
      * Returns globally unique key identifying task.
      */
     public String getKey() {
-        return name + "_" + humanInteractions.getMd5();
+        return name + "_" + humanInteractions.getDefinitionKey();
     }
 
     public List<LogicalPeopleGroup> getLogicalpeopleGroups() {

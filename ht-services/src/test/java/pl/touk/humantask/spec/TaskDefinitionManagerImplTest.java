@@ -17,11 +17,12 @@ import pl.touk.humantask.model.Group;
 
 import java.util.List;
 
-/*
+/**
+ * {@link TaskDefinitionManagerImpl} class unit tests.
+ * 
  * @author Jakub Kurlenda
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
  */
-
 public class TaskDefinitionManagerImplTest {
 
     private TaskDefinitionManagerInterface taskManager;

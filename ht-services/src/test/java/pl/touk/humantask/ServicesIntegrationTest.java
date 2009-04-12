@@ -1,26 +1,20 @@
 package pl.touk.humantask;
 
-import java.util.ArrayList;
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import junit.framework.Assert;
-import static org.junit.Assert.*;
-
-import org.junit.Test;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.example.ws_ht.api.wsdl.IllegalArgumentFault;
-import org.example.ws_ht.api.wsdl.IllegalOperationFault;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Test;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -28,18 +22,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
-
 import pl.touk.humantask.exceptions.HumanTaskException;
-
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
-
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.model.TaskTypes;
+import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.spec.TaskDefinition;
 
+/**
+ * {@link Services} integration tests.
+ *
+ * @author Witek Wołejszo
+ * @author Warren Crossing
+ * @author Kamil Eisenbart
+ * @author Piotr Jagielski
+ */
 @ContextConfiguration(locations = "classpath:/test.xml")
 public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
 

@@ -20,18 +20,18 @@ public interface BasicDao<T extends Base, ID extends Serializable> {
      * @param id
      * @return
      */
-    public T fetch(ID id);
+    T fetch(ID id);
     
     /**
      * Saves domain object in persistent store. 
      * @param entity
      */
-    public void update(T entity);
+    void update(T entity);
 
     /**
      * Creates domain object in persistent store. 
      * @param entity
      */
-    public void create(T entity);
+    void create(T entity);
 
 }

@@ -248,11 +248,11 @@ public class Task extends Base {
 
     /**
      * Sets Task status. Not to be called directly, see: @. TODO must not be used from services.
+     * TODO change to private
      * 
      * @param status
      * @throws HumanTaskException
      */
-    @Deprecated
     public void setStatus(Status status) throws HumanTaskException {
 
         boolean isOk = false;

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2009 TouK sp. z o.o. s.k.a.
+ * All rights reserved
+ */
+
 package pl.touk.humantask.model;
 
 import static org.junit.Assert.*;
@@ -10,6 +15,11 @@ import org.junit.Test;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.spec.TaskDefinition;
 
+/**
+ * {@link Task} class unit tests.
+ *
+ * @author Witek Wołejszo
+ */
 public class TaskUnitTest {
 
     @Test

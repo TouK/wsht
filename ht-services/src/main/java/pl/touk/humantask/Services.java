@@ -13,8 +13,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.example.ws_ht.api.wsdl.IllegalArgumentFault;
-import org.example.ws_ht.api.wsdl.IllegalOperationFault;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,7 +58,7 @@ public class Services implements HumanTaskServicesInterface {
      * Definitions of tasks available in WSHT.
      */
     private List<TaskDefinition> taskDefinitions;
-    
+
     /**
      * Fully implemented methods - visible in interface.
      */
@@ -78,7 +76,7 @@ public class Services implements HumanTaskServicesInterface {
      *            user creating task
      * @param requestXml
      *            xml request used to invoke business method; can contain task-specific attributes, like last name, amount, etc.
-     *            
+     * 
      * @return created Task
      * @throws HumanTaskException
      */
@@ -163,7 +161,7 @@ public class Services implements HumanTaskServicesInterface {
         return newTask;
 
     }
-    
+
     /**
      * Retrieve the task details. This operation is used to obtain the data required to display a task list, as well as the details for the individual tasks.
      * 
@@ -207,7 +205,7 @@ public class Services implements HumanTaskServicesInterface {
         Person person = assigneeDao.getPerson(personName);
         return taskDao.getTasks(person);
     }
-    
+
     /**
      * Claims task. Sets status to Reserved. Only potential owners can claim the task. Excluded owners may not become an actual or potential owner and thus they
      * may not reserve or start the task.
@@ -372,6 +370,7 @@ public class Services implements HumanTaskServicesInterface {
             task.setPotentialOwners(null);
         }
 
+        //TODO always Person
         if (assignee instanceof Group) {
 
             Group g = (Group) assignee;
@@ -522,7 +521,7 @@ public class Services implements HumanTaskServicesInterface {
 
     /**
      * Resumes task after suspension.
-     * 
+     * TODO getBusinessAdministrators().equals(person) == crap 
      * @param task
      * @throws HumanTaskException
      */

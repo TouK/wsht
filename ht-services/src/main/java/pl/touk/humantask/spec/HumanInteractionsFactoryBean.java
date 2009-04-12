@@ -24,8 +24,10 @@ import org.springframework.core.io.Resource;
 import org.w3c.dom.Document;
 
 /**
+ * Spring factory responsible for instantiating {@link HumanInteractions}. Reads
+ * Human Interactions document and creates {@link HumanInteractions} object.
  * 
- * @author witek
+ * @author Witek Wołejszo
  */
 public class HumanInteractionsFactoryBean implements FactoryBean {
 
@@ -91,18 +93,16 @@ public class HumanInteractionsFactoryBean implements FactoryBean {
 
         }
 
-        HumanInteractions hi = new HumanInteractions(hiDoc, document, md5);
+        HumanInteractions hi = new HumanInteractions(document, md5);
 
         return hi;
     }
 
     public Class getObjectType() {
-        log.debug("getObjectType");
         return HumanInteractions.class;
     }
 
     public boolean isSingleton() {
-        log.debug("isSingleton");
         return true;
     }
 

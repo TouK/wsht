@@ -5,26 +5,41 @@
 
 package pl.touk.humantask.spec;
 
-import org.example.ws_ht.THumanInteractions;
 import org.w3c.dom.Document;
 
+/**
+ * Provides access methods to Human Interactions document defined
+ * using http://www.example.org/WS-HT schema.
+ * 
+ * Instance of this class can be obtained using {@link HumanInteractionsFactoryBean}.
+ *
+ * @author Witek Wołejszo
+ */
 public class HumanInteractions {
 
-    // private THumanInteractions tHumanInteractions;
     private Document document;
-    private String md5;
+    private String humanInteractionsDefinitionKey;
 
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private HumanInteractions() {
     }
 
-    HumanInteractions(THumanInteractions tHumanInteractions, Document document, String md5) {
+    /**
+     * Constructor called by {@link HumanInteractionsFactoryBean}.
+     * 
+     * @param document                          the human interactions DOM document
+     * @param humanInteractionsDefinitionKey    the key Human Interactions definition can be looked up by  
+     */
+    HumanInteractions(Document document, String humanInteractionsDefinitionKey) {
         super();
         this.setDocument(document);
-        this.md5 = md5;
+        this.humanInteractionsDefinitionKey = humanInteractionsDefinitionKey;
     }
 
-    public String getMd5() {
-        return md5;
+    public String getDefinitionKey() {
+        return humanInteractionsDefinitionKey;
     }
 
     public void setDocument(Document document) {
