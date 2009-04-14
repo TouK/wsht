@@ -19,6 +19,7 @@ import pl.touk.humantask.spec.TaskDefinition.LogicalPeopleGroup;
 /**
  * 
  * @author Witek Wołejszo
+ * @author Mateusz Lipczyński
  */
 public class TaskDefinitionTest extends TestCase {
 
