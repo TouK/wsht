@@ -91,18 +91,14 @@
                     <htd:presentationParameter name="euroAmount" type="xsd:double">
                         htd:getInput("ClaimApprovalRequest")/amount </htd:presentationParameter>
                 </htd:presentationParameters>
-                <htd:subject xml:lang="en-US"> Approve the insurance claim for €$euroAmount$ on
-                    behalf of $firstname$ $lastname$ </htd:subject>
-                <htd:subject xml:lang="de-DE"> Genehmigung der Schadensforderung über €$euroAmount$
-                    für $firstname$ $lastname$ </htd:subject>
-                <htd:description xml:lang="en-US" contentType="text/plain"> Approve this claim
-                    following corporate guideline #4711.0815/7 ... </htd:description>
+                <htd:subject xml:lang="en-US"> Approve the insurance claim for €$euroAmount$ on behalf of $firstname$ $lastname$ </htd:subject>
+                <htd:subject xml:lang="de-DE"> Genehmigung der Schadensforderung über €$euroAmount$ für $firstname$ $lastname$ </htd:subject>
+                <htd:description xml:lang="en-US" contentType="text/plain"> Approve this claim following corporate guideline #4711.0815/7 ... </htd:description>
                 <htd:description xml:lang="en-US" contentType="text/html">
                     <p> Approve this claim following corporate guideline <b>#4711.0815/7</b> ...
                     </p>
                 </htd:description>
-                <htd:description xml:lang="de-DE" contentType="text/plain"> Genehmigen Sie diese
-                    Schadensforderung entsprechend Richtlinie Nr. 4711.0815/7 ... </htd:description>
+                <htd:description xml:lang="de-DE" contentType="text/plain"> Genehmigen Sie diese Schadensforderung entsprechend Richtlinie Nr. 4711.0815/7 ... </htd:description>
                 <htd:description xml:lang="de-DE" contentType="text/html">
                     <p> Genehmigen Sie diese Schadensforderung entsprechend Richtlinie <b>Nr.
                             4711.0815/7</b> ... </p>
