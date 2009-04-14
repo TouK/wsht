@@ -8,12 +8,15 @@ package pl.touk.humantask.model;
 import javax.persistence.MappedSuperclass;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Base class for WS-HumanTask domain model. Implements common methods like: toString, equals, hashCode.
+ * Base class for WS-HumanTask domain model. Implements common methods like: toString, equals, hashCode. Class
+ * is {@link Configurable} and expects container to initialise some of its values.
  * 
  * @author Witold Wołejszo
  */
+@Configurable
 @MappedSuperclass
 public abstract class Base {
 
