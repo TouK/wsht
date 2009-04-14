@@ -131,7 +131,7 @@ public class JpaTaskDao implements TaskDao {
             namedParameters.put("actualOwner", owner);
         }
         
-        if (statuses != null) {
+        if (statuses != null && !statuses.isEmpty()) {
             
             queryBuilder.append("t.status in (:statuses) AND ");
             namedParameters.put("statuses", statuses);
@@ -166,8 +166,7 @@ public class JpaTaskDao implements TaskDao {
         
         Query query = entityManager.createQuery(queryString);
         
-        //TODO magic number
-        if (maxTasks != null && maxTasks > -1) {
+        if (maxTasks != null && maxTasks > 0) {
             query.setFirstResult(0);
             query.setMaxResults(maxTasks);
         }

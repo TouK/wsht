@@ -1,6 +1,15 @@
 package pl.touk.humantask.exceptions;
 
-public class RecipientNotAllowedException extends Exception {
+/**
+ * 
+ * By default, the identity of the person on behalf of which the operation is invoked is
+ * passed to the task. When the person is not authorized to perform the operation the
+ * illegalAccessFault and recipientNotAllowed is thrown in the case of tasks and
+ * notifications respectively.
+ * 
+ * @author Warren Crossing 
+ */
+public class RecipientNotAllowedException extends HumanTaskException {
    private java.lang.String RecipientNotAllowedException;
 
     public RecipientNotAllowedException() {

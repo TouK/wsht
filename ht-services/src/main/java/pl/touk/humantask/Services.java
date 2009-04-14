@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.IllegalOperationException;
+import pl.touk.humantask.exceptions.RecipientNotAllowedException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Attachment;
 import pl.touk.humantask.model.GenericHumanRole;
@@ -124,6 +126,55 @@ public class Services {
 
     }
     
+    /**
+     * Retrieve the task details. This operation is used to obtain the data required to display a task list, as well as the details for the individual tasks.
+     * 
+     * @param personName
+     *            If specified and no work queue has been specified then only personal tasks are returned, classified by genericHumanRole.
+     * @param taskType
+     *            one of ALL, NOTIFICATIONS, TASKS.
+     * @param genericHumanRole
+     *            A classifier of names contained in the task.
+     * @param workQueue
+     *            If the work queue is specified then only tasks having a work queue and generic human role are returned.
+     * @param statusList
+     *            selects the tasks whose status is one of those specified in List.
+     * @param whereClause
+     *            - an [Hibernate] SQL Expression added to the criteria These additional fields may be used
+     *            (ID,TaskType,Name,Status,Priority,CreatedOn,ActivationTime,ExpirationTime
+     *            ,StartByExists,CompleteByExists,RenderMethExists,Escalated,PrimarySearchBy);
+     * @param createdOnClause
+     *            - an [Hibernate] SQL Expression performed on an xsd:date.
+     * @param maxTasks
+     *            - the maximum number of results returned in the List after ordering by activationTime.
+     * @return List of Tasks which meet the criteria.
+     */
+    public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
+            String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException {
+        
+        if (null == personName && null == workQueue) 
+            throw new pl.touk.humantask.exceptions.IllegalArgumentException("parameter not specified","workQueue");
+        
+        Person person = null;
+        
+        if (null == workQueue)
+            person = assigneeDao.getPerson(personName);
+        
+        if (null == person && null == workQueue) 
+            throw new RecipientNotAllowedException("is not a valid name, no such Assignee found",personName);
+        
+        if (null == taskType)
+            throw new pl.touk.humantask.exceptions.IllegalArgumentException("parameter not specified","task type");
+                    
+        try{
+            
+            return taskDao.getTasks(person, taskType, genericHumanRole, workQueue, status, whereClause, createdOnClause, maxTasks);
+        }catch(Exception x){
+            
+            throw new IllegalOperationException(x.getMessage(),"getMyTasks");
+        }
+    }
+
     /**
      * Returns task owned by specified person.
      * 
@@ -348,37 +399,7 @@ public class Services {
             i++;
         }
     }
-
-    /**
-     * Retrieve the task details. This operation is used to obtain the data required
-    to display a task list, as well as the details for the individual tasks.
-     * @param personName If specified and no work queue has been specified then only personal tasks are
-    returned, classified by genericHumanRole.
-     * @param taskType one of ALL, NOTIFICATIONS, TASKS.
-     * @param genericHumanRole A classifier of names contained in the task. 
-     * @param workQueue  If the work queue is specified then only tasks having a 
-     * work queue and generic human role are returned.
-     * @param statusList selects the tasks whose status is one of those specified in List.
-     * @param whereClause - an [Hibernate] SQL Expression added to the criteria 
-     * These additional fields may be used 
-     * (ID,TaskType,Name,Status,Priority,CreatedOn,ActivationTime,ExpirationTime
-     * ,StartByExists,CompleteByExists,RenderMethExists,Escalated,PrimarySearchBy);
-     * @param createdOnClause - an [Hibernate] SQL Expression performed on an xsd:date. 
-     * @param maxTasks - the maximum number of results returned in the List after ordering by activationTime.
-     * @return List of Tasks which meet the criteria.
-     */
-    public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status, String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException {
-        Person person = assigneeDao.getPerson(personName);
-        return taskDao.getTasks(person, taskType, genericHumanRole, workQueue, status, whereClause, createdOnClause, maxTasks);
-    }
-
-    /**
-     * releases task from Inprogress and Reserved state
-     * 
-     * @param task
-     * @param personName
-     * @throws Exception
-     */
+    
     public Task releaseTask(Task task, final String personName) throws HumanTaskException {
 
         Person person = (Person) assigneeDao.getPerson(personName);

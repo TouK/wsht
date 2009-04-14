@@ -65,7 +65,7 @@ public interface HumanTaskServicesInterface {
      * @param workQueue
      *            If the work queue is specified then only tasks having a work queue and generic human role are returned.
      * @param statusList
-     *            selects the tasks whose status is one of those specified in List.
+     *            selects the tasks whose status is one of those specified in List, if not specified or is empty list, a status wildcard is assumed.
      * @param whereClause
      *            - an [Hibernate] SQL Expression added to the criteria These additional fields may be used
      *            (ID,TaskType,Name,Status,Priority,CreatedOn,ActivationTime,ExpirationTime

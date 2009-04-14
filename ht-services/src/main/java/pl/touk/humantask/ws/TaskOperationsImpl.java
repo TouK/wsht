@@ -2,7 +2,6 @@
  * Copyright (C) 2009 TouK sp. z o.o. s.k.a.
  * All rights reserved
  */
-
 package pl.touk.humantask.ws;
 
 import java.math.BigInteger;
@@ -13,6 +12,7 @@ import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
+import javax.xml.ws.WebFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,10 +30,12 @@ import org.example.ws_ht.api.wsdl.IllegalOperationFault;
 import org.example.ws_ht.api.wsdl.IllegalStateFault;
 import org.example.ws_ht.api.wsdl.RecipientNotAllowed;
 import org.example.ws_ht.api.wsdl.TaskOperations;
+import org.example.ws_ht.api.xsd.IllegalState;
 import org.example.ws_ht.api.xsd.TTime;
 
 import pl.touk.humantask.HumanTaskServicesInterface;
 import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.IllegalOperationException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.TaskType;
@@ -54,12 +56,10 @@ import pl.touk.humantask.model.TaskTypes;
 public class TaskOperationsImpl implements TaskOperations {
 
     protected final Log log = LogFactory.getLog(TaskOperationsImpl.class);
-
     /**
      * Implementation of WH-HT services.
      */
     private HumanTaskServicesInterface services;
-
     /**
      * Security context used to retrieve implicit user information.
      */
@@ -68,60 +68,49 @@ public class TaskOperationsImpl implements TaskOperations {
     public void activate(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // String username = Session.getUserName();
         // TODO Auto-generated method stub
-
     }
 
     public void addAttachment(String identifier, String name, String accessType, Object attachment) throws IllegalArgumentFault, IllegalStateFault,
             IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void addComment(String identifier, String text) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void claim(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void complete(String identifier, Object taskData) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void delegate(String identifier, TOrganizationalEntity organizationalEntity) throws RecipientNotAllowed, IllegalArgumentFault, IllegalStateFault,
             IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void deleteAttachments(String identifier, String attachmentName) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void deleteFault(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void deleteOutput(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void fail(String identifier, String faultName, Object faultData) throws IllegalArgumentFault, IllegalStateFault, IllegalOperationFault,
             IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void forward(String identifier, TOrganizationalEntity organizationalEntity) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public List<TAttachmentInfo> getAttachmentInfos(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
@@ -154,16 +143,52 @@ public class TaskOperationsImpl implements TaskOperations {
         try {
             return translateTaskAPI(services.getMyTasks(securityContext.getLoggedInUser().getUsername(), TaskTypes.valueOf(taskType), GenericHumanRole.valueOf(genericHumanRole), workQueue, translateStatusAPI(status), whereClause, createdOnClause, maxTasks));
         } catch (HumanTaskException xHT) {
-            throw new IllegalStateFault(xHT.getMessage(), xHT);
-        } catch (RuntimeException xR) {
-            throw new IllegalArgumentFault(xR.getMessage(), xR);
+            translateIllegalStateException(xHT);
+            translateIllegalArgumentException(xHT);
+        }
+        
+        throw new RuntimeException("operation failed: getMyTasks");
+        
+    }
+
+    private void translateIllegalStateException(HumanTaskException xHT) throws IllegalStateFault {
+        if (xHT instanceof pl.touk.humantask.exceptions.IllegalStateException) {
+            IllegalState state = new IllegalState();
+          
+            state.setStatus(translateStatusAPI(((pl.touk.humantask.exceptions.IllegalStateException)xHT).getExceptionInfo()));
+            throw new IllegalStateFault(xHT.getMessage(), state, xHT);
+        }
+    }
+
+    private void translateIllegalAccessException(HumanTaskException xHT) throws IllegalAccessFault {
+        if (xHT instanceof pl.touk.humantask.exceptions.IllegalAccessException) {
+           
+            throw new IllegalAccessFault(xHT.getMessage(), ((pl.touk.humantask.exceptions.IllegalAccessException)xHT).getExceptionInfo(), xHT);
+        }
+    }
+
+    private void translateIllegalOperationException(HumanTaskException xHT) throws IllegalOperationFault {
+        if (xHT instanceof pl.touk.humantask.exceptions.IllegalOperationException) {
+            throw new IllegalOperationFault(xHT.getMessage(), ((IllegalOperationException) xHT).getExceptionInfo(), xHT);
+        }
+    }
+
+    private void translateIllegalArgumentException(HumanTaskException xHT) throws IllegalArgumentFault {
+        if (xHT instanceof pl.touk.humantask.exceptions.IllegalArgumentException) {
+            throw new IllegalArgumentFault(xHT.getMessage(), ((pl.touk.humantask.exceptions.IllegalArgumentException) xHT).getExceptionInfo(), xHT);
+        }
+    }
+
+    private void translateRecipientNotAllowedException(HumanTaskException xHT) throws RecipientNotAllowed {
+        if (xHT instanceof pl.touk.humantask.exceptions.RecipientNotAllowedException) {
+            throw new RecipientNotAllowed(xHT.getMessage(), ((pl.touk.humantask.exceptions.RecipientNotAllowedException) xHT).getExceptionInfo(), xHT);
         }
     }
 
     //TODO move outside
-    private List<TTask> translateTaskAPI(List<Task> in){
+    private List<TTask> translateTaskAPI(List<Task> in) {
         List<TTask> result = new ArrayList<TTask>();
-        for (Task task: in ) {
+        for (Task task : in) {
             TTask ttask;
             result.add(ttask = new TTask());
 
@@ -171,18 +196,18 @@ public class TaskOperationsImpl implements TaskOperations {
             ttask.setTaskType(TaskType.TASK.toString());
             /*
             ttask.setName(task.getName());
-            */
+             */
             ttask.setStatus(translateStatusAPI(task.getStatus()));
             /*
             ttask.setPriority(task.getPriority());
-            */
+             */
             //ttask.setTaskInitiator(task.getCreatedBy());
             /*ttask.setTaskStakeholders(task.getTaskStakeholders());
             ttask.setPotentialOwners(task.getPotentialOwners());
             ttask.setBusinessAdministrators(task.getBusinessAdministrators());
             ttask.setActualOwner(task.getActualOwner());
             ttask.setNotificationRecipients(task.getNotificationRecipients());
-            */
+             */
             //ttask.setCreatedOn(task.getCreatedOn());
             ttask.setCreatedBy(task.getCreatedBy());
             ttask.setActivationTime(task.getActivationTime());
@@ -196,28 +221,29 @@ public class TaskOperationsImpl implements TaskOperations {
             ttask.setRenderingMethodExists(task.getRenderingMethodExists());
             ttask.setHasOutput(task.getHasOutput());
              */
-            
-            ttask.setHasFault(null!=task.getFault());
+
+            ttask.setHasFault(null != task.getFault());
             ttask.setHasAttachments(!task.getAttachments().isEmpty());
             //ttask.setHasComments(!task.getComments().isEmpty());
-            
+
             ttask.setEscalated(task.isEscalated());
-            /*
-             ttask.setPrimarySearchBy(task.getPrimarySearchBy());
-            */
+        /*
+        ttask.setPrimarySearchBy(task.getPrimarySearchBy());
+         */
         }
 
         return result;
     }
-    
+
     private List<Task.Status> translateStatusAPI(List<TStatus> in) {
         List<Task.Status> result = new ArrayList<Task.Status>();
-        for (TStatus status: in ) { 
+        for (TStatus status : in) {
             result.add(Task.Status.fromValue(in.toString()));
         }
 
         return result;
     }
+
     private TStatus translateStatusAPI(Task.Status in) {
         return TStatus.fromValue(in.toString());
     }
@@ -249,7 +275,6 @@ public class TaskOperationsImpl implements TaskOperations {
 
     public void nominate(String identifier, TOrganizationalEntity organizationalEntity) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public TTaskQueryResultSet query(String selectClause, String whereClause, String orderByClause, Integer maxTasks, Integer taskIndexOffset)
@@ -260,70 +285,57 @@ public class TaskOperationsImpl implements TaskOperations {
 
     public void release(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void remove(String identifier) throws IllegalArgumentFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void resume(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void setFault(String identifier, String faultName, Object faultData) throws IllegalArgumentFault, IllegalStateFault, IllegalOperationFault,
             IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void setGenericHumanRole(String identifier, String genericHumanRole, TOrganizationalEntity organizationalEntity) throws IllegalArgumentFault,
             IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void setOutput(String identifier, String part, Object taskData) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void setPriority(String identifier, BigInteger priority) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void skip(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalOperationFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void start(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void stop(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void suspend(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void suspendUntil(String identifier, TTime time) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
-
     }
 
     public void getFault(String identifier, Holder<String> faultName, Holder<Object> faultData) throws IllegalAccessFault, IllegalStateFault,
             IllegalArgumentFault, IllegalOperationFault {
         // TODO Auto-generated method stub
-
     }
 
     public void setServices(HumanTaskServicesInterface services) {
@@ -341,5 +353,4 @@ public class TaskOperationsImpl implements TaskOperations {
     public SecurityContextInterface getSecurityContext() {
         return securityContext;
     }
-
 }

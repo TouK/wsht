@@ -1,5 +1,6 @@
 package pl.touk.humantask;
 
+import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
@@ -149,11 +150,22 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
        
         taskDao.create(task);
         List<Task> results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, "admin", Arrays.asList(Status.IN_PROGRESS,Status.OBSOLETE), null, null, 1);
-        //TODO wrong order
-        Assert.assertEquals( results.size(), 1);
+        
+        Assert.assertEquals(1,results.size());
        
         Task taskToCheck = results.get(0);
+        
         Assert.assertEquals(task.getActualOwner(), taskToCheck.getActualOwner());
+        
+        //check with no statuses specified
+        results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, "admin", new ArrayList(), null, null, 1);
+       
+        Assert.assertEquals(1, results.size());
+        
+        //TODO check with notifications
+        //results = services.getMyTasks("Jacek", TaskTypes.NOTIFICATIONS, GenericHumanRole.TASK_STAKEHOLDERS, "admin", new ArrayList(), null, null, 1);
+       
+        //Assert.assertEquals(0, results.size());
         
         mockery.assertIsSatisfied();
     }
