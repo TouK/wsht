@@ -9,27 +9,24 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
 import java.util.Map;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.PostLoad;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SecondaryTable;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
@@ -37,10 +34,9 @@ import javax.persistence.Transient;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.Index;
 
+import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.spec.TaskDefinition;
-import pl.touk.humantask.exceptions.*;
 
 /**
  * Holds task instance information.
@@ -51,7 +47,7 @@ import pl.touk.humantask.exceptions.*;
  */
 @Entity
 @Table(name = "TASK")
-@SecondaryTable(name = "TASK_IO", pkJoinColumns = { @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id") })
+//@SecondaryTable(name = "TASK_IO", pkJoinColumns = { @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id") })
 public class Task extends Base {
 
     @Transient
@@ -61,8 +57,7 @@ public class Task extends Base {
     private TaskDefinition taskDefinition;
 
     @Basic
-    @Index(name = "TAKS_DEFKEY_IDX")
-    @Column(name = "DEFKEY", nullable = false)
+    @Column(nullable = false)
     protected String taskDefinitionKey; // task definition
 
     public Date getCreatedOn() {
@@ -91,28 +86,25 @@ public class Task extends Base {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Basic(fetch = FetchType.LAZY)
-    @Column(nullable = false, table = "TASK_IO")
-    @Lob
-    private String requestXml;
-
-    @Basic(fetch = FetchType.LAZY)
-    @Column(table = "TASK_IO")
-    @Lob
-    private String responseXml;
-
-    @Column(table = "TASK_IO")
-    private String outputXml;
-
-    @Column(table = "TASK_IO")
-    private String faultXml;
-
-    private String partName;
-
-    private String faultName;
+    /**
+     * Task input message map. Maps message part to message. If
+     * document style Web Services are used to start Task, part name
+     * should be set to {@link Message.DEFAULT_PART_NAME_KEY}.
+     */
+    @OneToMany
+    @MapKey(name="partName")
+    @JoinTable(name="TASK_MSG_INPUT")
+    private Map<String, Message> input = new HashMap<String, Message>();
+    
+    /**
+     * Task output message map. Maps message part to message.
+     */
+    @OneToMany
+    @MapKey(name="partName")
+    @JoinTable(name="TASK_MSG_OUTPUT")
+    private Map<String, Message> output = new HashMap<String, Message>();
 
     @Enumerated(EnumType.STRING)
-    @Index(name = "TASK_STATUS_IDX")
     @Column(nullable = false)
     private Status status;
 
@@ -122,7 +114,6 @@ public class Task extends Base {
     /**
      * People assigned to different generic human roles.
      */
-    @Index(name = "TASK_ACTUAL_OWNER_IDX")
     @ManyToOne
     private Assignee actualOwner;
 
@@ -235,8 +226,8 @@ public class Task extends Base {
     public Task(TaskDefinition taskDefinition, Person createdBy, String requestXml) throws HumanTaskException {
 
         this.init(taskDefinition);
-        this.setRequestXml(requestXml);
-
+        this.input.put(Message.DEFAULT_PART_NAME_KEY, new Message(requestXml));
+        
         // evaluate logical people groups
         List<TaskDefinition.LogicalPeopleGroup> logicalPeopleGroups = taskDefinition.getLogicalpeopleGroups();
 
@@ -415,60 +406,6 @@ public class Task extends Base {
 
     }
 
-    public void setOutput(String partName, String outputXml) throws HumanTaskException {
-
-        if (partName != null) {
-            this.partName = partName;
-        }
-
-        this.outputXml = outputXml;
-    }
-
-    /**
-     * Sets fault name and faults data.
-     * 
-     * @param fName
-     * @param fXml
-     */
-    public void setFault(String fName, String fXml) {
-        faultName = fName;
-        faultXml = fXml;
-    }
-
-    /**
-     * delete fault name and fault data
-     */
-    public void deleteFault() {
-        faultName = null;
-        faultXml = null;
-    }
-
-    public String getFault() {
-        return faultXml;
-    }
-
-    public String getFaultName() {
-        return faultName;
-    }
-
-    public String getFaultData() {
-        return faultXml;
-    }
-
-    // TODO fault definitions
-    /**
-     * check if given foultname exists
-     * 
-     * @param faultName
-     * @return
-     */
-    public boolean findFault(String faultName) {
-
-        return true;
-        // return false;
-
-    }
-
     public void addAttachment(Attachment attachment) {
         attachments.add(attachment);
     }
@@ -483,11 +420,6 @@ public class Task extends Base {
 
     public Date getSuspentionTime() {
         return (this.suspensionTime == null) ? null : (Date) this.suspensionTime.clone();
-    }
-
-    // TODO what pName is for?
-    public String getOutput(String pName) {
-        return outputXml;
     }
 
     public Assignee getActualOwner() {
@@ -573,14 +505,6 @@ public class Task extends Base {
         return taskDefinitionKey;
     }
 
-    public void setRequestXml(String requestXml) {
-        this.requestXml = requestXml;
-    }
-
-    public String getRequestXml() {
-        return requestXml;
-    }
-
     public void setPotentialOwners(List<Assignee> potentialOwners) {
         this.potentialOwners = potentialOwners;
     }
@@ -622,7 +546,7 @@ public class Task extends Base {
     }
 
     /***************************************************************
-     * Business methods. *
+     * Business methods.                                           *
      ***************************************************************/
 
     /**
@@ -636,11 +560,6 @@ public class Task extends Base {
         }
         // TODO exception
         /* else throw new HumanTaskException("status before suspend is invalid: "+statusBeforeSuspend.toString()); */
-    }
-
-    public void deleteOutput() {
-        outputXml = null;
-        partName = null;
     }
 
     public void reserve() throws HumanTaskException {

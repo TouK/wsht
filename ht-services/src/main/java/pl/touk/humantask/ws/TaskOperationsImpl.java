@@ -222,7 +222,10 @@ public class TaskOperationsImpl implements TaskOperations {
             ttask.setHasOutput(task.getHasOutput());
              */
 
-            ttask.setHasFault(null != task.getFault());
+            //TODO implement cjeck
+            //ttask.setHasFault(null != task.getFault());
+            ttask.setHasFault(false);
+            
             ttask.setHasAttachments(!task.getAttachments().isEmpty());
             //ttask.setHasComments(!task.getComments().isEmpty());
 

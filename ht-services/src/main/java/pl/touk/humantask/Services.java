@@ -556,187 +556,187 @@ public class Services implements HumanTaskServicesInterface {
 
     }
 
-    /**
-     * overloaded method setTaskOutput - gets only 3 parameters
-     * 
-     * @param task
-     * @param dataSetXml
-     * @param personName
-     * @throws HumanTaskException
-     */
-    public void setTaskOutput(Task task, String dataSetXml, String personName) throws HumanTaskException {
+//    /**
+//     * overloaded method setTaskOutput - gets only 3 parameters
+//     * 
+//     * @param task
+//     * @param dataSetXml
+//     * @param personName
+//     * @throws HumanTaskException
+//     */
+//    public void setTaskOutput(Task task, String dataSetXml, String personName) throws HumanTaskException {
+//
+//        this.setTaskOutput(task, dataSetXml, null, personName);
+//    }
 
-        this.setTaskOutput(task, dataSetXml, null, personName);
-    }
+//    /**
+//     * method that sets task output
+//     * 
+//     * @param task
+//     * @param dataSetXml
+//     * @param pName
+//     * @param personName
+//     * @throws HumanTaskException
+//     */
+//    public void setTaskOutput(Task task, String dataSetXml, String pName, String personName) throws HumanTaskException {
+//
+//        Person person = assigneeDao.getPerson(personName);
+//
+//        if (!person.equals(task.getActualOwner())) {
+//            log.error(person + " doesn't have the permission to set task output");
+//            throw new HumanTaskException(person + " doesn't have the permission to set task output");
+//        }
+//
+//        task.setOutput(pName, dataSetXml);
+//        taskDao.update(task);
+//    }
 
-    /**
-     * method that sets task output
-     * 
-     * @param task
-     * @param dataSetXml
-     * @param pName
-     * @param personName
-     * @throws HumanTaskException
-     */
-    public void setTaskOutput(Task task, String dataSetXml, String pName, String personName) throws HumanTaskException {
+//    /**
+//     * overloaded getting task output
+//     * 
+//     * @param task
+//     * @param personName
+//     * @return
+//     * @throws HumanTaskException
+//     */
+//    public String getOutput(Task task, String personName) throws HumanTaskException {
+//
+//        return this.getOutput(task, null, personName);
+//    }
 
-        Person person = assigneeDao.getPerson(personName);
+//    /**
+//     * getting task output
+//     * 
+//     * @param task
+//     * @param partName
+//     * @param personName
+//     * @return
+//     * @throws HumanTaskException
+//     */
+//    public String getOutput(Task task, String partName, String personName) throws HumanTaskException {
+//
+//        Person person = assigneeDao.getPerson(personName);
+//
+//        if (!person.equals(task.getActualOwner()) && !person.equals(task.getBusinessAdministrators())) {
+//            log.error(person + " doesn't have the permission to get task output");
+//            throw new HumanTaskException(person + " doesn't have the permission to get task output");
+//        }
+//
+//        return task.getOutput(partName);
+//    }
 
-        if (!person.equals(task.getActualOwner())) {
-            log.error(person + " doesn't have the permission to set task output");
-            throw new HumanTaskException(person + " doesn't have the permission to set task output");
-        }
+//    /**
+//     * Deletes output.
+//     * 
+//     * @param task
+//     */
+//    public void deleteOutput(Task task) {
+//        task.deleteOutput();
+//        taskDao.update(task);
+//    }
 
-        task.setOutput(pName, dataSetXml);
-        taskDao.update(task);
-    }
+//    /**
+//     * complete task with fault response
+//     * 
+//     * @param task
+//     * @param personName
+//     * @throws HumanTaskException
+//     * @throws IllegalArgumentFault
+//     */
+//    public void failTask(Task task, String faultName, String faultData, String personName) throws HumanTaskException {
+//
+//        Person person = assigneeDao.getPerson(personName);
+//
+//        if (!person.equals(task.getActualOwner())) {
+//            log.error(person + " cannot complete the task with fault response");
+//            throw new HumanTaskException(person + " cannot complete the task with fault response");
+//        }
+//
+//        if (faultName == null || faultData == null) {
+//            log.error("none of faultName and faultXml cannot be null");
+//            throw new IllegalArgumentException("none of faultName and faultXml cannot be null");
+//        }
+//
+//        if (!task.findFault(faultName)) {
+//            log.error("Illegal operation fault - there is no such fault name");
+//            throw new RuntimeException("there is no such fault name");
+//        }
+//
+//        // TODO ask fo
+//        // this.setFault(faultName, faultData);
+//
+//        task.setStatus(Status.FAILED);
+//        taskDao.update(task);
+//
+//    }
 
-    /**
-     * overloaded getting task output
-     * 
-     * @param task
-     * @param personName
-     * @return
-     * @throws HumanTaskException
-     */
-    public String getOutput(Task task, String personName) throws HumanTaskException {
+//    /**
+//     * set fault name and fault Data
+//     * 
+//     * @param task
+//     * @param faultName
+//     * @param faultData
+//     * @param personName
+//     * @throws HumanTaskException
+//     * @throws IllegalOperationFault
+//     */
+//    public void setFault(Task task, String faultName, String faultData, String personName) throws HumanTaskException {
+//
+//        Person person = assigneeDao.getPerson(personName);
+//
+//        if (!person.equals(task.getActualOwner())) {
+//            log.error(person + " cannot set the fault");
+//            throw new HumanTaskException(person + " cannot set the fault");
+//        }
+//
+//        if (!task.findFault(faultName)) {
+//            log.error("Illegal operation fault - there is no such fault name");
+//            throw new RuntimeException("there is no such fault name");
+//        }
+//
+//        task.setFault(faultName, faultData);
+//        taskDao.update(task);
+//    }
 
-        return this.getOutput(task, null, personName);
-    }
+//    /**
+//     * delete fault name and fault data
+//     * 
+//     * @param task
+//     * @param personName
+//     * @throws HumanTaskException
+//     */
+//    public void deleteFault(Task task, String personName) throws HumanTaskException {
+//        Person person = assigneeDao.getPerson(personName);
+//
+//        if (!person.equals(task.getActualOwner())) {
+//            log.error(person + " cannot remove foult form task " + task);
+//            throw new HumanTaskException(person + " cannot remove foult form task " + task);
+//        }
+//
+//        task.deleteFault();
+//        taskDao.update(task);
+//
+//    }
 
-    /**
-     * getting task output
-     * 
-     * @param task
-     * @param partName
-     * @param personName
-     * @return
-     * @throws HumanTaskException
-     */
-    public String getOutput(Task task, String partName, String personName) throws HumanTaskException {
-
-        Person person = assigneeDao.getPerson(personName);
-
-        if (!person.equals(task.getActualOwner()) && !person.equals(task.getBusinessAdministrators())) {
-            log.error(person + " doesn't have the permission to get task output");
-            throw new HumanTaskException(person + " doesn't have the permission to get task output");
-        }
-
-        return task.getOutput(partName);
-    }
-
-    /**
-     * Deletes output.
-     * 
-     * @param task
-     */
-    public void deleteOutput(Task task) {
-        task.deleteOutput();
-        taskDao.update(task);
-    }
-
-    /**
-     * complete task with fault response
-     * 
-     * @param task
-     * @param personName
-     * @throws HumanTaskException
-     * @throws IllegalArgumentFault
-     */
-    public void failTask(Task task, String faultName, String faultData, String personName) throws HumanTaskException {
-
-        Person person = assigneeDao.getPerson(personName);
-
-        if (!person.equals(task.getActualOwner())) {
-            log.error(person + " cannot complete the task with fault response");
-            throw new HumanTaskException(person + " cannot complete the task with fault response");
-        }
-
-        if (faultName == null || faultData == null) {
-            log.error("none of faultName and faultXml cannot be null");
-            throw new IllegalArgumentException("none of faultName and faultXml cannot be null");
-        }
-
-        if (!task.findFault(faultName)) {
-            log.error("Illegal operation fault - there is no such fault name");
-            throw new RuntimeException("there is no such fault name");
-        }
-
-        // TODO ask fo
-        // this.setFault(faultName, faultData);
-
-        task.setStatus(Status.FAILED);
-        taskDao.update(task);
-
-    }
-
-    /**
-     * set fault name and fault Data
-     * 
-     * @param task
-     * @param faultName
-     * @param faultData
-     * @param personName
-     * @throws HumanTaskException
-     * @throws IllegalOperationFault
-     */
-    public void setFault(Task task, String faultName, String faultData, String personName) throws HumanTaskException {
-
-        Person person = assigneeDao.getPerson(personName);
-
-        if (!person.equals(task.getActualOwner())) {
-            log.error(person + " cannot set the fault");
-            throw new HumanTaskException(person + " cannot set the fault");
-        }
-
-        if (!task.findFault(faultName)) {
-            log.error("Illegal operation fault - there is no such fault name");
-            throw new RuntimeException("there is no such fault name");
-        }
-
-        task.setFault(faultName, faultData);
-        taskDao.update(task);
-    }
-
-    /**
-     * delete fault name and fault data
-     * 
-     * @param task
-     * @param personName
-     * @throws HumanTaskException
-     */
-    public void deleteFault(Task task, String personName) throws HumanTaskException {
-        Person person = assigneeDao.getPerson(personName);
-
-        if (!person.equals(task.getActualOwner())) {
-            log.error(person + " cannot remove foult form task " + task);
-            throw new HumanTaskException(person + " cannot remove foult form task " + task);
-        }
-
-        task.deleteFault();
-        taskDao.update(task);
-
-    }
-
-    public String getFault(Task task, String personName) throws HumanTaskException {
-
-        Person person = assigneeDao.getPerson(personName);
-        if (person.equals(task.getActualOwner()) && person.equals(task.getBusinessAdministrators())) {
-            log.error(person + " cannot get task''s foult");
-            throw new HumanTaskException(person + " cannot get task''s foult");
-        }
-
-        // TODO it should return fault name && fault data
-        String fault = task.getFault();
-
-        // alternatywnie
-
-        String faultName = task.getFaultName();
-        String faultData = task.getFaultData();
-
-        return faultData;
-
-    }
+//    public String getFault(Task task, String personName) throws HumanTaskException {
+//
+//        Person person = assigneeDao.getPerson(personName);
+//        if (person.equals(task.getActualOwner()) && person.equals(task.getBusinessAdministrators())) {
+//            log.error(person + " cannot get task''s foult");
+//            throw new HumanTaskException(person + " cannot get task''s foult");
+//        }
+//
+//        // TODO it should return fault name && fault data
+//        String fault = task.getFault();
+//
+//        // alternatywnie
+//
+//        String faultName = task.getFaultName();
+//        String faultData = task.getFaultData();
+//
+//        return faultData;
+//
+//    }
 
     public void suspendUntilPeriod(Task task, long timePeriod) throws HumanTaskException {
 

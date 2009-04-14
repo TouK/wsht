@@ -142,7 +142,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         
         final Task task = new Task(taskDefinition, jacek);
        
-        task.setRequestXml("<?xml version='1.0'?><root/>");
+        //task.setRequestXml("<?xml version='1.0'?><root/>");
                 
         Person admin = new Person();
         admin.setName("Admin");

@@ -10,6 +10,7 @@
         <class>pl.touk.humantask.model.Group</class>
         <class>pl.touk.humantask.model.Person</class>
         <class>pl.touk.humantask.model.Task</class>
+        <class>pl.touk.humantask.model.Message</class>
         <exclude-unlisted-classes/>
     </persistence-unit>
 </persistence>
