@@ -139,21 +139,15 @@ public class TaskDefinition {
     public List<String> getPotentialOwners() {
 
         List<String> result = new ArrayList<String>();
-
         XPath xpath = xPathFactory.newXPath();
         xpath.setNamespaceContext(new HtdNamespaceContext());
 
         // logical groups
         try {
-
             XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" + name + "']/htd:peopleAssignments/htd:potentialOwners/htd:from[@logicalPeopleGroup]");
-
             NodeList nl = (NodeList) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODESET);
-
             for (int i = 0; i < nl.getLength(); i++) {
-
                 Node n = nl.item(i);
-
                 String logicalGroupName = n.getAttributes().getNamedItem("logicalPeopleGroup").getNodeValue();
 
                 // String newname = (String)
@@ -177,9 +171,9 @@ public class TaskDefinition {
     }
 
     /**
-     * TODO MLP: javadoc
-     * @param lang
-     * @return
+     * Returns an unformatted task subject in a required language
+     * @param lang  subject language according ISO, e.g. en-US, pl, de-DE
+     * @return subject
      */
     public String getSubject(String lang) {
         String result = "";
