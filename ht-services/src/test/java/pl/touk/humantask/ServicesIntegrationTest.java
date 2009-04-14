@@ -83,8 +83,13 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         Task t = services.createTask("ApproveClaim", "ww", "request");
 
-        //LOG.info("Task key: " + t.getTaskDefinition().getKey());
-        //LOG.info("Task description: " + t.getTaskDefinition().getDescription("en-US", "text/plain"));
+        String description = t.getTaskDefinition().getDescription("en-US", "text/plain");
+        String key = t.getTaskDefinition().getKey();
+
+        LOG.info("Task key: " + t.getTaskDefinition().getKey());
+        LOG.info("Task description: " + description);
+        Assert.assertTrue(description.contains("claim"));
+        Assert.assertTrue(key.contains("Appr"));
 
     }
     
