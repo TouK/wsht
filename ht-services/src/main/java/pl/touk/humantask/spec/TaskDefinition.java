@@ -32,6 +32,7 @@ import pl.touk.humantask.model.Task;
  * 
  * @author Witek Wołejszo
  * @author Kamil Eisenbart
+ * @author Mateusz Lipczyński
  */
 public class TaskDefinition {
 
@@ -132,6 +133,8 @@ public class TaskDefinition {
         return null;
     }
 
+
+    
     // TODO make this function generic to handle all roles
     public List<String> getPotentialOwners() {
 
@@ -173,6 +176,11 @@ public class TaskDefinition {
         return result;
     }
 
+    /**
+     * TODO MLP: javadoc
+     * @param lang
+     * @return
+     */
     public String getSubject(String lang) {
         String result = "";
         XPath xpath = xPathFactory.newXPath();
@@ -231,6 +239,12 @@ public class TaskDefinition {
         return null;
     }
 
+    /**
+     * TODO mlp: javadoc
+     * @param logicalPeopleGroup
+     * @param task
+     * @return
+     */
     public List<Assignee> evaluate(LogicalPeopleGroup logicalPeopleGroup, Task task) {
         return this.peopleQuery.evaluate(logicalPeopleGroup, task);
     }

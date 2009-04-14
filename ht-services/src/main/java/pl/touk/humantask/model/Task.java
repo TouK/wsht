@@ -47,6 +47,7 @@ import pl.touk.humantask.exceptions.*;
  * 
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
+ * @author Mateusz Lipczyński
  */
 @Entity
 @Table(name = "TASK")
@@ -190,74 +191,19 @@ public class Task extends Base {
     // TODO deadlines
 
     /***************************************************************
-     * Constructors *
+     * Constructors                                                *
      ***************************************************************/
 
     /**
-     * Common initialization for all constructors
-     *
-     * @throws HumanTaskException
      * Package scope constructor.
      */
-    public Task() {
+    Task() {
         super();
     }
 
     /**
-     * 
-     */
-    @PostLoad
-    public void postLoad() {
-        LOG.info("Post load.");
-    }
-
-    /**
      * Task constructor.
-     * 
-     * TODO actualOwner or evaluatedPeopleGroups or people group definitions? TODO ws xml request in constructor?
-     * 
-     * @param actualOwner
-     * @param taskDefinition
-     * @throws HumanTaskException
-     */
-
-    private void init(TaskDefinition taskDefinition) throws HumanTaskException {
-        if (taskDefinition == null) {
-            throw new pl.touk.humantask.exceptions.IllegalArgumentException("Task definition must not be null.");
-        }
-        this.taskDefinition = taskDefinition;
-        this.taskDefinitionKey = taskDefinition.getKey();
-    }
-
-    /**
-     * Set proper initial status depending on the potential owners.
-     *
-     * TODO actualOwner should be replaced with potential owner evaluation
-     *
-     * @throws HumanTaskException
-     */
-    private void setProperInitialStatus() throws HumanTaskException {
-        this.status = Status.CREATED;
-
-        switch (potentialOwners.size()) {
-        case 0:
-            // pozostajemy w stanie Created i czekamy na dodanie ownersów przez
-            // admina
-            break;
-        case 1:
-            this.setActualOwner(potentialOwners.get(0));
-            this.setPotentialOwners(potentialOwners);
-            this.setStatus(Status.RESERVED);
-            break;
-        default:
-            this.setPotentialOwners(potentialOwners);
-            this.setStatus(Status.READY);
-            break;
-        }
-    }
-
-    /**
-     * Task constructor.
+     * TODO mlp: czym sie roznia konstruktory, usunac ten
      *
      * TODO actualOwner or evaluatedPeopleGroups or people group definitions?
      * TODO ws xml request in constructor?
@@ -323,6 +269,55 @@ public class Task extends Base {
 
         this.setCreatedBy(createdBy.getName());
         this.setActivationTime(new Date());
+        this.setProperInitialStatus();
+    }
+
+    /**
+     * 
+     */
+    @PostLoad
+    public void postLoad() {
+        LOG.info("Post load.");
+    }
+
+    /**
+     * TODO mlp: describe
+     * @param taskDefinition
+     * @throws HumanTaskException
+     */
+    private void init(TaskDefinition taskDefinition) throws HumanTaskException {
+        if (taskDefinition == null) {
+            throw new pl.touk.humantask.exceptions.IllegalArgumentException("Task definition must not be null.");
+        }
+        this.taskDefinition = taskDefinition;
+        this.taskDefinitionKey = taskDefinition.getKey();
+    }
+
+    /**
+     * Set proper initial status depending on the potential owners.
+     *
+     * TODO actualOwner should be replaced with potential owner evaluation
+     *
+     * @throws HumanTaskException
+     */
+    private void setProperInitialStatus() throws HumanTaskException {
+        this.status = Status.CREATED;
+
+        switch (potentialOwners.size()) {
+        case 0:
+            // pozostajemy w stanie Created i czekamy na dodanie ownersów przez
+            // admina
+            break;
+        case 1:
+            this.setActualOwner(potentialOwners.get(0));
+            this.setPotentialOwners(potentialOwners);
+            this.setStatus(Status.RESERVED);
+            break;
+        default:
+            this.setPotentialOwners(potentialOwners);
+            this.setStatus(Status.READY);
+            break;
+        }
     }
 
     /***************************************************************

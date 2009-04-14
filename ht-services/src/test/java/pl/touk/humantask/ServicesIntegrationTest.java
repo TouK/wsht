@@ -42,7 +42,7 @@ import pl.touk.humantask.spec.TaskDefinition;
  */
 @ContextConfiguration(locations = "classpath:/test.xml")
 public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
-/*
+
     private final Log LOG = LogFactory.getLog(ServicesIntegrationTest.class);
 
     @Resource(name = "humanTaskServices")
@@ -53,7 +53,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
     @Resource(name = "assigneeDao")
     AssigneeDao assigneeDao;
- */
+
     //@Resource(name = "hibernateSessionFactory")
     //SessionFactory sessionFactory;
     
@@ -77,12 +77,11 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Transactional
     @Rollback
     public void testCreateTask() throws HumanTaskException {
-        assertEquals(2*2, 4);
 
         // Services services = (Services)
         // applicationContext.getBean("humanTaskServices");
 
-    //    Task t = services.createTask("ApproveClaim", "ww", "request");
+        Task t = services.createTask("ApproveClaim", "ww", "request");
 
         //LOG.info("Task key: " + t.getTaskDefinition().getKey());
         //LOG.info("Task description: " + t.getTaskDefinition().getDescription("en-US", "text/plain"));
@@ -102,7 +101,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 //        //sessionFactory.getCurrentSession().clear();
 //        //taskDao.getJpaTemplate().flush();
 //        
-//        List<Task> tasks = services.getMyTasks("user");
+//        //List<Task> tasks = services.getMyTasks("user");
 //
 //        
 //        for (Task task : tasks) {
@@ -113,8 +112,10 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 //
 //    }
 
-    //@Test
-    /*
+    /**
+     * TODO wcr - fails, what we test here? please describe in javadoc
+     */
+    @Test
     @Transactional
     @Rollback
     public void testGetMyTasksNoCreate() throws HumanTaskException {
@@ -145,13 +146,13 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         
         task.setTaskStakeholders(Arrays.asList((Assignee)jacek));
         task.setActualOwner(jacek);
-      
         task.setStatus(Status.IN_PROGRESS);
-       
-        taskDao.create(task);
-        List<Task> results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, "admin", Arrays.asList(Status.IN_PROGRESS,Status.OBSOLETE), null, null, 1);
         
-        Assert.assertEquals(1,results.size());
+        taskDao.create(task);
+        
+        List<Task> results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, null, Arrays.asList(Status.IN_PROGRESS, Status.OBSOLETE), null, null, 1);
+        
+        Assert.assertEquals(1, results.size());
        
         Task taskToCheck = results.get(0);
         
@@ -169,7 +170,6 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         
         mockery.assertIsSatisfied();
     }
-     */
 
 //    /**
 //     * No exceptions expected.
@@ -188,7 +188,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 //        services.startTask(t, "kamil");
 //
 //    }
-/*
+
     @Test
     @Transactional
     @Rollback
@@ -201,7 +201,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         //TODO the rest of default lifecycle
     }
-*/
+
 //    @Test
 //    @Transactional
 //    @Rollback

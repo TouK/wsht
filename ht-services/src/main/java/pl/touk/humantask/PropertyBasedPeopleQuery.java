@@ -28,6 +28,7 @@ import pl.touk.humantask.spec.TaskDefinition;
  * TODO cannot depend on dao
  * 
  * @author Witek Wołejszo
+ * @author Mateusz Lipczyński
  */
 public final class PropertyBasedPeopleQuery implements PeopleQuery {
 
