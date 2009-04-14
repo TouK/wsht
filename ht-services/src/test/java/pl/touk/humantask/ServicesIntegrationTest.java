@@ -161,7 +161,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         //check with no statuses specified
         //TODO
         //results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, "admin", new ArrayList(), null, null, 1);
-        results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, null, new ArrayList(), null, null, 1);
+        results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, null, new ArrayList<Status>(), null, null, 1);
         Assert.assertEquals(1, results.size());
         
         //TODO check with notifications
