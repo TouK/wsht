@@ -24,7 +24,6 @@ public interface PeopleQuery {
 
     /**
      * Returns list of potential {@link Assignee}s that are members of logical people group.
-     * TODO Assignees or Pesons?
      * 
      * @param logicalPeopleGroup
      * @param task
