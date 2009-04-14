@@ -7,6 +7,10 @@ package pl.touk.humantask.spec;
 
 import org.w3c.dom.Document;
 
+import java.util.List;
+
+import pl.touk.humantask.model.Group;
+
 /**
  * Provides access methods to Human Interactions document defined
  * using http://www.example.org/WS-HT schema.
@@ -19,6 +23,18 @@ public class HumanInteractions {
 
     private Document document;
     private String humanInteractionsDefinitionKey;
+
+    private List<TaskDefinition> taskDefinitions;
+
+    private List<Group> groupList;
+
+    public void setTaskDefinitions(List<TaskDefinition> taskDefinitions) {
+        this.taskDefinitions = taskDefinitions;
+    }
+
+    public void setGroupList(List<Group> groupList) {
+        this.groupList = groupList;
+    }
 
     /**
      * Private constructor to prevent instantiation.
@@ -50,4 +66,11 @@ public class HumanInteractions {
         return document;
     }
 
+    public List<TaskDefinition> getTaskDefinitions() {
+        return taskDefinitions;
+    }
+
+    public List<Group> getGroupList() {
+        return groupList;
+    }
 }

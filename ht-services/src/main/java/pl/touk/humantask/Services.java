@@ -28,6 +28,7 @@ import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.TaskTypes;
 import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.spec.TaskDefinition;
+import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 
 /**
  * Human task engine services.
@@ -58,11 +59,17 @@ public class Services implements HumanTaskServicesInterface {
     /**
      * Definitions of tasks available in WSHT.
      */
-    private List<TaskDefinition> taskDefinitions;
+//    private List<TaskDefinition> taskDefinitions;
     
     /**
      * Fully implemented methods - visible in interface.
      */
+
+    private HumanInteractionsManagerInterface taskManager;
+
+    public void setTaskManager(HumanInteractionsManagerInterface taskManager) {
+        this.taskManager = taskManager;
+    }
 
     /**
      * Work in progress - visible in interface.
@@ -87,16 +94,16 @@ public class Services implements HumanTaskServicesInterface {
         log.info("Creating task: " + taskName + " , createdBy: " + createdBy);
 
         // TODO: getting task by name move to human interface class
-        TaskDefinition taskDefinition = null;
-        for (TaskDefinition taskDefinitionConfigured : taskDefinitions) {
-            if (taskName.equals(taskDefinitionConfigured.getName()) && taskDefinitionConfigured.getInstantiable()) {
-                taskDefinition = taskDefinitionConfigured;
-                break;
-            }
-        }
-        if (taskDefinition == null) {
-            throw new HumanTaskException("No definition found for task: " + taskName);
-        }
+        TaskDefinition taskDefinition = taskManager.getTaskDefinitionByName(taskName);
+//        for (TaskDefinition taskDefinitionConfigured : taskDefinitions) {
+//            if (taskName.equals(taskDefinitionConfigured.getName()) && taskDefinitionConfigured.getInstantiable()) {
+//                taskDefinition = taskDefinitionConfigured;
+//                break;
+//            }
+//        }
+//        if (taskDefinition == null) {
+//            throw new HumanTaskException("No definition found for task: " + taskName);
+//        }
 
         // TODO: should be removed
         taskDefinition.setPeopleQuery(this.peopleQuery);
@@ -448,15 +455,17 @@ public class Services implements HumanTaskServicesInterface {
      * @param key
      * @return task definition
      */
-    private TaskDefinition findTaskDefinitionByKey(String key) {
+    private TaskDefinition findTaskDefinitionByKey(String key) throws HumanTaskException {
 
-        for (TaskDefinition td : taskDefinitions) {
-            if (key.equals(td.getKey())) {
-                return td;
-            }
-        }
-
-        return null;
+        return taskManager.getTaskDefinitionByKey(key);
+//        
+//        for (TaskDefinition td : taskDefinitions) {
+//            if (key.equals(td.getKey())) {
+//                return td;
+//            }
+//        }
+//
+//        return null;
     }
 
     /**
@@ -842,13 +851,13 @@ public class Services implements HumanTaskServicesInterface {
         this.taskDao = taskDao;
     }
 
-    public List<TaskDefinition> getTaskDefinitions() {
-        return taskDefinitions;
-    }
-
-    public void setTaskDefinitions(List<TaskDefinition> taskDefinitions) {
-        this.taskDefinitions = taskDefinitions;
-    }
+//    public List<TaskDefinition> getTaskDefinitions() {
+//        return taskDefinitions;
+//    }
+//
+//    public void setTaskDefinitions(List<TaskDefinition> taskDefinitions) {
+//        this.taskDefinitions = taskDefinitions;
+//    }
 
     public void setAssigneeDao(AssigneeDao assigneeDao) {
         this.assigneeDao = assigneeDao;

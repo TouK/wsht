@@ -93,36 +93,47 @@
         <property name="assigneeDao" ref="assigneeDao" />
     </bean>
 
-    <bean id="humanInteractions" class="pl.touk.humantask.spec.HumanInteractionsFactoryBean">
-        <property name="htdXml" value="classpath:htd1.xml" />
-    </bean>
+    <!--<bean id="humanInteractions" class="pl.touk.humantask.spec.HumanInteractionsFactoryBean">-->
+        <!--<property name="htdXml" value="classpath:htd1.xml" />-->
+    <!--</bean>-->
 
-    <bean id="ApproveClaimTask" class="pl.touk.humantask.spec.TaskDefinition">
-        <property name="name" value="ApproveClaim" />
-        <property name="definition" ref="humanInteractions" />
-        <property name="instantiable" value="true" />
-    </bean>
+    <!--<bean id="ApproveClaimTask" class="pl.touk.humantask.spec.TaskDefinition">-->
+        <!--<property name="name" value="ApproveClaim" />-->
+        <!--<property name="definition" ref="humanInteractions" />-->
+        <!--<property name="instantiable" value="true" />-->
+    <!--</bean>-->
 
-    <bean id="ApproveClaimTask2" class="pl.touk.humantask.spec.TaskDefinition">
-        <property name="name" value="ApproveClaim2" />
-        <property name="definition" ref="humanInteractions" />
-        <property name="instantiable" value="true" />
-    </bean>
+    <!--<bean id="ApproveClaimTask2" class="pl.touk.humantask.spec.TaskDefinition">-->
+        <!--<property name="name" value="ApproveClaim2" />-->
+        <!--<property name="definition" ref="humanInteractions" />-->
+        <!--<property name="instantiable" value="true" />-->
+    <!--</bean>-->
 
-    <bean id="taskManager" class="pl.touk.humantask.spec.TaskDefinitionManagerImpl">
-        <constructor-arg type="org.springframework.core.io.Resource" value="classpath:htd1.xml"/>
+    <bean id="taskManager" class="pl.touk.humantask.spec.HumanInteractionsManagerImpl">
+        <constructor-arg>
+            <list>
+                <value>
+                    classpath:htd1.xml
+                </value>
+                <value>
+                    classpath:testHtd1.xml
+                </value>
+            </list>
+        </constructor-arg>
+        <!--type="org.springframework.core.io.Resource" value="classpath:htd1.xml"/>-->
     </bean>    
     
 	<bean id="humanTaskServices" class="pl.touk.humantask.Services">
 		<property name="taskDao" ref="taskDao" />
 		<property name="assigneeDao" ref="assigneeDao" />
 		<property name="peopleQuery" ref="peopleQuery"/>
-		<property name="taskDefinitions">
-			<list>
-				<ref bean="ApproveClaimTask" />
-				<ref bean="ApproveClaimTask2" />
-			</list>
-		</property>
+        <property name="taskManager" ref="taskManager"/>
+		<!--<property name="taskDefinitions">-->
+			<!--<list>-->
+				<!--<ref bean="ApproveClaimTask" />-->
+				<!--<ref bean="ApproveClaimTask2" />-->
+			<!--</list>-->
+		<!--</property>-->
 	</bean>
 
 

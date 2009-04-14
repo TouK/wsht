@@ -15,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import pl.touk.humantask.exceptions.HumanTaskException;
 
 /**
  * TODO switch to unit test
@@ -26,9 +27,10 @@ public class TaskDefinitionIntegrationTest extends AbstractTransactionalJUnit4Sp
     private final Log log = LogFactory.getLog(TaskDefinitionIntegrationTest.class);
 
     //@Test
-    public void testGetDescriptionPlain() {
-
-        TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
+    public void testGetDescriptionPlain() throws HumanTaskException {
+        HumanInteractionsManagerInterface htManager = (HumanInteractionsManagerInterface) applicationContext.getBean("taskManager");
+//        TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
+        TaskDefinition td = htManager.getTaskDefinitionByName("ApproveClaim");
         String description = td.getDescription("en-US", "text/plain");
 
         log.debug(description);
@@ -38,9 +40,12 @@ public class TaskDefinitionIntegrationTest extends AbstractTransactionalJUnit4Sp
     }
 
     //@Test
-    public void testGetDescriptionHtml() {
+    public void testGetDescriptionHtml() throws HumanTaskException {
 
-        TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
+//        TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
+        HumanInteractionsManagerInterface htManager = (HumanInteractionsManagerInterface) applicationContext.getBean("taskManager");
+        
+        TaskDefinition td = htManager.getTaskDefinitionByName("ApproveClaim");
         String description = td.getDescription("en-US", "text/html");
 
         log.debug(description);
@@ -50,9 +55,10 @@ public class TaskDefinitionIntegrationTest extends AbstractTransactionalJUnit4Sp
     }
 
     @Test
-    public void testGetPotentialOwners() {
-
-        TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
+    public void testGetPotentialOwners() throws HumanTaskException {
+        HumanInteractionsManagerInterface htManager = (HumanInteractionsManagerInterface) applicationContext.getBean("taskManager");
+//        TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
+        TaskDefinition td = htManager.getTaskDefinitionByName("ApproveClaim");
         List<String> r = td.getPotentialOwners();
 
         assertTrue(r.contains("regionalClerks"));
