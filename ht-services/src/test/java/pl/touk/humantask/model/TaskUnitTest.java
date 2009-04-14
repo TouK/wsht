@@ -76,7 +76,7 @@ public class TaskUnitTest {
             one(taskDefinition).getKey(); will(returnValue("taskLookupKey"));
         }});
         
-        Task task = new Task(null, taskDefinition);
+        Task task = new Task(taskDefinition, null);
         assertEquals(Task.Status.CREATED, task.getStatus());
         
         mockery.assertIsSatisfied();
