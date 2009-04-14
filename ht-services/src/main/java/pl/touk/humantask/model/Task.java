@@ -7,8 +7,10 @@ package pl.touk.humantask.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
+import java.util.Map;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -37,8 +39,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Index;
 
-import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.spec.TaskDefinition;
+import pl.touk.humantask.exceptions.*;
 
 /**
  * Holds task instance information.
@@ -192,9 +194,12 @@ public class Task extends Base {
      ***************************************************************/
 
     /**
+     * Common initialization for all constructors
+     *
+     * @throws HumanTaskException
      * Package scope constructor.
      */
-    Task() {
+    public Task() {
         super();
     }
 
@@ -215,19 +220,109 @@ public class Task extends Base {
      * @param taskDefinition
      * @throws HumanTaskException
      */
-    public Task(Person actualOwner, TaskDefinition taskDefinition) throws HumanTaskException {
 
+    private void init(TaskDefinition taskDefinition) throws HumanTaskException {
         if (taskDefinition == null) {
-            throw new NullPointerException("Task definition must not be null.");
+            throw new pl.touk.humantask.exceptions.IllegalArgumentException("Task definition must not be null.");
         }
-
-        this.actualOwner = actualOwner;
         this.taskDefinition = taskDefinition;
         this.taskDefinitionKey = taskDefinition.getKey();
+    }
+
+    /**
+     * Set proper initial status depending on the potential owners.
+     *
+     * TODO actualOwner should be replaced with potential owner evaluation
+     *
+     * @throws HumanTaskException
+     */
+    private void setProperInitialStatus() throws HumanTaskException {
         this.status = Status.CREATED;
-        if (actualOwner != null) {
+
+        switch (potentialOwners.size()) {
+        case 0:
+            // pozostajemy w stanie Created i czekamy na dodanie ownersów przez
+            // admina
+            break;
+        case 1:
+            this.setActualOwner(potentialOwners.get(0));
+            this.setPotentialOwners(potentialOwners);
             this.setStatus(Status.RESERVED);
+            break;
+        default:
+            this.setPotentialOwners(potentialOwners);
+            this.setStatus(Status.READY);
+            break;
         }
+    }
+
+    /**
+     * Task constructor.
+     *
+     * TODO actualOwner or evaluatedPeopleGroups or people group definitions?
+     * TODO ws xml request in constructor?
+     *
+     * @param taskDefinition
+     * @param actualOwner
+     * @throws HumanTaskException
+     */
+    public Task(TaskDefinition taskDefinition, Person actualOwner) throws HumanTaskException {
+        this.init(taskDefinition);
+        List<Assignee> actualOwnerList = new ArrayList<Assignee>();
+        if (actualOwner != null) {
+            actualOwnerList.add(actualOwner);
+        }
+        this.setPotentialOwners(actualOwnerList);
+        this.setProperInitialStatus();
+    }
+
+    /**
+     * Task constructor.
+     *
+     * TODO actualOwner or evaluatedPeopleGroups or people group definitions?
+     * TODO ws xml request in constructor?
+     *
+     * @param taskDefinition  task definition as an object
+     * @param createdBy       person who created the task
+     * @param requestXml      input data as XML string
+     * @throws HumanTaskException
+     */
+    public Task(TaskDefinition taskDefinition, Person createdBy, String requestXml) throws HumanTaskException {
+
+        this.init(taskDefinition);
+        this.setRequestXml(requestXml);
+
+        // evaluate logical people groups
+        List<TaskDefinition.LogicalPeopleGroup> logicalPeopleGroups = taskDefinition.getLogicalpeopleGroups();
+
+        Map<String, List<Assignee>> lpgPotentialMembers = new HashMap<String, List<Assignee>>();
+        for (TaskDefinition.LogicalPeopleGroup lpg : logicalPeopleGroups) {
+            lpgPotentialMembers.put(lpg.getName(), taskDefinition.evaluate(lpg, this));
+        }
+
+        // TODO assigning potential members to roles
+
+        // TODO potential owners
+        this.potentialOwners = new ArrayList<Assignee>();
+
+        for (String name : taskDefinition.getPotentialOwners()) {
+
+            // WARNING!! t.getTaskDefinition().getPotentialOwners() returns
+            // potential owners group name
+            // not exactly name from this group
+
+            List<Assignee> newMembers = lpgPotentialMembers.get(name);
+
+            for (Assignee assignee : newMembers) {
+                if (!potentialOwners.contains(assignee)) {
+                    potentialOwners.add(assignee);
+                }
+            }
+
+        }
+
+        this.setCreatedBy(createdBy.getName());
+        this.setActivationTime(new Date());
     }
 
     /***************************************************************
@@ -312,8 +407,8 @@ public class Task extends Base {
             } else {
 
                 LOG.error("Changing Task status: " + this + " status from: " + getStatus() + " to: " + status + " is not allowed.");
-                throw new HumanTaskException("Changing Task's: " + this + " status from: " + getStatus() + " to: " + status
-                        + " is not allowed, or task is SUSPENDED");
+                throw new pl.touk.humantask.exceptions.IllegalStateException("Changing Task's: " + this + " status from: " + getStatus() + " to: " + status
+                        + " is not allowed, or task is SUSPENDED", status);
 
             }
 
@@ -366,14 +461,14 @@ public class Task extends Base {
         return faultXml;
     }
 
-    // TODO fult definitions
+    // TODO fault definitions
     /**
      * check if given foultname exists
      * 
-     * @param foultName
+     * @param faultName
      * @return
      */
-    public boolean findFoult(String foultName) {
+    public boolean findFault(String faultName) {
 
         return true;
         // return false;

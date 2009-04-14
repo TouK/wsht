@@ -23,7 +23,7 @@ import pl.touk.humantask.spec.TaskDefinition;
 public class TaskUnitTest {
 
     @Test
-    public void testInstatiation() throws HumanTaskException {
+    public void testInstatiationOnePotentialOwner() throws HumanTaskException {
         
         Mockery mockery = new Mockery() {{
             setImposteriser(ClassImposteriser.INSTANCE);  
@@ -35,12 +35,30 @@ public class TaskUnitTest {
             one(taskDefinition).getKey(); will(returnValue("taskLookupKey"));
         }});
         
-        Task task = new Task(new Person("witek"), taskDefinition);
+        Task task = new Task(taskDefinition, new Person("witek"));
         assertEquals(Task.Status.RESERVED, task.getStatus());
         
         mockery.assertIsSatisfied();
     }
-    
+
+    @Test
+    public void testInstatiationNoPotentialOwners() throws HumanTaskException {
+
+        Mockery mockery = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
+
+        final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
+
+        mockery.checking(new Expectations() {{
+            one(taskDefinition).getKey(); will(returnValue("taskLookupKey"));
+        }});
+
+        Task task = new Task(taskDefinition, null);
+        assertEquals(Task.Status.CREATED, task.getStatus());
+
+        mockery.assertIsSatisfied();
+    }
     /**
      * Tests instantiation when no actual owner is passed. This is correct call.
      * @throws HumanTaskException

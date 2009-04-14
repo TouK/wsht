@@ -13,6 +13,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.example.ws_ht.api.wsdl.IllegalArgumentFault;
+import org.example.ws_ht.api.wsdl.IllegalOperationFault;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +27,8 @@ import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.model.TaskTypes;
 import pl.touk.humantask.model.Task.Status;
+import pl.touk.humantask.model.TaskTypes;
 import pl.touk.humantask.spec.TaskDefinition;
 
 /**
@@ -35,48 +37,58 @@ import pl.touk.humantask.spec.TaskDefinition;
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
  */
-public class Services implements HumanTaskServicesInterface {
+public class Services {
 
     private final Log log = LogFactory.getLog(Services.class);
-
     /**
      * DAO for accessing {@link Task}s.
      */
     private TaskDao taskDao;
-
     /**
      * DAO for accessing {@link Assignee}s.
      */
     private AssigneeDao assigneeDao;
-
     /**
      * {@link PeopleQuery} implementation for user evaluation.
      */
     private PeopleQuery peopleQuery;
-
     /**
      * Definitions of tasks available in WSHT.
      */
     private List<TaskDefinition> taskDefinitions;
 
     /**
-     * Fully implemented methods - visible in interface.
-     */
-
-    /**
-     * Work in progress - visible in interface.
-     */
-
-    /**
-     * Creates {@link Task} instance based on a definition. See detailed contract in {@link HumanTaskServicesInterface#createTask(String, String, String)}
-     * 
-     * @param taskName
-     *            name of the task template from the definition file
-     * @param createdBy
-     *            user creating task
-     * @param requestXml
-     *            xml request used to invoke business method; can contain task-specific attributes, like last name, amount, etc.
-     * 
+     * Creates {@link Task} instance basing on a definition.
+     * The definitions are provided by the services. They can come from a file,
+     * e.g. htd1.xml, a database or any other source.
+     * We assume that the task is activated upon creation provided that it has any potential owners.
+     * Upon creation the following sets of persons are evaluated: <ul>
+     * <li>task initiators - @see #taskInitiators</li>
+     * <li>task stakeholders - @see #taskStakeholders</li>
+     * <li>potential owners - @see #potentialOwners</li>
+     * <li>excluded owners - @see #excludedOwners</li>
+     * <li>business administrators - @see #businessAdministrators</li>
+     * <li>notification recipients - @see #notificationRecipients</li>
+     * </ul>
+     * Those groups have roles in aspect of the task.
+     * The source of a group is a part of the definition - it can
+     * be a logical group, a set of people or a set of groups, which can be
+     * evaluated basing on the requestXml contents.
+     * The status after the operation depends on the count of potential owners:<br/>
+     * 0 - CREATED, it is now due to the administrator to add potential owners<br/>
+     * 1 - RESERVED, since there's only one possibility;<br/>
+     * 2 or more - READY - the potential owners are welcome to take the task.<br/>
+     * Request data depends on the task definition, e.g. approving a claim requires a money amount,
+     * which may not make sense in case of another task. Request data might be empty
+     * in some cases.</br>
+     * If the task initiators are not empty and createdBy is not empty, it is checked whether task initiators contain createdBy.
+     * If not, it is not allowed to create the task.
+     * Depending on the situation, createdBy may be empty.
+     * At the end, the new task is stored.
+     *
+     * @param taskName name of the task template from the definition file
+     * @param createdBy user creating task
+     * @param requestXml xml request used to invoke business method; can contain task-specific attributes, like last name, amount, etc.
      * @return created Task
      * @throws HumanTaskException
      */
@@ -85,130 +97,52 @@ public class Services implements HumanTaskServicesInterface {
 
         log.info("Creating task: " + taskName + " , createdBy: " + createdBy);
 
-        // setOutput(pName, output)
+        // TODO: getting task by name move to human interface class
         TaskDefinition taskDefinition = null;
         for (TaskDefinition taskDefinitionConfigured : taskDefinitions) {
             if (taskName.equals(taskDefinitionConfigured.getName()) && taskDefinitionConfigured.getInstantiable()) {
-                // newTask.setTaskDefinition(taskDefinition);
                 taskDefinition = taskDefinitionConfigured;
                 break;
             }
         }
-
-        Person actualOwner = assigneeDao.getPerson(createdBy);
-        if (actualOwner == null) {
-            actualOwner = new Person(createdBy);
-            assigneeDao.create(actualOwner);
-        }
-
-        Task newTask = new Task(actualOwner, taskDefinition);
-        newTask.setRequestXml(requestXml);
-
-        if (newTask.getTaskDefinition() == null) {
+        if (taskDefinition == null) {
             throw new HumanTaskException("No definition found for task: " + taskName);
         }
 
-        // evaluate logical people groups
-        List<TaskDefinition.LogicalPeopleGroup> logicalPeopleGroups = newTask.getTaskDefinition().getLogicalpeopleGroups();
+        // TODO: should be removed
+        taskDefinition.setPeopleQuery(this.peopleQuery);
 
-        Map<String, List<Assignee>> lpgPotentialMembers = new HashMap<String, List<Assignee>>();
-        for (TaskDefinition.LogicalPeopleGroup lpg : logicalPeopleGroups) {
-            lpgPotentialMembers.put(lpg.getName(), getPeopleQuery().evaluate(lpg, newTask));
+        Person createdByPerson = assigneeDao.getPerson(createdBy);
+        if (createdByPerson == null) {
+            createdByPerson = new Person(createdBy);
+            assigneeDao.create(createdByPerson);
         }
 
-        // TODO assigning potential members to roles
-
-        // TODO potential owners
-        List<Assignee> potentialOwners = new ArrayList<Assignee>();
-
-        for (String name : newTask.getTaskDefinition().getPotentialOwners()) {
-
-            // WARNING!! t.getTaskDefinition().getPotentialOwners() returns
-            // potential owners group name
-            // not exactly name from this group
-
-            List<Assignee> newMembers = lpgPotentialMembers.get(name);
-
-            for (Assignee assignee : newMembers) {
-                if (!potentialOwners.contains(assignee)) {
-                    potentialOwners.add(assignee);
-                }
-            }
-
-        }
-
-        switch (potentialOwners.size()) {
-        case 0:
-            // pozostajemy w stanie Created i czekamy na dodanie ownersów przez
-            // admina
-            break;
-        case 1:
-            newTask.setActualOwner(potentialOwners.get(0));
-            newTask.setPotentialOwners(potentialOwners);
-            newTask.setStatus(Status.RESERVED);
-            break;
-        default:
-            newTask.setPotentialOwners(potentialOwners);
-            newTask.setStatus(Status.READY);
-            break;
-        }
-
-        newTask.setCreatedBy(createdBy);
-        newTask.setActivationTime(new Date());
-
+        Task newTask = new Task(taskDefinition, createdByPerson, requestXml);
         taskDao.create(newTask);
-
         return newTask;
 
     }
-
-    /**
-     * Retrieve the task details. This operation is used to obtain the data required to display a task list, as well as the details for the individual tasks.
-     * 
-     * @param personName
-     *            If specified and no work queue has been specified then only personal tasks are returned, classified by genericHumanRole.
-     * @param taskType
-     *            one of ALL, NOTIFICATIONS, TASKS.
-     * @param genericHumanRole
-     *            A classifier of names contained in the task.
-     * @param workQueue
-     *            If the work queue is specified then only tasks having a work queue and generic human role are returned.
-     * @param statusList
-     *            selects the tasks whose status is one of those specified in List.
-     * @param whereClause
-     *            - an [Hibernate] SQL Expression added to the criteria These additional fields may be used
-     *            (ID,TaskType,Name,Status,Priority,CreatedOn,ActivationTime,ExpirationTime
-     *            ,StartByExists,CompleteByExists,RenderMethExists,Escalated,PrimarySearchBy);
-     * @param createdOnClause
-     *            - an [Hibernate] SQL Expression performed on an xsd:date.
-     * @param maxTasks
-     *            - the maximum number of results returned in the List after ordering by activationTime.
-     * @return List of Tasks which meet the criteria.
-     */
-    public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
-            String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException {
-        Person person = assigneeDao.getPerson(personName);
-        return taskDao.getTasks(person, taskType, genericHumanRole, workQueue, status, whereClause, createdOnClause, maxTasks);
-    }
-
-    /**
-     * Later.
-     */
-
+    
     /**
      * Returns task owned by specified person.
      * 
-     * @param personName
+     * @param owner
      * @return
      */
     public List<Task> getMyTasks(String personName) {
         Person person = assigneeDao.getPerson(personName);
         return taskDao.getTasks(person);
     }
+    
+    /**
+     * Later.
+     */
 
     /**
-     * Claims task. Sets status to Reserved. Only potential owners can claim the task. Excluded owners may not become an actual or potential owner and thus they
-     * may not reserve or start the task.
+     * Claims task. Sets status to Reserved. Only potential owners can claim the
+     * task. Excluded owners may not become an actual or potential owner and
+     * thus they may not reserve or start the task.
      * 
      * @param task
      * @param assigneeName
@@ -245,7 +179,7 @@ public class Services implements HumanTaskServicesInterface {
 
         }
 
-        // task.setStatus(Status.RESERVED);
+        //task.setStatus(Status.RESERVED);
         task.reserve();
 
         taskDao.update(task);
@@ -255,7 +189,8 @@ public class Services implements HumanTaskServicesInterface {
     }
 
     /**
-     * Starts task. Sets status to inProgess. Actual Owner Potential Owners (state Ready)
+     * Starts task. Sets status to inProgess. Actual Owner Potential Owners
+     * (state Ready)
      * 
      * @param task
      * @param personName
@@ -286,22 +221,21 @@ public class Services implements HumanTaskServicesInterface {
         }
 
         task.setStatus(Status.IN_PROGRESS);
-        // TODO was update
-        taskDao.create(task);
+        taskDao.update(task);
 
         return task;
     }
 
     /**
-     * Loads single task from persistent store. TODO implement
-     * 
+     * Loads single task from persistent store.
+     * TODO implement
      * @return
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public Task loadTask(Long taskId) {
 
         Task task = taskDao.fetch(taskId);
-        // task.setTaskDefinition(findTaskDefinitionByKey(task.getTaskDefinitionKey()));
+        //task.setTaskDefinition(findTaskDefinitionByKey(task.getTaskDefinitionKey()));
 
         // TODO throw an exception if no definition found
 
@@ -346,8 +280,12 @@ public class Services implements HumanTaskServicesInterface {
 
         // TODO check who is forwarding the task
         /*
-         * if ((t.getStatus()==Status.IN_PROGRESS || t.getStatus()==Status.RESERVED)&& owner==null){
-         * log.error("this person or a group cannot forward this task"); throw new HumanTaskException("this person or a group cannot forward this task" ); }
+         * if ((t.getStatus()==Status.IN_PROGRESS ||
+         * t.getStatus()==Status.RESERVED)&& owner==null){
+         * log.error("this person or a group cannot forward this task"); throw
+         * new
+         * HumanTaskException("this person or a group cannot forward this task"
+         * ); }
          */
 
         if (task.getStatus() == Status.IN_PROGRESS || task.getStatus() == Status.RESERVED) {
@@ -370,7 +308,6 @@ public class Services implements HumanTaskServicesInterface {
             task.setPotentialOwners(null);
         }
 
-        //TODO always Person
         if (assignee instanceof Group) {
 
             Group g = (Group) assignee;
@@ -410,6 +347,29 @@ public class Services implements HumanTaskServicesInterface {
             }
             i++;
         }
+    }
+
+    /**
+     * Retrieve the task details. This operation is used to obtain the data required
+    to display a task list, as well as the details for the individual tasks.
+     * @param personName If specified and no work queue has been specified then only personal tasks are
+    returned, classified by genericHumanRole.
+     * @param taskType one of ALL, NOTIFICATIONS, TASKS.
+     * @param genericHumanRole A classifier of names contained in the task. 
+     * @param workQueue  If the work queue is specified then only tasks having a 
+     * work queue and generic human role are returned.
+     * @param statusList selects the tasks whose status is one of those specified in List.
+     * @param whereClause - an [Hibernate] SQL Expression added to the criteria 
+     * These additional fields may be used 
+     * (ID,TaskType,Name,Status,Priority,CreatedOn,ActivationTime,ExpirationTime
+     * ,StartByExists,CompleteByExists,RenderMethExists,Escalated,PrimarySearchBy);
+     * @param createdOnClause - an [Hibernate] SQL Expression performed on an xsd:date. 
+     * @param maxTasks - the maximum number of results returned in the List after ordering by activationTime.
+     * @return List of Tasks which meet the criteria.
+     */
+    public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status, String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException {
+        Person person = assigneeDao.getPerson(personName);
+        return taskDao.getTasks(person, taskType, genericHumanRole, workQueue, status, whereClause, createdOnClause, maxTasks);
     }
 
     /**
@@ -509,8 +469,7 @@ public class Services implements HumanTaskServicesInterface {
 
         Person person = (Person) assigneeDao.getPerson(personName);
 
-        if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY) || task.getActualOwner().equals(person) || task
-                .getBusinessAdministrators().equals(person))) {
+        if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY) || task.getActualOwner().equals(person) || task.getBusinessAdministrators().equals(person))) {
             log.error("you don't have a permission to suspend the task");
             throw new HumanTaskException("you don't have a permission to suspend the task");
         }
@@ -521,7 +480,7 @@ public class Services implements HumanTaskServicesInterface {
 
     /**
      * Resumes task after suspension.
-     * TODO getBusinessAdministrators().equals(person) == crap 
+     * 
      * @param task
      * @throws HumanTaskException
      */
@@ -529,8 +488,7 @@ public class Services implements HumanTaskServicesInterface {
 
         Person person = (Person) assigneeDao.getPerson(personName);
 
-        if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY) || task.getActualOwner().equals(person) || task
-                .getBusinessAdministrators().equals(person))) {
+        if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY) || task.getActualOwner().equals(person) || task.getBusinessAdministrators().equals(person))) {
             log.error("you don't have a permission to resume the task");
             throw new HumanTaskException("you don't have a permission to resume the task");
         }
@@ -662,7 +620,7 @@ public class Services implements HumanTaskServicesInterface {
             throw new IllegalArgumentException("none of faultName and faultXml cannot be null");
         }
 
-        if (!task.findFoult(faultName)) {
+        if (!task.findFault(faultName)) {
             log.error("Illegal operation fault - there is no such fault name");
             throw new RuntimeException("there is no such fault name");
         }
@@ -694,7 +652,7 @@ public class Services implements HumanTaskServicesInterface {
             throw new HumanTaskException(person + " cannot set the fault");
         }
 
-        if (!task.findFoult(faultName)) {
+        if (!task.findFault(faultName)) {
             log.error("Illegal operation fault - there is no such fault name");
             throw new RuntimeException("there is no such fault name");
         }
@@ -760,7 +718,6 @@ public class Services implements HumanTaskServicesInterface {
 
     /**
      * Adds {@link Attachment} to the task.
-     * 
      * @param task
      * @param attName
      * @param accessType
@@ -791,18 +748,18 @@ public class Services implements HumanTaskServicesInterface {
         taskDao.update(task);
     }
 
-    // public List<Attachment> getAttachments(Task task, String attachmentName, Assignee assignee) {
-    //
-    // List<Attachment> list = new ArrayList<Attachment>();
-    //
-    // for (Attachment att : task.getAttachments()) {
-    // if (att.getName().equals(attachmentName)) {
-    // list.add(att);
-    // }
-    // }
-    // return list;
-    // }
-    //
+//    public List<Attachment> getAttachments(Task task, String attachmentName, Assignee assignee) {
+//
+//        List<Attachment> list = new ArrayList<Attachment>();
+//
+//        for (Attachment att : task.getAttachments()) {
+//            if (att.getName().equals(attachmentName)) {
+//                list.add(att);
+//            }
+//        }
+//        return list;
+//    }
+//
     /**
      * adding potential owner
      * 
@@ -830,23 +787,23 @@ public class Services implements HumanTaskServicesInterface {
         taskDao.update(task);
     }
 
-    // // TODO przenies do DAO i raczej powinno byc to zrobione w spring-sie
-    // @Transactional(propagation = Propagation.REQUIRED)
-    // public void refresh() {
-    //
-    // Calendar cal = Calendar.getInstance();
-    // cal.setTimeInMillis(System.currentTimeMillis());
-    //
-    // List<Task> list = taskDao.getTasksToResume(Status.SUSPENDED, cal.getTime());
-    //
-    // for (Task task : list) {
-    // if (cal.getTime().compareTo(task.getSuspentionTime()) > 0) {
-    // task.resume();
-    // log.info("refreshing tasks status");
-    // taskDao.update(task);
-    // }
-    // }
-    // }
+    // TODO przenies do DAO i raczej powinno byc to zrobione w spring-sie
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void refresh() {
+/*
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(System.currentTimeMillis());
+
+        List<Task> list = taskDao.getTasksToResume(Status.SUSPENDED, cal.getTime());
+
+        for (Task task : list) {
+            if (cal.getTime().compareTo(task.getSuspentionTime()) > 0) {
+                task.resume();
+                log.info("refreshing tasks status");
+                taskDao.update(task);
+            }
+        }*/
+    }
 
     public TaskDao getTaskDao() {
         return taskDao;

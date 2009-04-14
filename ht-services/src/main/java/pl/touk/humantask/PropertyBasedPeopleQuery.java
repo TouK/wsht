@@ -41,48 +41,31 @@ public final class PropertyBasedPeopleQuery implements PeopleQuery {
      * 
      */
     public List<Assignee> evaluate(TaskDefinition.LogicalPeopleGroup logicalPeopleGroup, Task task) {
-
         log.info("Evaluating members of logical people group: " + logicalPeopleGroup.getName());
-
         List<Assignee> result = new ArrayList<Assignee>();
-
         Properties p = new Properties();
         try {
-
             p.load(configuration.getInputStream());
-
             String value = (String) p.get(logicalPeopleGroup.getName());
-
             // parse
             String[] peopleInGroup = value.split(",");
-
             for (String name : peopleInGroup) {
-
                 Person person = assigneeDao.getPerson(name);
-
                 if (person == null) {
-
                     person = new Person(name);
                     assigneeDao.create(person);
                 }
-
                 result.add(person);
             }
-
         } catch (IOException e) {
-
             // Access error should not affect evaluation TODO: ref to specs
             try {
-                
                 log.error("Error reading: " + configuration.getURL());
             } catch (IOException e1) {
             } finally {
-                
                 log.error("Error reading file.");
             }
-
         }
-
         return result;
     }
 

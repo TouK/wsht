@@ -2,7 +2,6 @@
  * Copyright (C) 2009 TouK sp. z o.o. s.k.a.
  * All rights reserved
  */
-
 package pl.touk.humantask.spec;
 
 import java.util.ArrayList;
@@ -21,6 +20,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import pl.touk.humantask.PeopleQuery;
+import pl.touk.humantask.model.Assignee;
+import pl.touk.humantask.model.Task;
 
 /**
  * Holds information about task version runnable in TouK Human Task engine. Task
@@ -34,7 +36,6 @@ import org.w3c.dom.NodeList;
 public class TaskDefinition {
 
     private final Log log = LogFactory.getLog(TaskDefinition.class);
-
     /**
      * Human Interactions specification containing this {@link TaskDefinition}.
      */
@@ -43,7 +44,7 @@ public class TaskDefinition {
     private String name;
     
     private boolean instantiable;
-
+    private PeopleQuery peopleQuery;
     private XPathFactory xPathFactory;
 
     public TaskDefinition() {
@@ -75,6 +76,14 @@ public class TaskDefinition {
         return name;
     }
 
+    public PeopleQuery getPeopleQuery() {
+        return peopleQuery;
+    }
+
+    public void setPeopleQuery(PeopleQuery peopleQuery) {
+        this.peopleQuery = peopleQuery;
+    }
+
     // //TODO lazy
     // public TTask getTask() {
     //		
@@ -99,8 +108,7 @@ public class TaskDefinition {
 
         try {
 
-            XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" + name
-                    + "']/htd:presentationElements/htd:description[@xml:lang='" + lang + "' and @contentType='" + contentType + "']");
+            XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" + name + "']/htd:presentationElements/htd:description[@xml:lang='" + lang + "' and @contentType='" + contentType + "']");
 
             Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);
 
@@ -135,8 +143,7 @@ public class TaskDefinition {
         // logical groups
         try {
 
-            XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" + name
-                    + "']/htd:peopleAssignments/htd:potentialOwners/htd:from[@logicalPeopleGroup]");
+            XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" + name + "']/htd:peopleAssignments/htd:potentialOwners/htd:from[@logicalPeopleGroup]");
 
             NodeList nl = (NodeList) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODESET);
 
@@ -166,9 +173,19 @@ public class TaskDefinition {
         return result;
     }
 
-    public String getSubject() {
-        // TODO Auto-generated method stub
-        return null;
+    public String getSubject(String lang) {
+        String result = "";
+        XPath xpath = xPathFactory.newXPath();
+        xpath.setNamespaceContext(new HtdNamespaceContext());
+        try {
+            XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" +
+                    name + "']/htd:presentationElements/htd:subject[@xml:lang='" + lang + "']");
+            Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);
+            result = node.getTextContent();
+        } catch (XPathExpressionException e) {
+            log.error("Error evaluating XPath.", e);
+        }
+        return result;
     }
 
     /**
@@ -207,11 +224,15 @@ public class TaskDefinition {
         } catch (XPathExpressionException e) {
 
             log.error("Error evaluating XPath.", e);
-            // TODO throw
+        // TODO throw
 
         }
 
         return null;
+    }
+
+    public List<Assignee> evaluate(LogicalPeopleGroup logicalPeopleGroup, Task task) {
+        return this.peopleQuery.evaluate(logicalPeopleGroup, task);
     }
 
     public static class LogicalPeopleGroup {
@@ -225,18 +246,18 @@ public class TaskDefinition {
         public String getName() {
             return name;
         }
-
     }
 
     private static class HtdNamespaceContext implements NamespaceContext {
 
         public String getNamespaceURI(String prefix) {
-            if (prefix == null)
+            if (prefix == null) {
                 throw new NullPointerException("Null prefix");
-            else if ("htd".equals(prefix))
+            } else if ("htd".equals(prefix)) {
                 return "http://www.example.org/WS-HT";
-            else if ("xml".equals(prefix))
+            } else if ("xml".equals(prefix)) {
                 return XMLConstants.XML_NS_URI;
+            }
             return XMLConstants.NULL_NS_URI;
         }
 
@@ -249,6 +270,5 @@ public class TaskDefinition {
             // TODO Auto-generated method stub
             return null;
         }
-
     }
 }
