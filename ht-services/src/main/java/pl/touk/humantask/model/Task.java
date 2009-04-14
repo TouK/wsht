@@ -57,7 +57,6 @@ public class Task extends Base {
     @Transient
     private final Log LOG = LogFactory.getLog(Task.class);
 
-    // TODO Tuplizer ???
     @Transient
     private TaskDefinition taskDefinition;
 
