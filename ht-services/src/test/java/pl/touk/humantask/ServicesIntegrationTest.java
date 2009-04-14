@@ -159,8 +159,9 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Assert.assertEquals(task.getActualOwner(), taskToCheck.getActualOwner());
         
         //check with no statuses specified
-        results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, "admin", new ArrayList(), null, null, 1);
-       
+        //TODO
+        //results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, "admin", new ArrayList(), null, null, 1);
+        results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, null, new ArrayList(), null, null, 1);
         Assert.assertEquals(1, results.size());
         
         //TODO check with notifications
