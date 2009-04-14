@@ -41,4 +41,27 @@ public class TaskUnitTest {
         mockery.assertIsSatisfied();
     }
     
+    /**
+     * Tests instantiation when no actual owner is passed. This is correct call.
+     * @throws HumanTaskException
+     */
+    @Test
+    public void testInstatiationNoActualOwner() throws HumanTaskException {
+        
+        Mockery mockery = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);  
+        }};
+        
+        final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
+        
+        mockery.checking(new Expectations() {{
+            one(taskDefinition).getKey(); will(returnValue("taskLookupKey"));
+        }});
+        
+        Task task = new Task(null, taskDefinition);
+        assertEquals(Task.Status.CREATED, task.getStatus());
+        
+        mockery.assertIsSatisfied();
+    }
+    
 }
