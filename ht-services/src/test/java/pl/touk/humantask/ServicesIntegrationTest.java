@@ -88,7 +88,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         Task t = services.createTask("ApproveClaim", "ww", "request");
 
-        String description = t.getTaskDefinition().getDescription("en-US", "text/plain");
+        String description = t.getTaskDefinition().getDescription("en-US", "text/plain", null);
         String key = t.getTaskDefinition().getTaskName();
 
         LOG.info("Task name: " + t.getTaskDefinition().getTaskName());

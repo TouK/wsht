@@ -109,38 +109,6 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
         throw new HumanTaskException("Task definition with a given name: " + taskName + " not found!");
     }
 
-//    public List<TaskDefinition> getTaskDefinitions() {
-//        List<TaskDefinition> taskDefinitions = new ArrayList<TaskDefinition>();
-//        for (HumanInteractions humanInteractions : humanInteractionsList) {
-//            taskDefinitions.addAll(humanInteractions.getTaskDefinitions());
-//        }
-//        return taskDefinitions;
-//    }
-//
-//    public Group getLogicalPeopleGroupByName(String groupName) throws HumanTaskException {
-//        Validate.notNull(groupName);
-//
-//        for (HumanInteractions humanInteractions : humanInteractionsList) {
-//            for (Group group : humanInteractions.getGroupList()) {
-//                if (groupName.equals(group.getName())) {
-//                    return group;
-//                }
-//            }
-//        }
-//        throw new HumanTaskException("People group with a given name: " + groupName + " not found!");
-//    }
-//
-//    public TaskDefinition getTaskDefinitionByKey(String key) throws HumanTaskException {
-//        List<TaskDefinition> taskDefinitions = getTaskDefinitions();
-//        for (TaskDefinition taskDefinition : taskDefinitions) {
-//            if (key.equals(taskDefinition.getKey())) {
-//                return taskDefinition;
-//            }
-//        }
-//
-//        throw new HumanTaskException("No task definition with a given key: " + key + " was found");
-//    }
-
     // ============= HELPER METHODS ===================
 
     private List<Group> extractLogicalPeopleGroup(THumanInteractions hiDoc) {
@@ -159,10 +127,9 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
         List<TaskDefinition> taskDefinitions = new ArrayList<TaskDefinition>();
         
         for (TTask tTask : hiDoc.getTasks().getTask()) {
-            TaskDefinition taskDefinition = new TaskDefinition(this);
-            taskDefinition.setTaskName(tTask.getName());
+            TaskDefinition taskDefinition = new TaskDefinition(tTask.getName(), this);
             taskDefinition.setDefinition(humanInteractions);
-
+            
             taskDefinitions.add(taskDefinition);
         }
         return taskDefinitions;

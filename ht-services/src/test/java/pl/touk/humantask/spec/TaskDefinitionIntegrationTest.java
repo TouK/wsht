@@ -36,7 +36,7 @@ public class TaskDefinitionIntegrationTest extends AbstractTransactionalJUnit4Sp
         HumanInteractionsManagerInterface htManager = (HumanInteractionsManagerInterface) applicationContext.getBean("taskManager");
 //        TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
         TaskDefinition td = htManager.getTaskDefinition("ApproveClaim");
-        String description = td.getDescription("en-US", "text/plain");
+        String description = td.getDescription("en-US", "text/plain", null);
 
         log.debug(description);
 
@@ -51,7 +51,7 @@ public class TaskDefinitionIntegrationTest extends AbstractTransactionalJUnit4Sp
         HumanInteractionsManagerInterface htManager = (HumanInteractionsManagerInterface) applicationContext.getBean("taskManager");
         
         TaskDefinition td = htManager.getTaskDefinition("ApproveClaim");
-        String description = td.getDescription("en-US", "text/html");
+        String description = td.getDescription("en-US", "text/html", null);
 
         log.debug(description);
 

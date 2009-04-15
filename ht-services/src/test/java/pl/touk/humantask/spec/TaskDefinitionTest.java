@@ -1,25 +1,18 @@
 package pl.touk.humantask.spec;
 
-import java.util.List;
-import java.util.ArrayList;
-
-import junit.framework.TestCase;
 import junit.framework.Assert;
-
+import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ClassPathResource;
 import pl.touk.humantask.exceptions.HumanTaskException;
-import pl.touk.humantask.PeopleQuery;
 import pl.touk.humantask.model.Assignee;
-import pl.touk.humantask.model.Person;
-import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.spec.TaskDefinition.LogicalPeopleGroup;
+
+import java.util.List;
 
 /**
  * TODO change to *IntegrationTest, use spring-testing
@@ -46,7 +39,7 @@ public class TaskDefinitionTest extends TestCase {
     public void testGetDescriptionPlain() throws HumanTaskException {
 //        TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
         TaskDefinition td = htManager.getTaskDefinition("ApproveClaim");
-        String description = td.getDescription("en-US", "text/plain");
+        String description = td.getDescription("en-US", "text/plain", null);
         log.debug(description);
         assertEquals("Approve this claim following corporate guideline #4711.0815/7 ...", description.trim());
     }
@@ -84,7 +77,7 @@ public class TaskDefinitionTest extends TestCase {
 //        TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
         TaskDefinition td = htManager.getTaskDefinition("ApproveClaim");
         String expResult = "Approve the insurance claim for €$euroAmount$ on";
-        String result = td.getSubject("en-US");
+        String result = td.getSubject("en-US", null);
         assertTrue(result.contains(expResult));
     }
 
