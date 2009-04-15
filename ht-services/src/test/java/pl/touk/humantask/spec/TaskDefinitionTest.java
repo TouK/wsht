@@ -22,6 +22,7 @@ import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.spec.TaskDefinition.LogicalPeopleGroup;
 
 /**
+ * TODO change to *IntegrationTest, use spring-testing
  * @author Witek Wołejszo
  * @author Mateusz Lipczyński
  */
