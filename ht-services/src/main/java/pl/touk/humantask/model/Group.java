@@ -31,12 +31,17 @@ public class Group extends Assignee {
 
     /**
      * Unresolved group of people constructor.
+     * @param name          group name
      */
     Group(String name) {
         super();
         this.setName(name);
     }
 
+    /***************************************************************
+     * Getters & Setters *
+     ***************************************************************/
+    
     public void setName(String name) {
         this.name = name;
     }

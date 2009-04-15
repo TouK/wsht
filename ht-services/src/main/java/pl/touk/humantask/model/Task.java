@@ -114,7 +114,7 @@ public class Task extends Base {
     /**
      * People assigned to different generic human roles.
      */
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.PERSIST)
     private Assignee actualOwner;
 
     /**
@@ -144,31 +144,27 @@ public class Task extends Base {
 
     private boolean escalated;
 
-    private String presName; // The task’s presentation name.
-
-    private String presSubject; // The task’s presentation subject.
-
     // Human roles assigned to Task instance during creation
 
     // initiator???
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "TASK_POTENTIAL_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> potentialOwners;
 
-    @ManyToMany
+    @ManyToMany(cascade=CascadeType.PERSIST)
     @JoinTable(name = "TASK_EXCLUDED_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> excludedOwners;
 
-    @ManyToMany
+    @ManyToMany(cascade=CascadeType.PERSIST)
     @JoinTable(name = "TASK_STAKEHOLDERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> taskStakeholders;
 
-    @ManyToMany
+    @ManyToMany(cascade=CascadeType.PERSIST)
     @JoinTable(name = "TASK_BUSINESS_AMINISTRATORS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> businessAdministrators;
 
-    @ManyToMany
+    @ManyToMany(cascade=CascadeType.PERSIST)
     @JoinTable(name = "TASK_NOTIFICATION_RECIPIENTS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> notificationRecipients;
 
@@ -190,28 +186,6 @@ public class Task extends Base {
     Task() {
         super();
     }
-
-//    /**
-//     * Task constructor.
-//     * TODO mlp: czym sie roznia konstruktory, usunac ten
-//     *
-//     * TODO actualOwner or evaluatedPeopleGroups or people group definitions?
-//     * TODO ws xml request in constructor?
-//     *
-//     * @param taskDefinition
-//     * @param actualOwner
-//     * @throws HumanTaskException
-//     */
-//    public Task(TaskDefinition taskDefinition, Person actualOwner) throws HumanTaskException {
-//        this.init(taskDefinition);
-//        List<Assignee> actualOwnerList = new ArrayList<Assignee>();
-//        if (actualOwner != null) {
-//            actualOwnerList.add(actualOwner);
-//        }
-//        this.setPotentialOwners(actualOwnerList);
-//        this.setProperInitialStatus();
-//    }
-
 
     /**
      * Task constructor.
@@ -239,9 +213,6 @@ public class Task extends Base {
         this.excludedOwners         = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS,           this.input);
         this.notificationRecipients = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS,   this.input);
         this.taskStakeholders       = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS,         this.input);
-
-        //TODO mlp: evaluate subject
-        //TODO mlp: evaluate description
 
         this.setCreatedBy(createdBy == null ? null : createdBy.getName());
         this.setActivationTime(new Date());
@@ -283,6 +254,27 @@ public class Task extends Base {
             }
         }
         return result;
+    }
+
+    /**
+     * Returns a formatted task subject in a required language
+     *
+     * @param lang subject language according ISO, e.g. en-US, pl, de-DE
+     * @return subject
+     */
+    public String getSubject(String lang) {
+        return taskDefinition.getSubject(lang, this.input);
+    }
+
+    /**
+     * Returns a formatted task description in a required language and form
+     *
+     * @param lang          description language according ISO, e.g. en-US, pl, de-DE
+     * @param contentType   text/plain for plain text or text/html for HTML-formatted text
+     * @return description
+     */
+    public String getDescription(String lang, String contentType) {
+        return taskDefinition.getDescription(lang, contentType, this.input);
     }
 
     /***************************************************************

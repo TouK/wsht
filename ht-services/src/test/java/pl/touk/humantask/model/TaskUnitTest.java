@@ -29,6 +29,10 @@ import pl.touk.humantask.spec.TaskDefinition;
 public class TaskUnitTest {
 
     @Test
+    /**
+     * Tests Task constructor.
+     * Scenario: 1 potential owner. Expected status: RESERVED.
+     */
     public void testInstatiationOnePotentialOwner() throws HumanTaskException {
 
         Mockery mockery = new Mockery() {{
@@ -55,6 +59,10 @@ public class TaskUnitTest {
         mockery.assertIsSatisfied();
     }
 
+    /**
+     * Tests Task constructor.
+     * Scenario: no potential owners. Expected status: CREATED.
+     */
     @Test
     public void testInstatiationNoPotentialOwners() throws HumanTaskException {
 
@@ -80,6 +88,10 @@ public class TaskUnitTest {
         mockery.assertIsSatisfied();
     }
 
+    /**
+     * Tests Task constructor.
+     * Scenario: 2 potential owners. Expected status: READY.
+     */
     @Test
     public void testInstatiationManyPotentialOwners() throws HumanTaskException {
 
@@ -109,7 +121,10 @@ public class TaskUnitTest {
     }
 
     /**
-     * Test of nominateActualOwner method, of class Task.
+     * Tests Task.nominateActualOwner method.
+     * 1. Input: Empty assignees. Output: null.
+     * 2. Input: One person and a group assigned. Output: that person.
+     * 3. Input: Two persons and a group. Output: null.
      */
     @Test
     public void testNominateActualOwner() {
