@@ -5,8 +5,10 @@
 package pl.touk.humantask.spec;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
@@ -22,6 +24,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import pl.touk.humantask.PeopleQuery;
 import pl.touk.humantask.model.Assignee;
+import pl.touk.humantask.model.GenericHumanRole;
+import pl.touk.humantask.model.Message;
 import pl.touk.humantask.model.Task;
 
 /**
@@ -42,9 +46,11 @@ public class TaskDefinition {
      */
     private HumanInteractions humanInteractions;
 
-    private String name;
+    private String taskName;
     
     private boolean instantiable;
+    
+    //TODO jkr: here? configured at human interactions manager level
     private PeopleQuery peopleQuery;
     private XPathFactory xPathFactory;
 
@@ -69,12 +75,13 @@ public class TaskDefinition {
         return humanInteractions;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    //TODO jkr - do konstruktora
+    public void setTaskName(String name) {
+        this.taskName = name;
     }
 
-    public String getName() {
-        return name;
+    public String getTaskName() {
+        return taskName;
     }
 
     public PeopleQuery getPeopleQuery() {
@@ -109,7 +116,7 @@ public class TaskDefinition {
 
         try {
 
-            XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" + name + "']/htd:presentationElements/htd:description[@xml:lang='" + lang + "' and @contentType='" + contentType + "']");
+            XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" + taskName + "']/htd:presentationElements/htd:description[@xml:lang='" + lang + "' and @contentType='" + contentType + "']");
 
             Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);
 
@@ -133,42 +140,58 @@ public class TaskDefinition {
         return null;
     }
 
+    /**
+     * Evaluates assignees of generic human role.
+     * @param genericHumanRole generic human role
+     * @param input the input message that created the task
+     * @return
+     */
+    public List<Assignee> evaluateHumanRoleAssignees(GenericHumanRole genericHumanRole, Map<String, Message> input) {
+        
+        //read htd
+        
+        //evaluate using people query
+        
+        //return
+        
+        return Collections.EMPTY_LIST;
+    }
 
     
-    // TODO make this function generic to handle all roles
-    public List<String> getPotentialOwners() {
-
-        List<String> result = new ArrayList<String>();
-        XPath xpath = xPathFactory.newXPath();
-        xpath.setNamespaceContext(new HtdNamespaceContext());
-
-        // logical groups
-        try {
-            XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" + name + "']/htd:peopleAssignments/htd:potentialOwners/htd:from[@logicalPeopleGroup]");
-            NodeList nl = (NodeList) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODESET);
-            for (int i = 0; i < nl.getLength(); i++) {
-                Node n = nl.item(i);
-                String logicalGroupName = n.getAttributes().getNamedItem("logicalPeopleGroup").getNodeValue();
-
-                // String newname = (String)
-                // n.getAttributes().getNamedItem("logicalPeopleGroup").getAttributes().toString();
-                // get parameters
-
-                result.add(logicalGroupName);
-
-            }
-
-        } catch (XPathExpressionException e) {
-
-            log.error("Error evaluating XPath.", e);
-
-        }
-
-        // TODO literal people & groups
-        // result.add("kamil");
-        // result.add("witek");
-        return result;
-    }
+//    // TODO make this function generic to handle all roles
+//    public List<String> getPotentialOwners() {
+//
+//        List<String> result = new ArrayList<String>();
+//        XPath xpath = xPathFactory.newXPath();
+//        xpath.setNamespaceContext(new HtdNamespaceContext());
+//
+//        // logical groups
+//        try {
+//            XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" + taskName + "']/htd:peopleAssignments/htd:potentialOwners/htd:from[@logicalPeopleGroup]");
+//            NodeList nl = (NodeList) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODESET);
+//            for (int i = 0; i < nl.getLength(); i++) {
+//                Node n = nl.item(i);
+//                String logicalGroupName = n.getAttributes().getNamedItem("logicalPeopleGroup").getNodeValue();
+//
+//                // String newname = (String)
+//                // n.getAttributes().getNamedItem("logicalPeopleGroup").getAttributes().toString();
+//                // get parameters
+//
+//                result.add(logicalGroupName);
+//
+//            }
+//
+//        } catch (XPathExpressionException e) {
+//
+//            log.error("Error evaluating XPath.", e);
+//
+//        }
+//
+//        // TODO literal people & groups
+//        // result.add("kamil");
+//        // result.add("witek");
+//        return result;
+//    }
 
     /**
      * Returns an unformatted task subject in a required language
@@ -181,7 +204,7 @@ public class TaskDefinition {
         xpath.setNamespaceContext(new HtdNamespaceContext());
         try {
             XPathExpression expr = xpath.compile("/htd:humanInteractions/htd:tasks/htd:task[@name='" +
-                    name + "']/htd:presentationElements/htd:subject[@xml:lang='" + lang + "']");
+                    taskName + "']/htd:presentationElements/htd:subject[@xml:lang='" + lang + "']");
             Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);
             result = node.getTextContent();
         } catch (XPathExpressionException e) {
@@ -190,12 +213,12 @@ public class TaskDefinition {
         return result;
     }
 
-    /**
-     * Returns globally unique key identifying task.
-     */
-    public String getKey() {
-        return name + "_" + humanInteractions.getDefinitionKey();
-    }
+//    /**
+//     * Returns globally unique key identifying task.
+//     */
+//    public String getKey() {
+//        return taskName + "_" + humanInteractions.getDefinitionKey();
+//    }
 
     public List<LogicalPeopleGroup> getLogicalpeopleGroups() {
 
@@ -233,15 +256,15 @@ public class TaskDefinition {
         return null;
     }
 
-    /**
-     * TODO mlp: javadoc
-     * @param logicalPeopleGroup
-     * @param task
-     * @return
-     */
-    public List<Assignee> evaluate(LogicalPeopleGroup logicalPeopleGroup, Task task) {
-        return this.peopleQuery.evaluate(logicalPeopleGroup, task);
-    }
+//    /**
+//     * TODO mlp: javadoc
+//     * @param logicalPeopleGroup
+//     * @param task
+//     * @return
+//     */
+//    public List<Assignee> evaluate(LogicalPeopleGroup logicalPeopleGroup, Task task) {
+//        return this.peopleQuery.evaluate(logicalPeopleGroup, task);
+//    }
 
     public static class LogicalPeopleGroup {
 

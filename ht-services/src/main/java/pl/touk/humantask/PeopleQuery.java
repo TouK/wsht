@@ -6,8 +6,10 @@
 package pl.touk.humantask;
 
 import java.util.List;
+import java.util.Map;
 
 import pl.touk.humantask.model.Assignee;
+import pl.touk.humantask.model.Message;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.spec.TaskDefinition;
 
@@ -22,13 +24,20 @@ import pl.touk.humantask.spec.TaskDefinition;
  */
 public interface PeopleQuery {
 
+//    /**
+//     * Returns list of potential {@link Assignee}s that are members of logical people group.
+//     * 
+//     * @param logicalPeopleGroup
+//     * @param task
+//     * @return TODO remove task, logicalPeopleGroup -> name?, parameters?
+//     */
+    //List<Assignee> evaluate(TaskDefinition.LogicalPeopleGroup logicalPeopleGroup, Task task);
+    
     /**
-     * Returns list of potential {@link Assignee}s that are members of logical people group.
-     * 
-     * @param logicalPeopleGroup
-     * @param task
-     * @return TODO remove task, logicalPeopleGroup -> name?, parameters?
+     * Evaluates assignees in logical people group.
+     * @param logicalPeopleGroupName the logical people group name
+     * @param input the input message that created the task
      */
-    List<Assignee> evaluate(TaskDefinition.LogicalPeopleGroup logicalPeopleGroup, Task task);
+    List<Assignee> evaluate(String logicalPeopleGroupName, Map<String, Message> input);
 
 }

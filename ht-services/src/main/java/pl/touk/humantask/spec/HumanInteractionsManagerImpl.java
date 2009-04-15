@@ -65,9 +65,9 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
                 
                 humanInteractions.setTaskDefinitions(taskDefinitions);
                 
-                List<Group> peopleGroups = extractLogicalPeopleGroup(hiDoc);
-
-                humanInteractions.setGroupList(peopleGroups);
+//                List<Group> peopleGroups = extractLogicalPeopleGroup(hiDoc);
+//
+//                humanInteractions.setGroupList(peopleGroups);
 
                 humanInteractionsList.add(humanInteractions);
                 
@@ -81,12 +81,19 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
 
     // ============= INTERFACE IMPLEMENTATION  ===================
 
-    public TaskDefinition getTaskDefinitionByName(String taskName) throws HumanTaskException {
+    /*
+     * Retrieves task definition by name.
+     *
+     * @param taskName
+     * @return TaskDefinition instance
+     * @throws HumanTaskException in case when no such task definition was found
+     */
+    public TaskDefinition getTaskDefinition(String taskName) throws HumanTaskException {
         Validate.notNull(taskName);
 
         for (HumanInteractions humanInteractions : humanInteractionsList) {
             for (TaskDefinition taskDefinition : humanInteractions.getTaskDefinitions()) {
-                if (taskName.equals(taskDefinition.getName())) {
+                if (taskName.equals(taskDefinition.getTaskName())) {
                     return taskDefinition;
                 }
             }
@@ -94,37 +101,37 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
         throw new HumanTaskException("Task definition with a given name: " + taskName + " not found!");
     }
 
-    public List<TaskDefinition> getTaskDefinitions() {
-        List<TaskDefinition> taskDefinitions = new ArrayList<TaskDefinition>();
-        for (HumanInteractions humanInteractions : humanInteractionsList) {
-            taskDefinitions.addAll(humanInteractions.getTaskDefinitions());
-        }
-        return taskDefinitions;
-    }
-
-    public Group getLogicalPeopleGroupByName(String groupName) throws HumanTaskException {
-        Validate.notNull(groupName);
-
-        for (HumanInteractions humanInteractions : humanInteractionsList) {
-            for (Group group : humanInteractions.getGroupList()) {
-                if (groupName.equals(group.getName())) {
-                    return group;
-                }
-            }
-        }
-        throw new HumanTaskException("People group with a given name: " + groupName + " not found!");
-    }
-
-    public TaskDefinition getTaskDefinitionByKey(String key) throws HumanTaskException {
-        List<TaskDefinition> taskDefinitions = getTaskDefinitions();
-        for (TaskDefinition taskDefinition : taskDefinitions) {
-            if (key.equals(taskDefinition.getKey())) {
-                return taskDefinition;
-            }
-        }
-
-        throw new HumanTaskException("No task definition with a given key: " + key + " was found");
-    }
+//    public List<TaskDefinition> getTaskDefinitions() {
+//        List<TaskDefinition> taskDefinitions = new ArrayList<TaskDefinition>();
+//        for (HumanInteractions humanInteractions : humanInteractionsList) {
+//            taskDefinitions.addAll(humanInteractions.getTaskDefinitions());
+//        }
+//        return taskDefinitions;
+//    }
+//
+//    public Group getLogicalPeopleGroupByName(String groupName) throws HumanTaskException {
+//        Validate.notNull(groupName);
+//
+//        for (HumanInteractions humanInteractions : humanInteractionsList) {
+//            for (Group group : humanInteractions.getGroupList()) {
+//                if (groupName.equals(group.getName())) {
+//                    return group;
+//                }
+//            }
+//        }
+//        throw new HumanTaskException("People group with a given name: " + groupName + " not found!");
+//    }
+//
+//    public TaskDefinition getTaskDefinitionByKey(String key) throws HumanTaskException {
+//        List<TaskDefinition> taskDefinitions = getTaskDefinitions();
+//        for (TaskDefinition taskDefinition : taskDefinitions) {
+//            if (key.equals(taskDefinition.getKey())) {
+//                return taskDefinition;
+//            }
+//        }
+//
+//        throw new HumanTaskException("No task definition with a given key: " + key + " was found");
+//    }
 
     public List<HumanInteractions> getHumanInteractions() {
         return humanInteractionsList;
@@ -149,7 +156,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
         
         for (TTask tTask : hiDoc.getTasks().getTask()) {
             TaskDefinition taskDefinition = new TaskDefinition();
-            taskDefinition.setName(tTask.getName());
+            taskDefinition.setTaskName(tTask.getName());
             taskDefinition.setDefinition(humanInteractions);
 
             taskDefinitions.add(taskDefinition);
@@ -209,6 +216,6 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
 
         }
 
-        return new HumanInteractions(document, md5);
+        return new HumanInteractions(document);
     }
 }

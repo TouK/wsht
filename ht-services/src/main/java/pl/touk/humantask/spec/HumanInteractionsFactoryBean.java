@@ -43,6 +43,7 @@ public class HumanInteractionsFactoryBean implements FactoryBean {
         this.htdXml = htdXml;
     }
 
+    //TODO jkr - wywalic obliczanie MD5
     public Object getObject() throws Exception {
 
         JAXBContext jc = JAXBContext.newInstance("org.example.ws_ht");
@@ -93,7 +94,7 @@ public class HumanInteractionsFactoryBean implements FactoryBean {
 
         }
 
-        HumanInteractions hi = new HumanInteractions(document, md5);
+        HumanInteractions hi = new HumanInteractions(document);
 
         return hi;
     }

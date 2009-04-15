@@ -94,7 +94,7 @@ public class Services implements HumanTaskServicesInterface {
         log.info("Creating task: " + taskName + " , createdBy: " + createdBy);
 
         // TODO: getting task by name move to human interface class
-        TaskDefinition taskDefinition = taskManager.getTaskDefinitionByName(taskName);
+        TaskDefinition taskDefinition = taskManager.getTaskDefinition(taskName);
 //        for (TaskDefinition taskDefinitionConfigured : taskDefinitions) {
 //            if (taskName.equals(taskDefinitionConfigured.getName()) && taskDefinitionConfigured.getInstantiable()) {
 //                taskDefinition = taskDefinitionConfigured;
@@ -449,24 +449,24 @@ public class Services implements HumanTaskServicesInterface {
 
     }
 
-    /**
-     * Returns task definition object matching given key.
-     * 
-     * @param key
-     * @return task definition
-     */
-    private TaskDefinition findTaskDefinitionByKey(String key) throws HumanTaskException {
-
-        return taskManager.getTaskDefinitionByKey(key);
-//        
-//        for (TaskDefinition td : taskDefinitions) {
-//            if (key.equals(td.getKey())) {
-//                return td;
-//            }
-//        }
+//    /**
+//     * Returns task definition object matching given key.
+//     * 
+//     * @param key
+//     * @return task definition
+//     */
+//    private TaskDefinition findTaskDefinitionByKey(String key) throws HumanTaskException {
 //
-//        return null;
-    }
+//        return taskManager.getTaskDefinitionByKey(key);
+////        
+////        for (TaskDefinition td : taskDefinitions) {
+////            if (key.equals(td.getKey())) {
+////                return td;
+////            }
+////        }
+////
+////        return null;
+//    }
 
     /**
      * Changes task priority.

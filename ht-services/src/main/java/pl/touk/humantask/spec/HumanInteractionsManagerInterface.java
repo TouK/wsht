@@ -10,32 +10,31 @@ import java.util.List;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.Group;
 
-/*
+/**
+ * This interface introduces methods for task retrieving. We assume that task name is unique
+ * in whole configuration.
  *
- * This interface introduces methods for task retrieving.
- * TODO cannot depend on model
- *
- * @author Jakub Kurlenda
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
  */
 public interface HumanInteractionsManagerInterface {
     
     /*
-     * Method for retrieving task definition, according to its name
+     * Retrieves task definition by name.
      *
      * @param taskName
      * @return TaskDefinition instance
-     *
      * @throws HumanTaskException in case when no such task definition was found
      */
-    TaskDefinition getTaskDefinitionByName(String taskName) throws HumanTaskException;
+    TaskDefinition getTaskDefinition(String taskName) throws HumanTaskException;
+    
+    //TaskDefinition getTaskDefinitionByName(String taskName) throws HumanTaskException;
 
     /*
     * Method for retrieving all task definitions defined inside application context
     *
     * @return java.util.List implementation, containing TaskDefinition instances
     */
-    List<TaskDefinition> getTaskDefinitions();
+    //List<TaskDefinition> getTaskDefinitions();
 
     /*
     * Method for retrieving people group, according to its name
@@ -45,7 +44,7 @@ public interface HumanInteractionsManagerInterface {
     *
     * @throws HumanTaskException in case when no such people group was found
     */
-    Group getLogicalPeopleGroupByName(String groupName) throws HumanTaskException;
+    //Group getLogicalPeopleGroupByName(String groupName) throws HumanTaskException;
 
     /*
     * Method for retrieving all people groups defined inside application context
@@ -53,8 +52,6 @@ public interface HumanInteractionsManagerInterface {
     * @return java.util.List implementation, containing Group instances
     */
 //    public List<Group> getLogicalPeopleGroups();
-
-    TaskDefinition getTaskDefinitionByKey(String key) throws HumanTaskException;
-
-    List<HumanInteractions> getHumanInteractions();
+    //List<HumanInteractions> getHumanInteractions();
+    
 }

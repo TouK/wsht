@@ -32,7 +32,7 @@ public class TaskUnitTest {
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
         
         mockery.checking(new Expectations() {{
-            one(taskDefinition).getKey(); will(returnValue("taskLookupKey"));
+            one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
         }});
         
         Task task = new Task(taskDefinition, new Person("witek"));
@@ -51,7 +51,7 @@ public class TaskUnitTest {
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
 
         mockery.checking(new Expectations() {{
-            one(taskDefinition).getKey(); will(returnValue("taskLookupKey"));
+            one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
         }});
 
         Task task = new Task(taskDefinition, null);
@@ -73,7 +73,7 @@ public class TaskUnitTest {
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
         
         mockery.checking(new Expectations() {{
-            one(taskDefinition).getKey(); will(returnValue("taskLookupKey"));
+            one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
         }});
         
         Task task = new Task(taskDefinition, null);

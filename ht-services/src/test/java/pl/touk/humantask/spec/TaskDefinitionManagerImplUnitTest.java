@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * @author Jakub Kurlenda
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
  */
-public class TaskDefinitionManagerImplTest {
+public class TaskDefinitionManagerImplUnitTest {
 
     private HumanInteractionsManagerInterface taskManager;
 
@@ -41,38 +41,39 @@ public class TaskDefinitionManagerImplTest {
 
     @Test
     public void testGetTaskDefinitionByName() throws HumanTaskException {
-        TaskDefinition taskDefinition = taskManager.getTaskDefinitionByName("ApproveClaim");
+        TaskDefinition taskDefinition = taskManager.getTaskDefinition("ApproveClaim");
 
         assertNotNull(taskDefinition);
     }
 
     @Test(expected = HumanTaskException.class)
     public void testTaskDefinitionNotFound() throws HumanTaskException {
-        taskManager.getTaskDefinitionByName("JKR");
+        taskManager.getTaskDefinition("JKR");
     }
 
-    @Test
-    public void testGetTaskDefinitions() {
-        List<TaskDefinition> taskDefinitions = taskManager.getTaskDefinitions();
-        assertNotNull(taskDefinitions);
-        assertEquals(3, taskDefinitions.size());
-    }
+//    @Test
+//    public void testGetTaskDefinitions() {
+//        List<TaskDefinition> taskDefinitions = taskManager.getTaskDefinitions();
+//        assertNotNull(taskDefinitions);
+//        assertEquals(3, taskDefinitions.size());
+//    }
 
-    @Test
-    public void testGetLogicalPeopleGroups() {
-//        List<Group> groups = taskManager.getLogicalPeopleGroups();
-//        assertNotNull(groups);
-//        assertEquals(6, groups.size());
-    }
+//    @Test
+//    public void testGetLogicalPeopleGroups() {
+////        List<Group> groups = taskManager.getLogicalPeopleGroups();
+////        assertNotNull(groups);
+////        assertEquals(6, groups.size());
+//    }
 
-    @Test
-    public void testGetLogicalPeopleGroupByName() throws HumanTaskException {
-        Group group = taskManager.getLogicalPeopleGroupByName("clerksManager");
-        assertNotNull(group);
-    }
-
-    @Test(expected = HumanTaskException.class)
-    public void testLogicalPeopleGroupNotFound() throws HumanTaskException {
-        taskManager.getLogicalPeopleGroupByName("JKR!@#");
-    }
+    //TODO jkr: move
+//    @Test
+//    public void testGetLogicalPeopleGroupByName() throws HumanTaskException {
+//        Group group = taskManager.getLogicalPeopleGroupByName("clerksManager");
+//        assertNotNull(group);
+//    }
+//
+//    @Test(expected = HumanTaskException.class)
+//    public void testLogicalPeopleGroupNotFound() throws HumanTaskException {
+//        taskManager.getLogicalPeopleGroupByName("JKR!@#");
+//    }
 }

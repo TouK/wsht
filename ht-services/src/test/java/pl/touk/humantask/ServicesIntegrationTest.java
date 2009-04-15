@@ -84,9 +84,9 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Task t = services.createTask("ApproveClaim", "ww", "request");
 
         String description = t.getTaskDefinition().getDescription("en-US", "text/plain");
-        String key = t.getTaskDefinition().getKey();
+        String key = t.getTaskDefinition().getTaskName();
 
-        LOG.info("Task key: " + t.getTaskDefinition().getKey());
+        LOG.info("Task name: " + t.getTaskDefinition().getTaskName());
         LOG.info("Task description: " + description);
         Assert.assertTrue(description.contains("claim"));
         Assert.assertTrue(key.contains("Appr"));
@@ -132,7 +132,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
         
         mockery.checking(new Expectations() {{
-            one(taskDefinition).getKey(); will(returnValue("taskLookupKey"));
+            one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
         }});
         
         Person jacek = new Person();

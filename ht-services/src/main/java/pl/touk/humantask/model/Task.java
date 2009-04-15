@@ -6,6 +6,7 @@
 package pl.touk.humantask.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -228,34 +229,37 @@ public class Task extends Base {
         this.init(taskDefinition);
         this.input.put(Message.DEFAULT_PART_NAME_KEY, new Message(requestXml));
         
-        // evaluate logical people groups
-        List<TaskDefinition.LogicalPeopleGroup> logicalPeopleGroups = taskDefinition.getLogicalpeopleGroups();
-
-        Map<String, List<Assignee>> lpgPotentialMembers = new HashMap<String, List<Assignee>>();
-        for (TaskDefinition.LogicalPeopleGroup lpg : logicalPeopleGroups) {
-            lpgPotentialMembers.put(lpg.getName(), taskDefinition.evaluate(lpg, this));
-        }
-
-        // TODO assigning potential members to roles
-
-        // TODO potential owners
-        this.potentialOwners = new ArrayList<Assignee>();
-
-        for (String name : taskDefinition.getPotentialOwners()) {
-
-            // WARNING!! t.getTaskDefinition().getPotentialOwners() returns
-            // potential owners group name
-            // not exactly name from this group
-
-            List<Assignee> newMembers = lpgPotentialMembers.get(name);
-
-            for (Assignee assignee : newMembers) {
-                if (!potentialOwners.contains(assignee)) {
-                    potentialOwners.add(assignee);
-                }
-            }
-
-        }
+        //TODO mlp - przepisac wyciaganie Assignees na uzycie interfejsu z TaskDefinition 
+        potentialOwners = Collections.EMPTY_LIST;
+        
+//        // evaluate logical people groups
+//        List<TaskDefinition.LogicalPeopleGroup> logicalPeopleGroups = taskDefinition.getLogicalpeopleGroups();
+//
+//        Map<String, List<Assignee>> lpgPotentialMembers = new HashMap<String, List<Assignee>>();
+//        for (TaskDefinition.LogicalPeopleGroup lpg : logicalPeopleGroups) {
+//            lpgPotentialMembers.put(lpg.getName(), taskDefinition.evaluate(lpg, this));
+//        }
+//
+//        // TODO assigning potential members to roles
+//
+//        // TODO potential owners
+//        this.potentialOwners = new ArrayList<Assignee>();
+//
+//        for (String name : taskDefinition.getPotentialOwners()) {
+//
+//            // WARNING!! t.getTaskDefinition().getPotentialOwners() returns
+//            // potential owners group name
+//            // not exactly name from this group
+//
+//            List<Assignee> newMembers = lpgPotentialMembers.get(name);
+//
+//            for (Assignee assignee : newMembers) {
+//                if (!potentialOwners.contains(assignee)) {
+//                    potentialOwners.add(assignee);
+//                }
+//            }
+//
+//        }
 
         this.setCreatedBy(createdBy.getName());
         this.setActivationTime(new Date());
@@ -280,7 +284,7 @@ public class Task extends Base {
             throw new pl.touk.humantask.exceptions.IllegalArgumentException("Task definition must not be null.");
         }
         this.taskDefinition = taskDefinition;
-        this.taskDefinitionKey = taskDefinition.getKey();
+        this.taskDefinitionKey = taskDefinition.getTaskName();
     }
 
     /**
