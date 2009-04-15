@@ -3,15 +3,13 @@
  * All rights reserved
  */
 
-package pl.touk.humantask;
+package pl.touk.humantask.spec;
 
 import java.util.List;
 import java.util.Map;
 
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Message;
-import pl.touk.humantask.model.Task;
-import pl.touk.humantask.spec.TaskDefinition;
 
 /**
  * A People Query evaluation interface. People queries are evaluated during the creation of a human task or a notification. If a people query fails then the

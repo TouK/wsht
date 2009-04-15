@@ -5,11 +5,9 @@
 
 package pl.touk.humantask.spec;
 
-import org.w3c.dom.Document;
-
 import java.util.List;
 
-import pl.touk.humantask.model.Group;
+import org.w3c.dom.Document;
 
 /**
  * Provides access methods to Human Interactions document defined

@@ -5,17 +5,14 @@
 
 package pl.touk.humantask.spec;
 
-import java.util.List;
-
 import pl.touk.humantask.exceptions.HumanTaskException;
-import pl.touk.humantask.model.Group;
-import pl.touk.humantask.PeopleQuery;
 
 /**
  * This interface introduces methods for task retrieving. We assume that task name is unique
  * in whole configuration.
  *
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
+ * @author Witek Wołejszo
  */
 public interface HumanInteractionsManagerInterface extends PeopleQuery {
     

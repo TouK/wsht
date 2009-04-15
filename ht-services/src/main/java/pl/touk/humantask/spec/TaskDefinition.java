@@ -4,23 +4,29 @@
  */
 package pl.touk.humantask.spec;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Autowired;
-import pl.touk.humantask.PeopleQuery;
-import pl.touk.humantask.exceptions.HumanTaskException;
-import pl.touk.humantask.model.Assignee;
-import pl.touk.humantask.model.GenericHumanRole;
-import pl.touk.humantask.model.Message;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
-import javax.xml.xpath.*;
-import java.util.*;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import pl.touk.humantask.model.Assignee;
+import pl.touk.humantask.model.GenericHumanRole;
+import pl.touk.humantask.model.Message;
 
 /**
  * Holds information about task version runnable in TouK Human Task engine. Task

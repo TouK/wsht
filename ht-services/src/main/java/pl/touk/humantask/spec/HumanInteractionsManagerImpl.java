@@ -5,23 +5,12 @@
 
 package pl.touk.humantask.spec;
 
-import org.apache.commons.lang.Validate;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.example.ws_ht.THumanInteractions;
-import org.example.ws_ht.TLogicalPeopleGroup;
-import org.example.ws_ht.TTask;
-import org.example.ws_ht.TGenericHumanRole;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-import pl.touk.humantask.exceptions.HumanTaskException;
-import pl.touk.humantask.model.Group;
-import pl.touk.humantask.model.GenericHumanRole;
-import pl.touk.humantask.model.Assignee;
-import pl.touk.humantask.model.Message;
-import pl.touk.humantask.PeopleQuery;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -30,15 +19,22 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Collections;
+
+import org.apache.commons.lang.Validate;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.example.ws_ht.THumanInteractions;
+import org.example.ws_ht.TLogicalPeopleGroup;
+import org.example.ws_ht.TTask;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.model.Assignee;
+import pl.touk.humantask.model.Group;
+import pl.touk.humantask.model.Message;
 
 /* 
  * PoC for the task definition manager.

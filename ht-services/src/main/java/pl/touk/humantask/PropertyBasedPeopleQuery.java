@@ -21,6 +21,7 @@ import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Message;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
+import pl.touk.humantask.spec.PeopleQuery;
 import pl.touk.humantask.spec.TaskDefinition;
 
 /**
