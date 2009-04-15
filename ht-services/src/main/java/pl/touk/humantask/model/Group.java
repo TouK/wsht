@@ -10,7 +10,7 @@ import javax.persistence.Entity;
 import org.apache.commons.lang.builder.EqualsBuilder;
 
 /**
- * TODO what is group?
+ * Unresolvd group of people.
  *
  * @author Witek Wołejszo
  * @author Kamil Eisenbart
@@ -22,12 +22,16 @@ public class Group extends Assignee {
     @Column(unique = true)
     private String name;
 
-    //TODO mlp: javadoc
+    /**
+     * Unresolved group of people constructor.
+     */
     public Group() {
         super();
     }
 
-    //TODO mlp: javadoc
+    /**
+     * Unresolved group of people constructor.
+     */
     Group(String name) {
         super();
         this.setName(name);
