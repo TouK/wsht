@@ -15,6 +15,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+/**
+ * Task comment.
+ *
+ * @author Witek Wołejszo
+ */
 @Entity
 public class Comment extends Base {
 
