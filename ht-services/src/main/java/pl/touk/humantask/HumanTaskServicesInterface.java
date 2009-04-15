@@ -19,7 +19,6 @@ import pl.touk.humantask.model.TaskTypes;
  * @author Witek Wołejszo
  */
 public interface HumanTaskServicesInterface {
-
     
     /**
      * Creates {@link Task} instance basing on a definition. The definitions are provided by the services. They can come from a file, e.g. htd1.xml, a database
@@ -79,4 +78,8 @@ public interface HumanTaskServicesInterface {
     public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
             String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException;
     
+    /**
+     * Claim responsibility for a task, i.e. set the task to status Reserved
+     */
+    public Task claimTask(Task task,String personName) throws HumanTaskException;
 }

@@ -35,6 +35,7 @@ import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.TaskTypes;
 import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.spec.TaskDefinition;
+import pl.touk.mock.TaskMockery;
 
 /**
  * {@link Services} integration tests.
@@ -130,41 +131,8 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Rollback
     public void testGetMyTasksNoCreate() throws HumanTaskException {
         
-        Mockery mockery = new Mockery() {{
-            setImposteriser(ClassImposteriser.INSTANCE);  
-        }};
-        
-        final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
-        final Map<String, Message> mockMap = new HashMap<String, Message>();
-        mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message("x"));
-        final List<Assignee> assignees = new ArrayList<Assignee>();
-        Person jacek = new Person("Jacek");
-        assignees.add(jacek);
-
-        assigneeDao.create(jacek);
-        
-        mockery.checking(new Expectations() {{
-            one(taskDefinition).getTaskName();                                                                  will(returnValue("taskLookupKey"));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap);         will(returnValue(assignees));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, mockMap);  will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS, mockMap);          will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, mockMap);  will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS, mockMap);        will(returnValue(Collections.EMPTY_LIST));
-        }});
-        
-        
-        final Task task = new Task(taskDefinition, jacek, "<?xml version='1.0'?><root/>");
-       
-        Person admin = new Person();
-        admin.setName("Admin");
-
-        assigneeDao.create(admin);
-
-        task.setTaskStakeholders(Arrays.asList((Assignee)jacek));
-        task.setActualOwner(jacek);
-        task.setStatus(Status.IN_PROGRESS);
-        
-        taskDao.create(task);
+        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mock.getGoodTaskMock();
         
         List<Task> results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, null, Arrays.asList(Status.IN_PROGRESS, Status.OBSOLETE), null, null, 1);
         
@@ -172,7 +140,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
        
         Task taskToCheck = results.get(0);
         
-        Assert.assertEquals(task.getActualOwner(), taskToCheck.getActualOwner());
+        Assert.assertEquals(mockTask.getActualOwner(), taskToCheck.getActualOwner());
         
         //check with no statuses specified
         //TODO
@@ -185,7 +153,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
        
         //Assert.assertEquals(0, results.size());
         
-        mockery.assertIsSatisfied();
+        mock.assertIsSatisfied();
     }
 
 //    /**

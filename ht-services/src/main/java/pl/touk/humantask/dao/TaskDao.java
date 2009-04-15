@@ -50,4 +50,5 @@ public interface TaskDao extends BasicDao<Task, Long> {
     List<Task> getTasks(Assignee owner, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status, String whereClause,
             String createdOnClause, Integer maxTasks);
 
+    boolean exists(Long primaryKey);
 }

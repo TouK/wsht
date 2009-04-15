@@ -6,28 +6,28 @@ package pl.touk.humantask.exceptions;
  * being thrown.
  * @author Warren Crossing 
  */
-public class IllegalArgumentException extends HumanTaskException {
+public class HTIllegalArgumentException extends HumanTaskException {
     
     private java.lang.String illegalArgument;
 
-    public IllegalArgumentException() {
+    public HTIllegalArgumentException() {
         super();
     }
     
-    public IllegalArgumentException(String message) {
+    public HTIllegalArgumentException(String message) {
         super(message);
     }
     
-    public IllegalArgumentException(String message, Throwable cause) {
+    public HTIllegalArgumentException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public IllegalArgumentException(String message, java.lang.String illegalArgument) {
+    public HTIllegalArgumentException(String message, java.lang.String illegalArgument) {
         super(message);
         this.illegalArgument = illegalArgument;
     }
 
-    public IllegalArgumentException(String message, java.lang.String illegalArgument, Throwable cause) {
+    public HTIllegalArgumentException(String message, java.lang.String illegalArgument, Throwable cause) {
         super(message, cause);
         this.illegalArgument = illegalArgument;
     }

@@ -16,6 +16,7 @@ import javax.xml.ws.WebFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.dom4j.DocumentFactory;
 import org.example.ws_ht.TOrganizationalEntity;
 import org.example.ws_ht.api.TAttachment;
 import org.example.ws_ht.api.TAttachmentInfo;
@@ -32,10 +33,14 @@ import org.example.ws_ht.api.wsdl.RecipientNotAllowed;
 import org.example.ws_ht.api.wsdl.TaskOperations;
 import org.example.ws_ht.api.xsd.IllegalState;
 import org.example.ws_ht.api.xsd.TTime;
-
+import org.springframework.beans.factory.annotation.Configurable;
+//import pl.touk.framework.logging.aop.LogMethodEntranceInfo;
 import pl.touk.humantask.HumanTaskServicesInterface;
+import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.exceptions.HumanTaskException;
-import pl.touk.humantask.exceptions.IllegalOperationException;
+import pl.touk.humantask.exceptions.HTIllegalOperationException;
+import pl.touk.humantask.exceptions.HTIllegalAccessException;
+import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.TaskType;
@@ -53,9 +58,12 @@ import pl.touk.humantask.model.TaskTypes;
  * @author Witek Wołejszo
  */
 @WebService
+@Configurable
 public class TaskOperationsImpl implements TaskOperations {
 
-    protected final Log log = LogFactory.getLog(TaskOperationsImpl.class);
+    public TaskDao taskDao; 
+    
+    protected final Log log = LogFactory.getLog(TaskOperationsImpl.class.getName());
     /**
      * Implementation of WH-HT services.
      */
@@ -79,8 +87,33 @@ public class TaskOperationsImpl implements TaskOperations {
         // TODO Auto-generated method stub
     }
 
+    
+    
+    //@LogMethodEntranceInfo
     public void claim(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
+        try { 
+            if (null == identifier) {
+                throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Must specific a Task id.","Id");
+            }
+            
+            Task task = taskDao.fetch(Long.valueOf(identifier));
+            
+            if (null == task) {
+               throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found.","Id: " + identifier);
+            }
+                    
+            services.claimTask(task,securityContext.getLoggedInUser().getUsername());
+            
+        } catch (HumanTaskException xHT) {
+            translateIllegalArgumentException(xHT);
+            translateIllegalStateException(xHT);
+            translateIllegalAccessException(xHT);
+        } catch (NumberFormatException xNF) {
+            throw new IllegalArgumentFault("Task identifier must be a number.","Id: " + identifier);
+        }
+        
+        throw new RuntimeException("operation failed: claim");
+        
     }
 
     public void complete(String identifier, Object taskData) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
@@ -161,21 +194,21 @@ public class TaskOperationsImpl implements TaskOperations {
     }
 
     private void translateIllegalAccessException(HumanTaskException xHT) throws IllegalAccessFault {
-        if (xHT instanceof pl.touk.humantask.exceptions.IllegalAccessException) {
+        if (xHT instanceof pl.touk.humantask.exceptions.HTIllegalAccessException) {
            
-            throw new IllegalAccessFault(xHT.getMessage(), ((pl.touk.humantask.exceptions.IllegalAccessException)xHT).getExceptionInfo(), xHT);
+            throw new IllegalAccessFault(xHT.getMessage(), ((pl.touk.humantask.exceptions.HTIllegalAccessException)xHT).getExceptionInfo(), xHT);
         }
     }
 
     private void translateIllegalOperationException(HumanTaskException xHT) throws IllegalOperationFault {
-        if (xHT instanceof pl.touk.humantask.exceptions.IllegalOperationException) {
-            throw new IllegalOperationFault(xHT.getMessage(), ((IllegalOperationException) xHT).getExceptionInfo(), xHT);
+        if (xHT instanceof pl.touk.humantask.exceptions.HTIllegalOperationException) {
+            throw new IllegalOperationFault(xHT.getMessage(), ((HTIllegalOperationException) xHT).getExceptionInfo(), xHT);
         }
     }
 
     private void translateIllegalArgumentException(HumanTaskException xHT) throws IllegalArgumentFault {
-        if (xHT instanceof pl.touk.humantask.exceptions.IllegalArgumentException) {
-            throw new IllegalArgumentFault(xHT.getMessage(), ((pl.touk.humantask.exceptions.IllegalArgumentException) xHT).getExceptionInfo(), xHT);
+        if (xHT instanceof pl.touk.humantask.exceptions.HTIllegalArgumentException) {
+            throw new IllegalArgumentFault(xHT.getMessage(), ((pl.touk.humantask.exceptions.HTIllegalArgumentException) xHT).getExceptionInfo(), xHT);
         }
     }
 
@@ -355,5 +388,13 @@ public class TaskOperationsImpl implements TaskOperations {
 
     public SecurityContextInterface getSecurityContext() {
         return securityContext;
+    }
+    
+    protected TaskDao getTaskDao() {
+        return taskDao;
+    }
+
+    public void setTaskDao(TaskDao taskDao) {
+        this.taskDao = taskDao;
     }
 }

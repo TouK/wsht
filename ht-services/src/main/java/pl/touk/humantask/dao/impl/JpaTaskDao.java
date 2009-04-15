@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
@@ -178,6 +179,14 @@ public class JpaTaskDao implements TaskDao {
         return query.getResultList();
     }
 
+    public boolean exists(Long id) {
+        try{
+            entityManager.find(Task.class,id);
+            return true;
+        }catch(EntityNotFoundException xENF) {
+            return false;
+        }
+    }
     /**
      * Retrieves domain object from persistent store.
      * @param id

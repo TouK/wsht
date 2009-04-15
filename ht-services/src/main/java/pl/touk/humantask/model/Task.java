@@ -227,7 +227,7 @@ public class Task extends Base {
     public Task(TaskDefinition taskDefinition, Person createdBy, String requestXml) throws HumanTaskException {
 
         if (taskDefinition == null) {
-            throw new pl.touk.humantask.exceptions.IllegalArgumentException("Task definition must not be null.");
+            throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task definition must not be null.");
         }
 
         this.taskDefinition = taskDefinition;

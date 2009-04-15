@@ -5,6 +5,7 @@
 package pl.touk.humantask;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -17,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.exceptions.HumanTaskException;
-import pl.touk.humantask.exceptions.IllegalOperationException;
+import pl.touk.humantask.exceptions.HTIllegalOperationException;
 import pl.touk.humantask.exceptions.RecipientNotAllowedException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Attachment;
@@ -136,7 +137,7 @@ public class Services implements HumanTaskServicesInterface {
             String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException {
         
         if (null == personName && null == workQueue) {
-            throw new pl.touk.humantask.exceptions.IllegalArgumentException("parameter not specified","workQueue");
+            throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("parameter not specified","workQueue");
         }
         
         Person person = null;
@@ -150,7 +151,7 @@ public class Services implements HumanTaskServicesInterface {
         }
         
         if (null == taskType) {
-            throw new pl.touk.humantask.exceptions.IllegalArgumentException("parameter not specified","task type");
+            throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("parameter not specified","task type");
         }
                     
         try{
@@ -158,7 +159,7 @@ public class Services implements HumanTaskServicesInterface {
             return taskDao.getTasks(person, taskType, genericHumanRole, workQueue, status, whereClause, createdOnClause, maxTasks);
         }catch(Exception x){
             
-            throw new IllegalOperationException(x.getMessage(),"getMyTasks",x);
+            throw new HTIllegalOperationException(x.getMessage(),"getMyTasks",x);
         }
     }
 
@@ -201,39 +202,32 @@ public class Services implements HumanTaskServicesInterface {
     public Task claimTask(Task task, String assigneeName) throws HumanTaskException {
 
         Person person = assigneeDao.getPerson(assigneeName);
-        log.info("Claiming: " + task + " Person: " + person);
-
-        if (task.getId() == null) {
-            log.error("Task has to be persisted before performing any operation.");
-            throw new RuntimeException("Task has to be persisted before performing any operation.");
+        
+        if (null == person) {
+        	throw new RecipientNotAllowedException("Not found",assigneeName);
+        }
+        
+        
+        if (task.getId() !=null && taskDao.fetch(task.getId()) == null) {
+            //TODO: dead code, is this code ever even called
+            throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found");
         }
 
-        if (task.getActualOwner() != null) {
-            log.error("Task with actual owner cannot be claimed.");
-            throw new HumanTaskException("Task with actual owner cannot be claimed.");
+        if (task.getActualOwner() != null || !Arrays.asList(Task.Status.CREATED, Task.Status.READY).contains(task.getStatus())) {
+            throw new pl.touk.humantask.exceptions.IllegalStateException("Task not claimable.", task.getStatus());
         }
 
         // check if the task can be claimed by person
-        // TODO check person in group membership
+        
         if (task.getPotentialOwners().contains(person) && !(task.getExcludedOwners() != null && task.getExcludedOwners().contains(person))) {
-
-            log.info("Setting actual owner of: " + task + " to: " + person);
             task.setActualOwner(person);
-
         } else {
-
-            log.error("Person: " + person + " is not a potential owner.");
             throw new HumanTaskException("Person: " + person + " is not a potential owner.");
-
         }
-
-        // task.setStatus(Status.RESERVED);
+        
         task.reserve();
 
-        taskDao.update(task);
-
         return task;
-
     }
 
 //    /**
@@ -832,7 +826,7 @@ public class Services implements HumanTaskServicesInterface {
     // }
     // }
 
-    public TaskDao getTaskDao() {
+    protected TaskDao getTaskDao() {
         return taskDao;
     }
 

@@ -6,29 +6,29 @@ package pl.touk.humantask.exceptions;
  * @author Warren Crossing 
  */
 
-public class IllegalOperationException extends HumanTaskException {
+public class HTIllegalOperationException extends HumanTaskException {
     public static final long serialVersionUID = 20090414103047L;
     
     private java.lang.String illegalOperation;
 
-    public IllegalOperationException() {
+    public HTIllegalOperationException() {
         super();
     }
     
-    public IllegalOperationException(String message) {
+    public HTIllegalOperationException(String message) {
         super(message);
     }
     
-    public IllegalOperationException(String message, Throwable cause) {
+    public HTIllegalOperationException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public IllegalOperationException(String message, java.lang.String illegalOperation) {
+    public HTIllegalOperationException(String message, java.lang.String illegalOperation) {
         super(message);
         this.illegalOperation = illegalOperation;
     }
 
-    public IllegalOperationException(String message, java.lang.String illegalOperation, Throwable cause) {
+    public HTIllegalOperationException(String message, java.lang.String illegalOperation, Throwable cause) {
         super(message, cause);
         this.illegalOperation = illegalOperation;
     }
