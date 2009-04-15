@@ -38,4 +38,5 @@ public enum GenericHumanRole {
     public String toString() {
         return value;
     }
+
 }

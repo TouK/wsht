@@ -58,7 +58,6 @@ public class HumanInteractions {
      * Constructor called by {@link HumanInteractionsFactoryBean}.
      * 
      * @param document                          the human interactions DOM document
-     * @param humanInteractionsDefinitionKey    the key Human Interactions definition can be looked up by  
      */
     HumanInteractions(Document document) {
         super();

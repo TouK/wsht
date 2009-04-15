@@ -11,11 +11,17 @@ import org.apache.commons.logging.LogFactory;
 import org.example.ws_ht.THumanInteractions;
 import org.example.ws_ht.TLogicalPeopleGroup;
 import org.example.ws_ht.TTask;
+import org.example.ws_ht.TGenericHumanRole;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.Group;
+import pl.touk.humantask.model.GenericHumanRole;
+import pl.touk.humantask.model.Assignee;
+import pl.touk.humantask.model.Message;
+import pl.touk.humantask.PeopleQuery;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -31,16 +37,18 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Collections;
 
 /* 
  * PoC for the task definition manager.
  * TODO: dowiedzieć się więcej n.t. obiektu HumanInteractions, czy będzie on nadal potrzebny w sposób, w jaki jest używany przez HumanInteractionsFactoryBean oraz Services ??
  * TODO cannot depend on model
- * @author Jakub Kurlenda
+ * 
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
  * 
  */
-
+@Service
 public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInterface {
 
     private final Log LOG = LogFactory.getLog(getClass());
@@ -133,10 +141,6 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
 //        throw new HumanTaskException("No task definition with a given key: " + key + " was found");
 //    }
 
-    public List<HumanInteractions> getHumanInteractions() {
-        return humanInteractionsList;
-    }
-
     // ============= HELPER METHODS ===================
 
     private List<Group> extractLogicalPeopleGroup(THumanInteractions hiDoc) {
@@ -155,7 +159,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
         List<TaskDefinition> taskDefinitions = new ArrayList<TaskDefinition>();
         
         for (TTask tTask : hiDoc.getTasks().getTask()) {
-            TaskDefinition taskDefinition = new TaskDefinition();
+            TaskDefinition taskDefinition = new TaskDefinition(this);
             taskDefinition.setTaskName(tTask.getName());
             taskDefinition.setDefinition(humanInteractions);
 
@@ -174,7 +178,6 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
 
     private HumanInteractions createHumanIteractionsInstance(Resource htdXml) throws IOException, ParserConfigurationException, SAXException, NoSuchAlgorithmException {
         InputStream is;
-        String md5;
 
         // dom
         is = htdXml.getInputStream();
@@ -185,37 +188,21 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse(is);
 
-        is = htdXml.getInputStream();
-
-        MessageDigest digest = MessageDigest.getInstance("MD5");
-
-        byte[] buffer = new byte[8192];
-        int read = 0;
-        try {
-
-            while ((read = is.read(buffer)) > 0) {
-                digest.update(buffer, 0, read);
-            }
-            byte[] md5sum = digest.digest();
-            BigInteger bigInt = new BigInteger(1, md5sum);
-            md5 = bigInt.toString(16);
-
-        } catch (IOException e) {
-
-            //log.error("Error reading: " + htdXml);
-            throw new RuntimeException("Error reading: " + htdXml, e);
-
-        } finally {
-
-            try {
-                is.close();
-            } catch (IOException e) {
-                //  log.error("Error closing: " + htdXml);
-                throw new RuntimeException("Error closing: " + htdXml, e);
-            }
-
-        }
-
         return new HumanInteractions(document);
+    }
+
+    /**
+     * Just a very simple, stub people query implementation, which simply creates Assignee instances with a given name.
+     * 
+     * @param logicalPeopleGroupName the logical people group name
+     * @param input the input message that created the task
+     * @return collection of assignees.
+     */
+    public List<Assignee> evaluate(String logicalPeopleGroupName, Map<String, Message> input) {
+        List<Assignee> assignees = new ArrayList<Assignee>();
+        Group group = new Group();
+        group.setName(logicalPeopleGroupName);
+        assignees.add(group);
+        return assignees;
     }
 }

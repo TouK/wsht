@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * @author Jakub Kurlenda
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
  */
-public class TaskDefinitionManagerImplUnitTest {
+public class HumanInteractionsManagerImplUnitTest {
 
     private HumanInteractionsManagerInterface taskManager;
 
@@ -63,17 +63,5 @@ public class TaskDefinitionManagerImplUnitTest {
 ////        List<Group> groups = taskManager.getLogicalPeopleGroups();
 ////        assertNotNull(groups);
 ////        assertEquals(6, groups.size());
-//    }
-
-    //TODO jkr: move
-//    @Test
-//    public void testGetLogicalPeopleGroupByName() throws HumanTaskException {
-//        Group group = taskManager.getLogicalPeopleGroupByName("clerksManager");
-//        assertNotNull(group);
-//    }
-//
-//    @Test(expected = HumanTaskException.class)
-//    public void testLogicalPeopleGroupNotFound() throws HumanTaskException {
-//        taskManager.getLogicalPeopleGroupByName("JKR!@#");
 //    }
 }

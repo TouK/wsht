@@ -4,40 +4,35 @@
  */
 package pl.touk.humantask.spec;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.touk.humantask.PeopleQuery;
+import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Message;
-import pl.touk.humantask.model.Task;
+
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.xpath.*;
+import java.util.*;
 
 /**
  * Holds information about task version runnable in TouK Human Task engine. Task
  * consists of:
- * 
+ * <p/>
  * - HumanInteractions object - task name (reference to single task in HumanInteractions object)
- * 
+ *
  * @author Witek Wołejszo
  * @author Kamil Eisenbart
  * @author Mateusz Lipczyński
  */
+@Configurable(dependencyCheck = true)
 public class TaskDefinition {
 
     private final Log log = LogFactory.getLog(TaskDefinition.class);
@@ -47,15 +42,17 @@ public class TaskDefinition {
     private HumanInteractions humanInteractions;
 
     private String taskName;
-    
+
     private boolean instantiable;
-    
+
     //TODO jkr: here? configured at human interactions manager level
     private PeopleQuery peopleQuery;
     private XPathFactory xPathFactory;
 
-    public TaskDefinition() {
+
+    public TaskDefinition(PeopleQuery peopleQuery) {
         super();
+        this.peopleQuery = peopleQuery;
         xPathFactory = XPathFactory.newInstance();
     }
 
@@ -83,14 +80,14 @@ public class TaskDefinition {
     public String getTaskName() {
         return taskName;
     }
-
-    public PeopleQuery getPeopleQuery() {
-        return peopleQuery;
-    }
-
-    public void setPeopleQuery(PeopleQuery peopleQuery) {
-        this.peopleQuery = peopleQuery;
-    }
+//
+//    public PeopleQuery getPeopleQuery() {
+//        return peopleQuery;
+//    }
+//
+//    public void setPeopleQuery(PeopleQuery peopleQuery) {
+//        this.peopleQuery = peopleQuery;
+//    }
 
     // //TODO lazy
     // public TTask getTask() {
@@ -109,6 +106,7 @@ public class TaskDefinition {
     // }
 
     // TODO handle text/html
+
     public String getDescription(String lang, String contentType) {
 
         XPath xpath = xPathFactory.newXPath();
@@ -142,22 +140,54 @@ public class TaskDefinition {
 
     /**
      * Evaluates assignees of generic human role.
-     * @param genericHumanRole generic human role
-     * @param input the input message that created the task
-     * @return
+     *
+     * @param humanRoleName generic human role
+     * @param input            the input message that created the task
+     * @return list of task assignees or empty list, when no assignments were made to this task.
      */
-    public List<Assignee> evaluateHumanRoleAssignees(GenericHumanRole genericHumanRole, Map<String, Message> input) {
-        
+    public List<Assignee> evaluateHumanRoleAssignees(GenericHumanRole humanRoleName, Map<String, Message> input) {
+        List<String> groupNames = new ArrayList<String>();
+        List<Assignee> result = new ArrayList<Assignee>();
+
         //read htd
-        
-        //evaluate using people query
-        
-        //return
-        
-        return Collections.EMPTY_LIST;
+        XPath xpath = xPathFactory.newXPath();
+        xpath.setNamespaceContext(new HtdNamespaceContext());
+
+        try {
+
+            String XPATH_EXPRESSION_FOR_HUMAN_ROLES_EVALUATION = "/htd:humanInteractions/htd:tasks/htd:task[@name='" + taskName + "']/htd:peopleAssignments/htd:" + humanRoleName.toString();
+            
+            XPathExpression expr = xpath.compile(XPATH_EXPRESSION_FOR_HUMAN_ROLES_EVALUATION);
+
+            NodeList nl = (NodeList) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODESET);
+
+            
+            for (int i = 0; i < nl.getLength(); i++) {
+
+                NodeList children = nl.item(i).getChildNodes();
+
+                NamedNodeMap map = children.item(1).getAttributes();
+
+                String groupName = map.getNamedItem("logicalPeopleGroup").getNodeValue();
+                groupNames.add(groupName);
+            }
+
+
+        } catch (XPathExpressionException e) {
+
+            log.error("Error evaluating XPath.", e);
+            // TODO throw
+
+        }
+        for (String groupName : groupNames) {
+            List<Assignee> assignees = peopleQuery.evaluate(groupName, input);
+            result.addAll(assignees);
+        }
+
+        return result;
     }
 
-    
+
 //    // TODO make this function generic to handle all roles
 //    public List<String> getPotentialOwners() {
 //
@@ -195,7 +225,8 @@ public class TaskDefinition {
 
     /**
      * Returns an unformatted task subject in a required language
-     * @param lang  subject language according ISO, e.g. en-US, pl, de-DE
+     *
+     * @param lang subject language according ISO, e.g. en-US, pl, de-DE
      * @return subject
      */
     public String getSubject(String lang) {
@@ -249,7 +280,7 @@ public class TaskDefinition {
         } catch (XPathExpressionException e) {
 
             log.error("Error evaluating XPath.", e);
-        // TODO throw
+            // TODO throw
 
         }
 

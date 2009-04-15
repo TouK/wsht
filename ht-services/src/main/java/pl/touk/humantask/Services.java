@@ -94,8 +94,6 @@ public class Services implements HumanTaskServicesInterface {
 
         TaskDefinition taskDefinition = taskManager.getTaskDefinition(taskName);
 
-        // TODO: should be removed
-        taskDefinition.setPeopleQuery(this.peopleQuery);
 
         Person createdByPerson = assigneeDao.getPerson(createdBy);
         if (createdByPerson == null) {

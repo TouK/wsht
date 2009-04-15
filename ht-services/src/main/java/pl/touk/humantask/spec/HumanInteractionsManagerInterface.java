@@ -9,6 +9,7 @@ import java.util.List;
 
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.Group;
+import pl.touk.humantask.PeopleQuery;
 
 /**
  * This interface introduces methods for task retrieving. We assume that task name is unique
@@ -16,7 +17,7 @@ import pl.touk.humantask.model.Group;
  *
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
  */
-public interface HumanInteractionsManagerInterface {
+public interface HumanInteractionsManagerInterface extends PeopleQuery {
     
     /*
      * Retrieves task definition by name.

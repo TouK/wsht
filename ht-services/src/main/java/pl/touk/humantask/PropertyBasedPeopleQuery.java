@@ -47,7 +47,7 @@ public final class PropertyBasedPeopleQuery implements PeopleQuery {
      * @return
      */
     public List<Assignee> evaluate(String logicalPeopleGroupName, Map<String, Message> input) {
-        // TODO Auto-generated method stub
+        
         return null;
     }
     

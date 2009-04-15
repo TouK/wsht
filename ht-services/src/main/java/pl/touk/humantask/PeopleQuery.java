@@ -23,16 +23,6 @@ import pl.touk.humantask.spec.TaskDefinition;
  * @author Witek Wołejszo
  */
 public interface PeopleQuery {
-
-//    /**
-//     * Returns list of potential {@link Assignee}s that are members of logical people group.
-//     * 
-//     * @param logicalPeopleGroup
-//     * @param task
-//     * @return TODO remove task, logicalPeopleGroup -> name?, parameters?
-//     */
-    //List<Assignee> evaluate(TaskDefinition.LogicalPeopleGroup logicalPeopleGroup, Task task);
-    
     /**
      * Evaluates assignees in logical people group.
      * @param logicalPeopleGroupName the logical people group name

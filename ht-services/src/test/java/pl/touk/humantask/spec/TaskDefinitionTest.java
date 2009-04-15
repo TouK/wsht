@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +18,7 @@ import pl.touk.humantask.PeopleQuery;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
+import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.spec.TaskDefinition.LogicalPeopleGroup;
 
 /**
@@ -57,6 +59,21 @@ public class TaskDefinitionTest extends TestCase {
 //        assertTrue(r.contains("regionalClerks"));
 //    }
 
+    @Test
+    public void testEvaluateHumanRoleAssignees() throws HumanTaskException {
+        TaskDefinition td = htManager.getTaskDefinition("ApproveClaim");
+        List<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, null);
+        Assert.assertEquals(2, assigneeList.size());
+        List<Assignee> bussinessAdministrators = td.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, null);
+        Assert.assertEquals(1, bussinessAdministrators.size());
+    }
+
+//    @Test(expected = HumanTaskException.class)
+//    public void testGenericHumanRoleNotFoundInTaskDefinition() throws HumanTaskException {
+//        TaskDefinition td = htManager.getTaskDefinition("ApproveClaim");
+//        td.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, null);
+//    }
+    
     /**
      * Test of getSubject method, of class TaskDefinition.
      */
