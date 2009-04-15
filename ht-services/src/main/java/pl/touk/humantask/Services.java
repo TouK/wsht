@@ -22,7 +22,6 @@ import pl.touk.humantask.exceptions.RecipientNotAllowedException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Attachment;
 import pl.touk.humantask.model.GenericHumanRole;
-import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.TaskTypes;
@@ -93,17 +92,7 @@ public class Services implements HumanTaskServicesInterface {
 
         log.info("Creating task: " + taskName + " , createdBy: " + createdBy);
 
-        // TODO: getting task by name move to human interface class
         TaskDefinition taskDefinition = taskManager.getTaskDefinition(taskName);
-//        for (TaskDefinition taskDefinitionConfigured : taskDefinitions) {
-//            if (taskName.equals(taskDefinitionConfigured.getName()) && taskDefinitionConfigured.getInstantiable()) {
-//                taskDefinition = taskDefinitionConfigured;
-//                break;
-//            }
-//        }
-//        if (taskDefinition == null) {
-//            throw new HumanTaskException("No definition found for task: " + taskName);
-//        }
 
         // TODO: should be removed
         taskDefinition.setPeopleQuery(this.peopleQuery);
@@ -115,6 +104,7 @@ public class Services implements HumanTaskServicesInterface {
         }
 
         Task newTask = new Task(taskDefinition, createdByPerson, requestXml);
+        
         taskDao.create(newTask);
         return newTask;
 
@@ -169,7 +159,7 @@ public class Services implements HumanTaskServicesInterface {
             return taskDao.getTasks(person, taskType, genericHumanRole, workQueue, status, whereClause, createdOnClause, maxTasks);
         }catch(Exception x){
             
-            throw new IllegalOperationException(x.getMessage(),"getMyTasks");
+            throw new IllegalOperationException(x.getMessage(),"getMyTasks",x);
         }
     }
 
@@ -247,142 +237,142 @@ public class Services implements HumanTaskServicesInterface {
 
     }
 
-    /**
-     * Starts task. Sets status to inProgess. Actual Owner Potential Owners (state Ready)
-     * 
-     * @param task
-     * @param personName
-     * @return
-     */
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Task startTask(Task task, String personName) throws HumanTaskException {
-
-        if (task.getId() == null) {
-            log.error("Task has to be persisted before performing any operation.");
-            throw new RuntimeException("Task has to be persisted before performing any operation.");
-        }
-
-        Person person = assigneeDao.getPerson(personName);
-
-        // TODO exception if not found
-
-        // TODO w stanie ready musi byc podany person
-        if (task.getStatus() == Status.READY) {
-            if (!task.getPotentialOwners().contains(person)) {
-                log.error("This person is not permited to start the task");
-                throw new HumanTaskException("This person is not permited to start the task");
-            }
-            task.setActualOwner(person);
-        } else if (!(person == null) && !task.getPotentialOwners().contains(person)) {
-            log.error("This person is not permited to start the task");
-            throw new HumanTaskException("This person is not permited to start the task");
-        }
-
-        task.setStatus(Status.IN_PROGRESS);
-        // TODO was update
-        taskDao.create(task);
-
-        return task;
-    }
-
-    /**
-     * Loads single task from persistent store. TODO implement
-     * 
-     * @return
-     */
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Task loadTask(Long taskId) {
-
-        Task task = taskDao.fetch(taskId);
-        // task.setTaskDefinition(findTaskDefinitionByKey(task.getTaskDefinitionKey()));
-
-        // TODO throw an exception if no definition found
-
-        return task;
-    }
-
-    /**
-     * Delegates task to other person.
-     * 
-     * @param task
-     * @param assigneeName
-     * @throws HumanTaskException
-     */
-    public Task delegateTask(Task task, String assigneeName) throws HumanTaskException {
-
-        Person person = assigneeDao.getPerson(assigneeName);
-
-        task.setStatus(Status.RESERVED);
-        this.addPotentialOwner(task, person);
-        task.setActualOwner(person);
-
-        taskDao.update(task);
-
-        return task;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    // TODO How to distinguish groups and people? now works on people only
-    public Task forwardTask(Task task, String assigneeName) throws HumanTaskException {
-
-        Person owner = (Person) task.getActualOwner();
-
-        Assignee assignee = assigneeDao.getPerson(assigneeName);
-
-        // List<Person> list = this.;
-        // log.info(g.getPeople().size());
-
-        if (assignee == null) {
-            log.error("Task without assignee cannot be forwarded.");
-            throw new HumanTaskException("Task without assignee cannot be forwarded");
-        }
-
-        // TODO check who is forwarding the task
-        /*
-         * if ((t.getStatus()==Status.IN_PROGRESS || t.getStatus()==Status.RESERVED)&& owner==null){
-         * log.error("this person or a group cannot forward this task"); throw new HumanTaskException("this person or a group cannot forward this task" ); }
-         */
-
-        if (task.getStatus() == Status.IN_PROGRESS || task.getStatus() == Status.RESERVED) {
-            this.releaseTask(task, owner.getName());
-        }
-
-        if (!(task.getStatus() == Status.READY)) {
-
-            log.error("Task with other stus then Ready cannot be forwarded");
-            throw new HumanTaskException("Task with other stus then Ready cannot be forwarded");
-        }
-
-        // erasing actual owner from potential owners or all potential owners
-        // group
-        if (owner != null) {
-
-            this.removeAssigneeFromPotentialOwners(task, owner);
-        } else {
-
-            task.setPotentialOwners(null);
-        }
-
-        //TODO always Person
-        if (assignee instanceof Group) {
-
-            Group g = (Group) assignee;
-            List<Person> people = g.getPeople();
-            // TODO adding to potentialownersgroup new owners form the group
-            this.addPotentialOwner(task, people);
-
-        } else {
-
-            this.addPotentialOwner(task, assignee);
-
-        }
-
-        // adding new potential owners
-        // t = t.addPotentialOwner(assignee);
-
-        taskDao.update(task);
-        return task;
-    }
+//    /**
+//     * Starts task. Sets status to inProgess. Actual Owner Potential Owners (state Ready)
+//     *
+//     * @param task
+//     * @param personName
+//     * @return
+//     */
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    public Task startTask(Task task, String personName) throws HumanTaskException {
+//
+//        if (task.getId() == null) {
+//            log.error("Task has to be persisted before performing any operation.");
+//            throw new RuntimeException("Task has to be persisted before performing any operation.");
+//        }
+//
+//        Person person = assigneeDao.getPerson(personName);
+//
+//        // TODO exception if not found
+//
+//        // TODO w stanie ready musi byc podany person
+//        if (task.getStatus() == Status.READY) {
+//            if (!task.getPotentialOwners().contains(person)) {
+//                log.error("This person is not permited to start the task");
+//                throw new HumanTaskException("This person is not permited to start the task");
+//            }
+//            task.setActualOwner(person);
+//        } else if (!(person == null) && !task.getPotentialOwners().contains(person)) {
+//            log.error("This person is not permited to start the task");
+//            throw new HumanTaskException("This person is not permited to start the task");
+//        }
+//
+//        task.setStatus(Status.IN_PROGRESS);
+//        // TODO was update
+//        taskDao.create(task);
+//
+//        return task;
+//    }
+//
+//    /**
+//     * Loads single task from persistent store. TODO implement
+//     *
+//     * @return
+//     */
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    public Task loadTask(Long taskId) {
+//
+//        Task task = taskDao.fetch(taskId);
+//        // task.setTaskDefinition(findTaskDefinitionByKey(task.getTaskDefinitionKey()));
+//
+//        // TODO throw an exception if no definition found
+//
+//        return task;
+//    }
+//
+//    /**
+//     * Delegates task to other person.
+//     *
+//     * @param task
+//     * @param assigneeName
+//     * @throws HumanTaskException
+//     */
+//    public Task delegateTask(Task task, String assigneeName) throws HumanTaskException {
+//
+//        Person person = assigneeDao.getPerson(assigneeName);
+//
+//        task.setStatus(Status.RESERVED);
+//        this.addPotentialOwner(task, person);
+//        task.setActualOwner(person);
+//
+//        taskDao.update(task);
+//
+//        return task;
+//    }
+//
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    // TODO How to distinguish groups and people? now works on people only
+//    public Task forwardTask(Task task, String assigneeName) throws HumanTaskException {
+//
+//        Person owner = (Person) task.getActualOwner();
+//
+//        Assignee assignee = assigneeDao.getPerson(assigneeName);
+//
+//        // List<Person> list = this.;
+//        // log.info(g.getPeople().size());
+//
+//        if (assignee == null) {
+//            log.error("Task without assignee cannot be forwarded.");
+//            throw new HumanTaskException("Task without assignee cannot be forwarded");
+//        }
+//
+//        // TODO check who is forwarding the task
+//        /*
+//         * if ((t.getStatus()==Status.IN_PROGRESS || t.getStatus()==Status.RESERVED)&& owner==null){
+//         * log.error("this person or a group cannot forward this task"); throw new HumanTaskException("this person or a group cannot forward this task" ); }
+//         */
+//
+//        if (task.getStatus() == Status.IN_PROGRESS || task.getStatus() == Status.RESERVED) {
+//            this.releaseTask(task, owner.getName());
+//        }
+//
+//        if (!(task.getStatus() == Status.READY)) {
+//
+//            log.error("Task with other stus then Ready cannot be forwarded");
+//            throw new HumanTaskException("Task with other stus then Ready cannot be forwarded");
+//        }
+//
+//        // erasing actual owner from potential owners or all potential owners
+//        // group
+//        if (owner != null) {
+//
+//            this.removeAssigneeFromPotentialOwners(task, owner);
+//        } else {
+//
+//            task.setPotentialOwners(null);
+//        }
+//
+//        //TODO always Person
+//        if (assignee instanceof Group) {
+//
+//            Group g = (Group) assignee;
+//            List<Person> people = g.getPeople();
+//            // TODO adding to potentialownersgroup new owners form the group
+//            this.addPotentialOwner(task, people);
+//
+//        } else {
+//
+//            this.addPotentialOwner(task, assignee);
+//
+//        }
+//
+//        // adding new potential owners
+//        // t = t.addPotentialOwner(assignee);
+//
+//        taskDao.update(task);
+//        return task;
+//    }
 
     /**
      * removes person form potential owners

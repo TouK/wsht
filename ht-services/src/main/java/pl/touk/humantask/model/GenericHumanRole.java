@@ -7,7 +7,8 @@ package pl.touk.humantask.model;
 
 /**
  * Enum type [spec 3.2]
- * @author wcr
+ * @author Warren Crossing
+ * @author Mateusz Lipczyński
  */
 public enum GenericHumanRole {
     
@@ -18,7 +19,8 @@ public enum GenericHumanRole {
     ACTUAL_OWNER("actualOwner"),
     BUSINESS_ADMINISTRATORS("businessAdministrators"),
     NOTIFICATION_RECIPIENTS("notificationRecipients"),
-    RECIPIENTS("recipients");
+    RECIPIENTS("recipients"),
+    EXCLUDED_OWNERS("excludedOwners");
 
     GenericHumanRole(String value) {
         this.value = value;

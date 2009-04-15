@@ -5,13 +5,8 @@
 
 package pl.touk.humantask.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 
 /**
@@ -19,15 +14,24 @@ import org.apache.commons.lang.builder.EqualsBuilder;
  *
  * @author Witek Wołejszo
  * @author Kamil Eisenbart
+ * @author Mateusz Lipczyński
  */
 @Entity
 public class Group extends Assignee {
 
-    @ManyToMany
-    public List<Person> people;
-
     @Column(unique = true)
     private String name;
+
+    //TODO mlp: javadoc
+    public Group() {
+        super();
+    }
+
+    //TODO mlp: javadoc
+    Group(String name) {
+        super();
+        this.setName(name);
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -37,18 +41,6 @@ public class Group extends Assignee {
         return name;
     }
 
-    public Group() {
-        this.people = new ArrayList<Person>();
-    }
-
-    public List<Person> getPeople() {
-        return people;
-    }
-
-    public void setPeople(List<Person> people) {
-        this.people = people;
-    }
-    
     @Override
     public int hashCode() {
         int result = ((name == null) ? 0 : name.hashCode());

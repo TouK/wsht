@@ -92,7 +92,7 @@ public class Task extends Base {
      * document style Web Services are used to start Task, part name
      * should be set to {@link Message.DEFAULT_PART_NAME_KEY}.
      */
-    @OneToMany
+    @OneToMany(cascade=CascadeType.PERSIST)
     @MapKey(name="partName")
     @JoinTable(name="TASK_MSG_INPUT")
     private Map<String, Message> input = new HashMap<String, Message>();
@@ -100,7 +100,7 @@ public class Task extends Base {
     /**
      * Task output message map. Maps message part to message.
      */
-    @OneToMany
+    @OneToMany(cascade=CascadeType.PERSIST)
     @MapKey(name="partName")
     @JoinTable(name="TASK_MSG_OUTPUT")
     private Map<String, Message> output = new HashMap<String, Message>();
@@ -192,26 +192,27 @@ public class Task extends Base {
         super();
     }
 
-    /**
-     * Task constructor.
-     * TODO mlp: czym sie roznia konstruktory, usunac ten
-     *
-     * TODO actualOwner or evaluatedPeopleGroups or people group definitions?
-     * TODO ws xml request in constructor?
-     *
-     * @param taskDefinition
-     * @param actualOwner
-     * @throws HumanTaskException
-     */
-    public Task(TaskDefinition taskDefinition, Person actualOwner) throws HumanTaskException {
-        this.init(taskDefinition);
-        List<Assignee> actualOwnerList = new ArrayList<Assignee>();
-        if (actualOwner != null) {
-            actualOwnerList.add(actualOwner);
-        }
-        this.setPotentialOwners(actualOwnerList);
-        this.setProperInitialStatus();
-    }
+//    /**
+//     * Task constructor.
+//     * TODO mlp: czym sie roznia konstruktory, usunac ten
+//     *
+//     * TODO actualOwner or evaluatedPeopleGroups or people group definitions?
+//     * TODO ws xml request in constructor?
+//     *
+//     * @param taskDefinition
+//     * @param actualOwner
+//     * @throws HumanTaskException
+//     */
+//    public Task(TaskDefinition taskDefinition, Person actualOwner) throws HumanTaskException {
+//        this.init(taskDefinition);
+//        List<Assignee> actualOwnerList = new ArrayList<Assignee>();
+//        if (actualOwner != null) {
+//            actualOwnerList.add(actualOwner);
+//        }
+//        this.setPotentialOwners(actualOwnerList);
+//        this.setProperInitialStatus();
+//    }
+
 
     /**
      * Task constructor.
@@ -220,50 +221,39 @@ public class Task extends Base {
      * TODO ws xml request in constructor?
      *
      * @param taskDefinition  task definition as an object
-     * @param createdBy       person who created the task
+     * @param createdBy       person who created the task, can be null
      * @param requestXml      input data as XML string
      * @throws HumanTaskException
      */
     public Task(TaskDefinition taskDefinition, Person createdBy, String requestXml) throws HumanTaskException {
 
-        this.init(taskDefinition);
+        if (taskDefinition == null) {
+            throw new pl.touk.humantask.exceptions.IllegalArgumentException("Task definition must not be null.");
+        }
+
+        this.taskDefinition = taskDefinition;
+        this.taskDefinitionKey = taskDefinition.getTaskName();
         this.input.put(Message.DEFAULT_PART_NAME_KEY, new Message(requestXml));
         
-        //TODO mlp - przepisac wyciaganie Assignees na uzycie interfejsu z TaskDefinition 
-        potentialOwners = Collections.EMPTY_LIST;
-        
-//        // evaluate logical people groups
-//        List<TaskDefinition.LogicalPeopleGroup> logicalPeopleGroups = taskDefinition.getLogicalpeopleGroups();
-//
-//        Map<String, List<Assignee>> lpgPotentialMembers = new HashMap<String, List<Assignee>>();
-//        for (TaskDefinition.LogicalPeopleGroup lpg : logicalPeopleGroups) {
-//            lpgPotentialMembers.put(lpg.getName(), taskDefinition.evaluate(lpg, this));
-//        }
-//
-//        // TODO assigning potential members to roles
-//
-//        // TODO potential owners
-//        this.potentialOwners = new ArrayList<Assignee>();
-//
-//        for (String name : taskDefinition.getPotentialOwners()) {
-//
-//            // WARNING!! t.getTaskDefinition().getPotentialOwners() returns
-//            // potential owners group name
-//            // not exactly name from this group
-//
-//            List<Assignee> newMembers = lpgPotentialMembers.get(name);
-//
-//            for (Assignee assignee : newMembers) {
-//                if (!potentialOwners.contains(assignee)) {
-//                    potentialOwners.add(assignee);
-//                }
-//            }
-//
-//        }
+        this.potentialOwners        = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS,          this.input);
+        this.businessAdministrators = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS,   this.input);
+        this.excludedOwners         = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS,           this.input);
+        this.notificationRecipients = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS,   this.input);
+        this.taskStakeholders       = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS,         this.input);
 
-        this.setCreatedBy(createdBy.getName());
+        //TODO mlp: evaluate subject
+        //TODO mlp: evaluate description
+
+        this.setCreatedBy(createdBy == null ? null : createdBy.getName());
         this.setActivationTime(new Date());
-        this.setProperInitialStatus();
+        this.status = Status.CREATED;
+        Person nominatedPerson = this.nominateActualOwner(this.potentialOwners);
+        if (nominatedPerson != null) {
+            this.setActualOwner(nominatedPerson);
+            this.setStatus(Status.RESERVED);
+        } else if (!potentialOwners.isEmpty()) {
+            this.setStatus(Status.READY);
+        }
     }
 
     /**
@@ -275,43 +265,25 @@ public class Task extends Base {
     }
 
     /**
-     * TODO mlp: describe
-     * @param taskDefinition
-     * @throws HumanTaskException
-     */
-    private void init(TaskDefinition taskDefinition) throws HumanTaskException {
-        if (taskDefinition == null) {
-            throw new pl.touk.humantask.exceptions.IllegalArgumentException("Task definition must not be null.");
-        }
-        this.taskDefinition = taskDefinition;
-        this.taskDefinitionKey = taskDefinition.getTaskName();
-    }
-
-    /**
-     * Set proper initial status depending on the potential owners.
+     * If there is only one person in the given list, it
+     * returns this person. Otherwise, it returns null.
      *
-     * TODO actualOwner should be replaced with potential owner evaluation
-     *
-     * @throws HumanTaskException
+     * @param assignees    list of assignees that can contain persons and groups
+     * @return             the only person in the list, otherwise null
      */
-    private void setProperInitialStatus() throws HumanTaskException {
-        this.status = Status.CREATED;
-
-        switch (potentialOwners.size()) {
-        case 0:
-            // pozostajemy w stanie Created i czekamy na dodanie ownersów przez
-            // admina
-            break;
-        case 1:
-            this.setActualOwner(potentialOwners.get(0));
-            this.setPotentialOwners(potentialOwners);
-            this.setStatus(Status.RESERVED);
-            break;
-        default:
-            this.setPotentialOwners(potentialOwners);
-            this.setStatus(Status.READY);
-            break;
+    protected Person nominateActualOwner(List<Assignee> assignees) {
+        Person result = null;
+        for (Assignee assignee : assignees) {
+            if (assignee instanceof Person) {
+                if (result == null) {
+                    result = (Person)assignee;
+                } else {
+                    result = null;
+                    break;
+                }
+            }
         }
+        return result;
     }
 
     /***************************************************************

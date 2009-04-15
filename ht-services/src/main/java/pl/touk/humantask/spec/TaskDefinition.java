@@ -256,16 +256,6 @@ public class TaskDefinition {
         return null;
     }
 
-//    /**
-//     * TODO mlp: javadoc
-//     * @param logicalPeopleGroup
-//     * @param task
-//     * @return
-//     */
-//    public List<Assignee> evaluate(LogicalPeopleGroup logicalPeopleGroup, Task task) {
-//        return this.peopleQuery.evaluate(logicalPeopleGroup, task);
-//    }
-
     public static class LogicalPeopleGroup {
 
         private String name;

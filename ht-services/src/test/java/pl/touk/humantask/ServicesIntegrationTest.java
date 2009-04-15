@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
+import java.util.Map;
 import javax.annotation.Resource;
 
 import junit.framework.Assert;
@@ -26,6 +29,7 @@ import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
+import pl.touk.humantask.model.Message;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.TaskTypes;
@@ -39,6 +43,7 @@ import pl.touk.humantask.spec.TaskDefinition;
  * @author Warren Crossing
  * @author Kamil Eisenbart
  * @author Piotr Jagielski
+ * @author Mateusz Lipczyński
  */
 @ContextConfiguration(locations = "classpath:/test.xml")
 public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
@@ -130,25 +135,31 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         }};
         
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
-        
-        mockery.checking(new Expectations() {{
-            one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
-        }});
-        
-        Person jacek = new Person();
-        jacek.setName("Jacek");
-       
+        final Map<String, Message> mockMap = new HashMap<String, Message>();
+        mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message("x"));
+        final List<Assignee> assignees = new ArrayList<Assignee>();
+        Person jacek = new Person("Jacek");
+        assignees.add(jacek);
+
         assigneeDao.create(jacek);
         
-        final Task task = new Task(taskDefinition, jacek);
+        mockery.checking(new Expectations() {{
+            one(taskDefinition).getTaskName();                                                                  will(returnValue("taskLookupKey"));
+            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap);         will(returnValue(assignees));
+            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, mockMap);  will(returnValue(Collections.EMPTY_LIST));
+            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS, mockMap);          will(returnValue(Collections.EMPTY_LIST));
+            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, mockMap);  will(returnValue(Collections.EMPTY_LIST));
+            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS, mockMap);        will(returnValue(Collections.EMPTY_LIST));
+        }});
+        
+        
+        final Task task = new Task(taskDefinition, jacek, "<?xml version='1.0'?><root/>");
        
-        //task.setRequestXml("<?xml version='1.0'?><root/>");
-                
         Person admin = new Person();
         admin.setName("Admin");
 
         assigneeDao.create(admin);
-        
+
         task.setTaskStakeholders(Arrays.asList((Assignee)jacek));
         task.setActualOwner(jacek);
         task.setStatus(Status.IN_PROGRESS);
@@ -201,9 +212,9 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     public void testTaskLifecycle() throws HumanTaskException {
 
         //ApproveClaim has several potential owners, so it is not reserved
-        Task t = services.createTask("ApproveClaim", "ww", "request");
-        
-        assertEquals(Task.Status.READY, t.getStatus());
+        Task t = services.createTask("ApproveClaim", "ww", "<?xml version='1.0'?><root/>");
+
+        Assert.assertTrue(t.getStatus() == Task.Status.READY || t.getStatus() == Task.Status.CREATED || t.getStatus() == Task.Status.RESERVED);
 
         //TODO the rest of default lifecycle
     }
