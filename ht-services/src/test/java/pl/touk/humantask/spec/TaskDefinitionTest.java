@@ -37,7 +37,7 @@ public class TaskDefinitionTest extends TestCase {
 
     @Test
     public void testGetDescriptionPlain() throws HumanTaskException {
-//        TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
+//      TaskDefinition td = (TaskDefinition) applicationContext.getBean("ApproveClaimTask");
         TaskDefinition td = htManager.getTaskDefinition("ApproveClaim");
         String description = td.getDescription("en-US", "text/plain", null);
         log.debug(description);

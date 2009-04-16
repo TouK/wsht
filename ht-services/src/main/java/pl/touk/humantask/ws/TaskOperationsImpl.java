@@ -185,10 +185,10 @@ public class TaskOperationsImpl implements TaskOperations {
     }
 
     private void translateIllegalStateException(HumanTaskException xHT) throws IllegalStateFault {
-        if (xHT instanceof pl.touk.humantask.exceptions.IllegalStateException) {
+        if (xHT instanceof pl.touk.humantask.exceptions.HTIllegalStateException) {
             IllegalState state = new IllegalState();
           
-            state.setStatus(translateStatusAPI(((pl.touk.humantask.exceptions.IllegalStateException)xHT).getExceptionInfo()));
+            state.setStatus(translateStatusAPI(((pl.touk.humantask.exceptions.HTIllegalStateException)xHT).getExceptionInfo()));
             throw new IllegalStateFault(xHT.getMessage(), state, xHT);
         }
     }

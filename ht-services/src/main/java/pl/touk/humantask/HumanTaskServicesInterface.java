@@ -7,7 +7,10 @@ package pl.touk.humantask;
 
 import java.util.List;
 
+import pl.touk.humantask.exceptions.HTIllegalArgumentException;
+import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.RecipientNotAllowedException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.TaskTypes;
@@ -80,6 +83,15 @@ public interface HumanTaskServicesInterface {
     
     /**
      * Claim responsibility for a task, i.e. set the task to status Reserved
+     *
+     * @param  task
+     *          The task to claim
+     * @param  personName
+     *          The person will become the new actual owner.
+     *
+     * @throws HTIllegalStateException when the state is not possible for the task
+     * @throws RecipientNotAllowedException when the personName is not in the list
+     *         of potential owners
      */
-    public Task claimTask(Task task,String personName) throws HumanTaskException;
+    public Task claimTask(Task task,String personName) throws RecipientNotAllowedException, HTIllegalArgumentException, HTIllegalStateException;
 }

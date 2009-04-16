@@ -17,8 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
+import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
+import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.RecipientNotAllowedException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Attachment;
@@ -111,27 +113,8 @@ public class Services implements HumanTaskServicesInterface {
     }
     
     /**
-     * Retrieve the task details. This operation is used to obtain the data required to display a task list, as well as the details for the individual tasks.
-     * 
-     * @param personName
-     *            If specified and no work queue has been specified then only personal tasks are returned, classified by genericHumanRole.
-     * @param taskType
-     *            one of ALL, NOTIFICATIONS, TASKS.
-     * @param genericHumanRole
-     *            A classifier of names contained in the task.
-     * @param workQueue
-     *            If the work queue is specified then only tasks having a work queue and generic human role are returned.
-     * @param statusList
-     *            selects the tasks whose status is one of those specified in List.
-     * @param whereClause
-     *            - an [Hibernate] SQL Expression added to the criteria These additional fields may be used
-     *            (ID,TaskType,Name,Status,Priority,CreatedOn,ActivationTime,ExpirationTime
-     *            ,StartByExists,CompleteByExists,RenderMethExists,Escalated,PrimarySearchBy);
-     * @param createdOnClause
-     *            - an [Hibernate] SQL Expression performed on an xsd:date.
-     * @param maxTasks
-     *            - the maximum number of results returned in the List after ordering by activationTime.
-     * @return List of Tasks which meet the criteria.
+     *
+     * @see HumanTaskServicesInterface.getMyTasks
      */
     public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
             String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException {
@@ -190,16 +173,10 @@ public class Services implements HumanTaskServicesInterface {
     }
 
     /**
-     * Claims task. Sets status to Reserved. Only potential owners can claim the task. Excluded owners may not become an actual or potential owner and thus they
-     * may not reserve or start the task.
-     * 
-     * @param task
-     * @param assigneeName
-     * @return
-     * @throws HumanTaskException
+     * @see HumanTaskServicesInterface.claimTask
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public Task claimTask(Task task, String assigneeName) throws HumanTaskException {
+    public Task claimTask(Task task, String assigneeName) throws RecipientNotAllowedException, HTIllegalArgumentException, HTIllegalStateException {
 
         Person person = assigneeDao.getPerson(assigneeName);
         
@@ -213,19 +190,22 @@ public class Services implements HumanTaskServicesInterface {
             throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found");
         }
 
-        if (task.getActualOwner() != null || !Arrays.asList(Task.Status.CREATED, Task.Status.READY).contains(task.getStatus())) {
-            throw new pl.touk.humantask.exceptions.IllegalStateException("Task not claimable.", task.getStatus());
+        if (task.getActualOwner() != null || !Arrays.asList(Task.Status.READY).contains(task.getStatus())) {
+            throw new HTIllegalStateException("Task not claimable.", task.getStatus());
         }
 
         // check if the task can be claimed by person
         
-        if (task.getPotentialOwners().contains(person) && !(task.getExcludedOwners() != null && task.getExcludedOwners().contains(person))) {
-            task.setActualOwner(person);
-        } else {
-            throw new HumanTaskException("Person: " + person + " is not a potential owner.");
+        if (!(task.getPotentialOwners().contains(person) &&
+                !(task.getExcludedOwners() != null && task.getExcludedOwners().contains(person))
+             )) {
+            throw new RecipientNotAllowedException("Not a potential owner.",person.getName());
         }
         
+        task.setActualOwner(person);
         task.reserve();
+
+        taskDao.update(task);
 
         return task;
     }

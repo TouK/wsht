@@ -35,6 +35,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.spec.TaskDefinition;
 
@@ -44,6 +45,7 @@ import pl.touk.humantask.spec.TaskDefinition;
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
  * @author Mateusz Lipczyński
+ * @author Warren Crossing
  */
 @Entity
 @Table(name = "TASK")
@@ -60,13 +62,6 @@ public class Task extends Base {
     @Column(nullable = false)
     protected String taskDefinitionKey; // task definition
 
-    public Date getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
-    }
 
     public static enum Status {
 
@@ -243,17 +238,16 @@ public class Task extends Base {
      */
     protected Person nominateActualOwner(List<Assignee> assignees) {
         Person result = null;
+        int count = 0;
         for (Assignee assignee : assignees) {
             if (assignee instanceof Person) {
-                if (result == null) {
-                    result = (Person)assignee;
-                } else {
-                    result = null;
+                if (count++ > 0)
                     break;
-                }
+                result = (Person)assignee;
+
             }
         }
-        return result;
+        return (count==1)?result:null;
     }
 
     /**
@@ -300,7 +294,7 @@ public class Task extends Base {
      * @param status
      * @throws HumanTaskException
      */
-    public void setStatus(Status status) throws HumanTaskException {
+    public void setStatus(Status status) throws HTIllegalStateException {
 
         boolean isOk = false;
 
@@ -359,7 +353,7 @@ public class Task extends Base {
             } else {
 
                 LOG.error("Changing Task status: " + this + " status from: " + getStatus() + " to: " + status + " is not allowed.");
-                throw new pl.touk.humantask.exceptions.IllegalStateException("Changing Task's: " + this + " status from: " + getStatus() + " to: " + status
+                throw new pl.touk.humantask.exceptions.HTIllegalStateException("Changing Task's: " + this + " status from: " + getStatus() + " to: " + status
                         + " is not allowed, or task is SUSPENDED", status);
 
             }
@@ -512,6 +506,14 @@ public class Task extends Base {
         return notificationRecipients;
     }
 
+    public Date getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = createdOn;
+    }
+
     /***************************************************************
      * Business methods.                                           *
      ***************************************************************/
@@ -529,7 +531,7 @@ public class Task extends Base {
         /* else throw new HumanTaskException("status before suspend is invalid: "+statusBeforeSuspend.toString()); */
     }
 
-    public void reserve() throws HumanTaskException {
+    public void reserve() throws HTIllegalStateException {
         this.setStatus(Status.RESERVED);
     }
 

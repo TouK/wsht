@@ -32,6 +32,11 @@ public class TaskMockery extends Mockery {
     
     Task task = null;
     
+    Person jacek = new Person("Jacek");
+    Person witek = new Person("Witek");
+    Person admin = new Person("admin");
+
+
     public TaskMockery(TaskDao taskDao,AssigneeDao assigneeDao) {
         this.assigneeDao = assigneeDao;
         this.taskDao = taskDao;
@@ -42,22 +47,31 @@ public class TaskMockery extends Mockery {
         setImposteriser(ClassImposteriser.INSTANCE);  
        
         final TaskDefinition taskDefinition = mock(TaskDefinition.class);
+
         final Map<String, Message> mockMap = new HashMap<String, Message>();
         mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message("x"));
         final List<Assignee> assignees = new ArrayList<Assignee>();
-        
-        Person jacek = new Person("Jacek");
+
         assignees.add(jacek);
+        assignees.add(witek);
 
         assigneeDao.create(jacek);
-        
+        assigneeDao.create(witek);
+        assigneeDao.create(admin);
+
         checking(new Expectations() {{
-            one(taskDefinition).getTaskName();                                                                  will(returnValue("taskLookupKey"));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap);         will(returnValue(assignees));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, mockMap);  will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS, mockMap);          will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, mockMap);  will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS, mockMap);        will(returnValue(Collections.EMPTY_LIST));
+            one(taskDefinition).getTaskName();
+            will(returnValue("taskLookupKey"));
+            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap);
+            will(returnValue(assignees));
+            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, mockMap);
+            will(returnValue(Collections.EMPTY_LIST));
+            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS, mockMap);
+            will(returnValue(Collections.EMPTY_LIST));
+            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, mockMap);
+            will(returnValue(Collections.EMPTY_LIST));
+            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS, mockMap);
+            will(returnValue(Collections.EMPTY_LIST));
         }});
         
         try {
@@ -66,21 +80,26 @@ public class TaskMockery extends Mockery {
            
         }
        
-        Person admin = new Person();
-        admin.setName("Admin");
-
-        assigneeDao.create(admin);
-
         task.setTaskStakeholders(Arrays.asList((Assignee)jacek));
-        task.setActualOwner(jacek);
-        try {
-            task.setStatus(Status.IN_PROGRESS);
-        } catch (HumanTaskException ex) {
-        }
         
         taskDao.create(task);
       
         return task;
+    }
+
+    public void assignOwner() throws HumanTaskException{
+        task.setActualOwner(jacek);
+
+        task.setStatus(Status.IN_PROGRESS);
+        
+    }
+
+    public Person getImpossibleOwner() {
+       return admin;
+    }
+    
+    public Person getPossibleOwner() {
+        return jacek;
     }
     
 }

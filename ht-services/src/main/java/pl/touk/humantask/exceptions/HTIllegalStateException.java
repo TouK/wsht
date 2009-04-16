@@ -9,32 +9,36 @@ import pl.touk.humantask.model.Task;
  *
  * @author Warren Crossing 
  */
-public class IllegalStateException extends HumanTaskException {
+public class HTIllegalStateException extends HumanTaskException {
     
     private Task.Status illegalState;
 
-    public IllegalStateException() {
+    public HTIllegalStateException() {
         super();
     }
     
-    public IllegalStateException(String message) {
+    public HTIllegalStateException(String message) {
         super(message);
     }
     
-    public IllegalStateException(String message, Throwable cause) {
+    public HTIllegalStateException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public IllegalStateException(String message, Task.Status illegalState) {
+    public HTIllegalStateException(String message, Task.Status illegalState) {
         super(message);
         this.illegalState = illegalState;
     }
 
-    public IllegalStateException(String message, Task.Status illegalState, Throwable cause) {
+    public HTIllegalStateException(String message, Task.Status illegalState, Throwable cause) {
         super(message, cause);
         this.illegalState = illegalState;
     }
 
+    public String getMessage() {
+        return super.getMessage() + " " + illegalState;
+    }
+    
     public Task.Status getExceptionInfo() {
         return this.illegalState;
     }

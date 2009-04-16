@@ -34,6 +34,9 @@ public class RecipientNotAllowedException extends HumanTaskException {
         this.RecipientNotAllowedException = RecipientNotAllowedException;
     }
 
+    public String getMessage() {
+        return super.getMessage() + " " + RecipientNotAllowedException;
+    }
     public java.lang.String getExceptionInfo() {
         return this.RecipientNotAllowedException;
     }

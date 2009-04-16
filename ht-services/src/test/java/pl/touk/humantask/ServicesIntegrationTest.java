@@ -1,23 +1,16 @@
 package pl.touk.humantask;
 
 import java.util.ArrayList;
-import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
-import java.util.Map;
 import javax.annotation.Resource;
 
 import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -26,15 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
+import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HumanTaskException;
-import pl.touk.humantask.model.Assignee;
+import pl.touk.humantask.exceptions.RecipientNotAllowedException;
 import pl.touk.humantask.model.GenericHumanRole;
-import pl.touk.humantask.model.Message;
-import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.TaskTypes;
 import pl.touk.humantask.model.Task.Status;
-import pl.touk.humantask.spec.TaskDefinition;
 import pl.touk.mock.TaskMockery;
 
 /**
@@ -50,19 +41,15 @@ import pl.touk.mock.TaskMockery;
 public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     private final Log LOG = LogFactory.getLog(ServicesIntegrationTest.class);
-
     @Resource(name = "humanTaskServices")
     HumanTaskServicesInterface services;
-    
     @Resource(name = "taskDao")
     TaskDao taskDao;
-
     @Resource(name = "assigneeDao")
     AssigneeDao assigneeDao;
 
     //@Resource(name = "hibernateSessionFactory")
     //SessionFactory sessionFactory;
-    
     // ApplicationContext applicationContext;
 
     // @Override
@@ -78,7 +65,6 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     // "services.xml", "quartz.xml", "test.xml" });
     //
     // }
-
     @Test
     @Transactional
     @Rollback
@@ -98,7 +84,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Assert.assertTrue(key.contains("Appr"));
 
     }
-    
+
 //    @Test
 //    @Transactional
 //    @Rollback
@@ -122,7 +108,6 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 //        assertEquals(2, tasks.size());
 //
 //    }
-
     /**
      * TODO wcr - fails, what we test here? please describe in javadoc
      */
@@ -130,29 +115,77 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Transactional
     @Rollback
     public void testGetMyTasksNoCreate() throws HumanTaskException {
-        
+
+        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mock.getGoodTaskMock();
+
+        mock.assignOwner();
+
+        List<Task> results = services.getMyTasks("Jacek", TaskTypes.ALL,
+                GenericHumanRole.TASK_STAKEHOLDERS, null,
+                Arrays.asList(Status.IN_PROGRESS, Status.OBSOLETE), null, null, 1);
+
+        Assert.assertEquals(1, results.size());
+
+        Task taskToCheck = results.get(0);
+
+        Assert.assertEquals(mockTask.getActualOwner(), taskToCheck.getActualOwner());
+
+        //check with no statuses specified
+        //TODO
+        //results = services.getMyTasks("Jacek", TaskTypes.ALL,
+        //      GenericHumanRole.TASK_STAKEHOLDERS, "admin", new ArrayList(), null, null, 1);
+        results = services.getMyTasks("Jacek", TaskTypes.ALL, 
+                GenericHumanRole.TASK_STAKEHOLDERS, null, new ArrayList<Status>(), null, null, 1);
+
+        Assert.assertEquals(1, results.size());
+
+        //TODO check with notifications
+        //results = services.getMyTasks("Jacek", TaskTypes.NOTIFICATIONS,
+        //      GenericHumanRole.TASK_STAKEHOLDERS, "admin", new ArrayList(), null, null, 1);
+
+        //Assert.assertEquals(0, results.size());
+
+        mock.assertIsSatisfied();
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testClaimOwner() throws HumanTaskException {
+
+        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mock.getGoodTaskMock();
+
+        Task task = services.claimTask(mockTask, mock.getPossibleOwner().getName());
+
+        Assert.assertNotNull(task);
+
+        try {
+            task = services.claimTask(mockTask, mock.getPossibleOwner().getName());
+            Assert.fail();
+        }catch(HTIllegalStateException xRNA){
+            //sucess
+        }
+
+        mock.assertIsSatisfied();
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testClaimNotOwner() throws HumanTaskException {
+
         TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mock.getGoodTaskMock();
         
-        List<Task> results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, null, Arrays.asList(Status.IN_PROGRESS, Status.OBSOLETE), null, null, 1);
-        
-        Assert.assertEquals(1, results.size());
-       
-        Task taskToCheck = results.get(0);
-        
-        Assert.assertEquals(mockTask.getActualOwner(), taskToCheck.getActualOwner());
-        
-        //check with no statuses specified
-        //TODO
-        //results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, "admin", new ArrayList(), null, null, 1);
-        results = services.getMyTasks("Jacek", TaskTypes.ALL, GenericHumanRole.TASK_STAKEHOLDERS, null, new ArrayList<Status>(), null, null, 1);
-        Assert.assertEquals(1, results.size());
-        
-        //TODO check with notifications
-        //results = services.getMyTasks("Jacek", TaskTypes.NOTIFICATIONS, GenericHumanRole.TASK_STAKEHOLDERS, "admin", new ArrayList(), null, null, 1);
-       
-        //Assert.assertEquals(0, results.size());
-        
+        try {
+            Task task = services.claimTask(mockTask, mock.getImpossibleOwner().getName());
+            Assert.fail();
+        }catch(RecipientNotAllowedException xRNA){
+            //sucess
+        }
+
         mock.assertIsSatisfied();
     }
 
@@ -173,7 +206,6 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 //        services.startTask(t, "kamil");
 //
 //    }
-
     @Test
     @Transactional
     @Rollback
@@ -184,7 +216,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         Assert.assertTrue(t.getStatus() == Task.Status.READY || t.getStatus() == Task.Status.CREATED || t.getStatus() == Task.Status.RESERVED);
 
-        //TODO the rest of default lifecycle
+    //TODO the rest of default lifecycle
     }
 
 //    @Test
@@ -273,5 +305,4 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 //        assertEquals(task2.getStatus(), Status.READY);
 //
 //    }
-
 }
