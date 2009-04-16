@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 
 import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 import pl.touk.humantask.spec.TaskDefinition;
 
 /**
@@ -53,14 +54,16 @@ import pl.touk.humantask.spec.TaskDefinition;
 public class Task extends Base {
 
     @Transient
-    private final Log LOG = LogFactory.getLog(Task.class);
+    private final Log log = LogFactory.getLog(Task.class);
 
     @Transient
     private TaskDefinition taskDefinition;
 
-    @Basic
+    /**
+     * Key {@link Task} definition is looked up in {@link HumanInteractionsManagerInterface} by.
+     */
     @Column(nullable = false)
-    protected String taskDefinitionKey; // task definition
+    protected String taskDefinitionKey;
 
     public enum TaskTypes {
         ALL, TASKS, NOTIFICATIONS;
@@ -142,13 +145,12 @@ public class Task extends Base {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date suspensionTime;
 
-    private boolean skippable;
+    private Boolean skippable;
 
-    private boolean escalated;
+    private Boolean escalated;
 
     // Human roles assigned to Task instance during creation
-
-    // initiator???
+    // TODO initiator???
 
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "TASK_POTENTIAL_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
@@ -233,7 +235,7 @@ public class Task extends Base {
      */
     @PostLoad
     public void postLoad() {
-        LOG.info("Post load.");
+        log.info("Post load.");
     }
 
     /**
@@ -243,7 +245,7 @@ public class Task extends Base {
      * @param assignees    list of assignees that can contain persons and groups
      * @return             the only person in the list, otherwise null
      */
-    protected Person nominateActualOwner(List<Assignee> assignees) {
+    protected final Person nominateActualOwner(List<Assignee> assignees) {
         Person result = null;
         int count = 0;
         for (Assignee assignee : assignees) {
@@ -352,7 +354,7 @@ public class Task extends Base {
 
             if (isOk) {
 
-                LOG.info("Changing Task status : " + this + " status from: " + getStatus() + " to: " + status);
+                log.info("Changing Task status : " + this + " status from: " + getStatus() + " to: " + status);
 
                 if (status.equals(Status.SUSPENDED)) {
                     statusBeforeSuspend = this.status;
@@ -362,7 +364,7 @@ public class Task extends Base {
 
             } else {
 
-                LOG.error("Changing Task status: " + this + " status from: " + getStatus() + " to: " + status + " is not allowed.");
+                log.error("Changing Task status: " + this + " status from: " + getStatus() + " to: " + status + " is not allowed.");
                 throw new pl.touk.humantask.exceptions.HTIllegalStateException("Changing Task's: " + this + " status from: " + getStatus() + " to: " + status
                         + " is not allowed, or task is SUSPENDED", status);
 
@@ -370,7 +372,7 @@ public class Task extends Base {
 
         } else {
 
-            LOG.info("Changing Task status: " + this + " status from: NULL to: " + status);
+            log.info("Changing Task status: " + this + " status from: NULL to: " + status);
             this.status = status;
 
         }
@@ -522,11 +524,11 @@ public class Task extends Base {
     }
 
     public Date getCreatedOn() {
-        return this.createdOn;
+        return this.createdOn == null ? null : (Date)this.createdOn.clone();
     }
 
     public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
+        this.createdOn = createdOn == null ? null : (Date)createdOn.clone();
     }
 
     /***************************************************************
@@ -547,14 +549,14 @@ public class Task extends Base {
     }
 
     /**
-     * Reserve the task.
+     * Reserves the task.
      */
     public void reserve() throws HTIllegalStateException {
         this.setStatus(Status.RESERVED);
     }
 
     /***************************************************************
-     * Infrastructure methods. *
+     * Infrastructure methods.                                     *
      ***************************************************************/
 
     /**
@@ -563,7 +565,7 @@ public class Task extends Base {
      */
     @Override
     public int hashCode() {
-        return ((id == null) ? 0 : id.hashCode());
+        return (id == null ? 0 : id.hashCode());
     }
 
     /**
