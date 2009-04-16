@@ -56,7 +56,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
     /**
      * Creates HumanInteractionsManagerImpl, with a given human interactions definition list. 
      *
-     * @param resources - collecttion of *.xml files with human interactions definitions.
+     * @param resources - collection of *.xml files with human interactions definitions.
      * @throws HumanTaskException - if task definition names are duplicated. 
      */
     public HumanInteractionsManagerImpl(List<Resource> resources) throws HumanTaskException {
@@ -114,6 +114,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
     }
 
     // ============= HELPER METHODS ===================
+    
     /**
      * Checks, if a task with a given name already exists in the context. 
      *
