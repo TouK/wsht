@@ -52,8 +52,7 @@ public class Group extends Assignee {
 
     @Override
     public int hashCode() {
-        int result = ((name == null) ? 0 : name.hashCode());
-        return result;
+        return result = ((name == null) ? 0 : name.hashCode());
     }
 
     @Override
