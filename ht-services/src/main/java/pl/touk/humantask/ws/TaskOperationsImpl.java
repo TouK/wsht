@@ -12,9 +12,6 @@ import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.example.ws_ht.TOrganizationalEntity;
 import org.example.ws_ht.api.TAttachment;
 import org.example.ws_ht.api.TAttachmentInfo;
@@ -32,11 +29,11 @@ import org.example.ws_ht.api.wsdl.TaskOperations;
 import org.example.ws_ht.api.xsd.IllegalState;
 import org.example.ws_ht.api.xsd.TTime;
 import org.springframework.beans.factory.annotation.Configurable;
-//import pl.touk.framework.logging.aop.LogMethodEntranceInfo;
+
 import pl.touk.humantask.HumanTaskServicesInterface;
 import pl.touk.humantask.dao.TaskDao;
-import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
+import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.TaskType;
@@ -57,9 +54,8 @@ import pl.touk.humantask.model.Task.TaskTypes;
 @Configurable
 public class TaskOperationsImpl implements TaskOperations {
 
-    public TaskDao taskDao; 
+    private TaskDao taskDao;
     
-    protected final Log log = LogFactory.getLog(TaskOperationsImpl.class.getName());
     /**
      * Implementation of WH-HT services.
      */
@@ -83,27 +79,25 @@ public class TaskOperationsImpl implements TaskOperations {
         // TODO Auto-generated method stub
     }
 
-    
-    
     //@LogMethodEntranceInfo
     public void claim(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        try { 
+        try {
             if (null == identifier) {
                 throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Must specific a Task id.","Id");
             }
             
-            Task task = taskDao.fetch(Long.valueOf(identifier));
+            Task task = this.taskDao.fetch(Long.valueOf(identifier));
             
             if (null == task) {
-               throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found.","Id: " + identifier);
+            	throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found.","Id: " + identifier);
             }
-                    
-            services.claimTask(task,securityContext.getLoggedInUser().getUsername());
+            
+            this.services.claimTask(task,this.securityContext.getLoggedInUser().getUsername());
             
         } catch (HumanTaskException xHT) {
-            translateIllegalArgumentException(xHT);
-            translateIllegalStateException(xHT);
-            translateIllegalAccessException(xHT);
+        	this.translateIllegalArgumentException(xHT);
+        	this.translateIllegalStateException(xHT);
+        	this.translateIllegalAccessException(xHT);
         } catch (NumberFormatException xNF) {
             throw new IllegalArgumentFault("Task identifier must be a number.","Id: " + identifier);
         }
@@ -172,8 +166,8 @@ public class TaskOperationsImpl implements TaskOperations {
         try {
             return translateTaskAPI(services.getMyTasks(securityContext.getLoggedInUser().getUsername(), TaskTypes.valueOf(taskType), GenericHumanRole.valueOf(genericHumanRole), workQueue, translateStatusAPI(status), whereClause, createdOnClause, maxTasks));
         } catch (HumanTaskException xHT) {
-            translateIllegalStateException(xHT);
-            translateIllegalArgumentException(xHT);
+            this.translateIllegalStateException(xHT);
+            this.translateIllegalArgumentException(xHT);
         }
         
         throw new RuntimeException("operation failed: getMyTasks");
@@ -218,15 +212,15 @@ public class TaskOperationsImpl implements TaskOperations {
     private List<TTask> translateTaskAPI(List<Task> in) {
         List<TTask> result = new ArrayList<TTask>();
         for (Task task : in) {
-            TTask ttask;
-            result.add(ttask = new TTask());
+            TTask ttask = new TTask();
+            result.add(ttask);
 
             ttask.setId(Long.toString(task.getId()));
             ttask.setTaskType(TaskType.TASK.toString());
             /*
             ttask.setName(task.getName());
              */
-            ttask.setStatus(translateStatusAPI(task.getStatus()));
+            ttask.setStatus(this.translateStatusAPI(task.getStatus()));
             /*
             ttask.setPriority(task.getPriority());
              */
@@ -310,9 +304,9 @@ public class TaskOperationsImpl implements TaskOperations {
     }
 
     public TTaskQueryResultSet query(String selectClause, String whereClause, String orderByClause, Integer maxTasks, Integer taskIndexOffset)
-            throws IllegalArgumentFault, IllegalStateFault {
-        // TODO Auto-generated method stub
-        return null;
+    		throws IllegalArgumentFault, IllegalStateFault {
+    	// TODO Auto-generated method stub
+    	return null;
     }
 
     public void release(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
@@ -333,7 +327,7 @@ public class TaskOperationsImpl implements TaskOperations {
     }
 
     public void setGenericHumanRole(String identifier, String genericHumanRole, TOrganizationalEntity organizationalEntity) throws IllegalArgumentFault,
-            IllegalStateFault, IllegalAccessFault {
+    		IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
     }
 
@@ -375,7 +369,7 @@ public class TaskOperationsImpl implements TaskOperations {
     }
 
     public HumanTaskServicesInterface getServices() {
-        return services;
+        return this.services;
     }
 
     public void setSecurityContext(SecurityContextInterface securityContext) {
@@ -383,11 +377,11 @@ public class TaskOperationsImpl implements TaskOperations {
     }
 
     public SecurityContextInterface getSecurityContext() {
-        return securityContext;
+        return this.securityContext;
     }
     
     protected TaskDao getTaskDao() {
-        return taskDao;
+        return this.taskDao;
     }
 
     public void setTaskDao(TaskDao taskDao) {
