@@ -41,7 +41,7 @@ import pl.touk.humantask.spec.TaskDefinition;
 
 /**
  * Holds task instance information.
- * 
+ *
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
  * @author Mateusz Lipczyński
@@ -93,17 +93,17 @@ public class Task extends Base {
      * document style Web Services are used to start Task, part name
      * should be set to {@link Message.DEFAULT_PART_NAME_KEY}.
      */
-    @OneToMany(cascade=CascadeType.PERSIST)
-    @MapKey(name="partName")
-    @JoinTable(name="TASK_MSG_INPUT")
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @MapKey(name = "partName")
+    @JoinTable(name = "TASK_MSG_INPUT")
     private Map<String, Message> input = new HashMap<String, Message>();
-    
+
     /**
      * Task output message map. Maps message part to message.
      */
-    @OneToMany(cascade=CascadeType.PERSIST)
-    @MapKey(name="partName")
-    @JoinTable(name="TASK_MSG_OUTPUT")
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @MapKey(name = "partName")
+    @JoinTable(name = "TASK_MSG_OUTPUT")
     private Map<String, Message> output = new HashMap<String, Message>();
 
     @Enumerated(EnumType.STRING)
@@ -116,7 +116,7 @@ public class Task extends Base {
     /**
      * People assigned to different generic human roles.
      */
-    @ManyToOne(cascade=CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Assignee actualOwner;
 
     /**
@@ -154,19 +154,19 @@ public class Task extends Base {
     @JoinTable(name = "TASK_POTENTIAL_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> potentialOwners;
 
-    @ManyToMany(cascade=CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "TASK_EXCLUDED_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> excludedOwners;
 
-    @ManyToMany(cascade=CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "TASK_STAKEHOLDERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> taskStakeholders;
 
-    @ManyToMany(cascade=CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "TASK_BUSINESS_AMINISTRATORS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> businessAdministrators;
 
-    @ManyToMany(cascade=CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "TASK_NOTIFICATION_RECIPIENTS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> notificationRecipients;
 
@@ -248,23 +248,24 @@ public class Task extends Base {
         int count = 0;
         for (Assignee assignee : assignees) {
             if (assignee instanceof Person) {
-                if (count++ > 0)
+                if (count++ > 0) {
                     break;
+                }
                 result = (Person)assignee;
 
             }
         }
-        return (count==1)?result:null;
+        return (count == 1) ? result : null;
     }
 
     /**
-     * Returns a formatted task subject in a required language
+     * Returns a formatted task subject in a required language.
      *
      * @param lang subject language according ISO, e.g. en-US, pl, de-DE
      * @return subject
      */
     public String getSubject(String lang) {
-        return taskDefinition.getSubject(lang, this.input);
+        return this.taskDefinition.getSubject(lang, this.input);
     }
 
     /**
@@ -275,7 +276,7 @@ public class Task extends Base {
      * @return description
      */
     public String getDescription(String lang, String contentType) {
-        return taskDefinition.getDescription(lang, contentType, this.input);
+        return this.taskDefinition.getDescription(lang, contentType, this.input);
     }
 
     /***************************************************************
@@ -301,7 +302,7 @@ public class Task extends Base {
      * @param status
      * @throws HumanTaskException
      */
-    public void setStatus(Status status) throws HTIllegalStateException {
+    public final void setStatus(Status status) throws HTIllegalStateException {
 
         boolean isOk = false;
 
@@ -320,7 +321,8 @@ public class Task extends Base {
 
             case READY:
 
-                if (status == Status.RESERVED || status == Status.IN_PROGRESS || status == Status.READY || status == Status.SUSPENDED) {
+                if (status == Status.RESERVED || status == Status.IN_PROGRESS ||
+                        status == Status.READY || status == Status.SUSPENDED) {
                     isOk = true;
                 }
 
@@ -375,12 +377,17 @@ public class Task extends Base {
 
     }
 
+    /**
+     * Adds an attachment to the task.
+     *
+     * @param attachment    a new attachment to add
+     */
     public void addAttachment(Attachment attachment) {
-        attachments.add(attachment);
+        this.attachments.add(attachment);
     }
 
     public List<Attachment> getAttachments() {
-        return attachments;
+        return this.attachments;
     }
 
     public void setSuspentionTime(Date date) {
@@ -392,11 +399,11 @@ public class Task extends Base {
     }
 
     public Assignee getActualOwner() {
-        return actualOwner;
+        return this.actualOwner;
     }
 
     public void releaseActualOwner() {
-        actualOwner = null;
+        this.actualOwner = null;
     }
 
     public void setActualOwner(Assignee actualOwner) {
@@ -404,7 +411,7 @@ public class Task extends Base {
     }
 
     public Integer getPriority() {
-        return priority;
+        return this.priority;
     }
 
     public void setPriority(Integer priority) {
@@ -412,7 +419,7 @@ public class Task extends Base {
     }
 
     public String getCreatedBy() {
-        return createdBy;
+        return this.createdBy;
     }
 
     public void setCreatedBy(String createdBy) {
@@ -420,7 +427,7 @@ public class Task extends Base {
     }
 
     public Date getActivationTime() {
-        return activationTime;
+        return this.activationTime;
     }
 
     public void setActivationTime(Date activationTime) {
@@ -428,7 +435,7 @@ public class Task extends Base {
     }
 
     public Date getExpirationTime() {
-        return (expirationTime == null) ? null : (Date) expirationTime.clone();
+        return (this.expirationTime == null) ? null : (Date) this.expirationTime.clone();
     }
 
     public void setExpirationTime(Date expirationTime) {
@@ -462,7 +469,7 @@ public class Task extends Base {
     // }
     //
     public TaskDefinition getTaskDefinition() {
-        return taskDefinition;
+        return this.taskDefinition;
     }
 
     //
@@ -471,7 +478,7 @@ public class Task extends Base {
     // }
 
     public String getTaskDefinitionKey() {
-        return taskDefinitionKey;
+        return this.taskDefinitionKey;
     }
 
     public void setPotentialOwners(List<Assignee> potentialOwners) {
@@ -479,7 +486,7 @@ public class Task extends Base {
     }
 
     public List<Assignee> getPotentialOwners() {
-        return potentialOwners;
+        return this.potentialOwners;
     }
 
     public void setExcludedOwners(List<Assignee> excludedOwners) {
@@ -487,7 +494,7 @@ public class Task extends Base {
     }
 
     public List<Assignee> getExcludedOwners() {
-        return excludedOwners;
+        return this.excludedOwners;
     }
 
     public void setTaskStakeholders(List<Assignee> taskStakeholders) {
@@ -503,7 +510,7 @@ public class Task extends Base {
     }
 
     public List<Assignee> getBusinessAdministrators() {
-        return businessAdministrators;
+        return this.businessAdministrators;
     }
 
     public void setNotificationRecipients(List<Assignee> notificationRecipients) {
@@ -515,7 +522,7 @@ public class Task extends Base {
     }
 
     public Date getCreatedOn() {
-        return createdOn;
+        return this.createdOn;
     }
 
     public void setCreatedOn(Date createdOn) {
@@ -539,6 +546,9 @@ public class Task extends Base {
         /* else throw new HumanTaskException("status before suspend is invalid: "+statusBeforeSuspend.toString()); */
     }
 
+    /**
+     * Reserve the task.
+     */
     public void reserve() throws HTIllegalStateException {
         this.setStatus(Status.RESERVED);
     }
@@ -547,12 +557,20 @@ public class Task extends Base {
      * Infrastructure methods. *
      ***************************************************************/
 
+    /**
+     * Returns the task hashcode.
+     * @return task hash code
+     */
     @Override
     public int hashCode() {
-        int result = ((id == null) ? 0 : id.hashCode());
-        return result;
+        return ((id == null) ? 0 : id.hashCode());
     }
 
+    /**
+     * Checks whether the task is equal to another object.
+     * @param obj object to compare
+     * @return true if the objects are equal, false otherwise
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Task == false) {
@@ -562,7 +580,7 @@ public class Task extends Base {
             return true;
         }
         Task rhs = (Task) obj;
-        return new EqualsBuilder().append(id, rhs.id).isEquals();
+        return new EqualsBuilder().append(this.id, rhs.id).isEquals();
     }
 
 }
