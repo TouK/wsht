@@ -95,9 +95,9 @@ public class TaskOperationsImpl implements TaskOperations {
             this.services.claimTask(task,this.securityContext.getLoggedInUser().getUsername());
 
         } catch (HumanTaskException xHT) {
-            translateIllegalArgumentException(xHT);
-            translateIllegalStateException(xHT);
-            translateIllegalAccessException(xHT);
+            this.translateIllegalArgumentException(xHT);
+            this.translateIllegalStateException(xHT);
+            this.translateIllegalAccessException(xHT);
         } catch (NumberFormatException xNF) {
             throw new IllegalArgumentFault("Task identifier must be a number.","Id: " + identifier);
         }
@@ -165,7 +165,7 @@ public class TaskOperationsImpl implements TaskOperations {
     public List<TTask> getMyTasks(String taskType, String genericHumanRole, String workQueue, List<TStatus> status, String whereClause, String createdOnClause,
             Integer maxTasks) throws IllegalArgumentFault, IllegalStateFault {
         try {
-            return translateTaskAPI(services.getMyTasks(securityContext.getLoggedInUser().getUsername(), TaskTypes.valueOf(taskType),
+            return translateTaskAPI(this.services.getMyTasks(this.securityContext.getLoggedInUser().getUsername(), TaskTypes.valueOf(taskType),
                     GenericHumanRole.valueOf(genericHumanRole), workQueue, translateStatusAPI(status), whereClause, createdOnClause, maxTasks));
         } catch (HumanTaskException xHT) {
             this.translateIllegalStateException(xHT);
@@ -304,7 +304,7 @@ public class TaskOperationsImpl implements TaskOperations {
     }
 
     public TTaskQueryResultSet query(String selectClause, String whereClause, String orderByClause, Integer maxTasks, Integer taskIndexOffset)
-            throws IllegalArgumentFault, IllegalStateFault {
+        throws IllegalArgumentFault, IllegalStateFault {
         // TODO Auto-generated method stub
         return null;
     }
