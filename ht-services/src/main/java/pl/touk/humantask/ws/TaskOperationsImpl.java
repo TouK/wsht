@@ -55,7 +55,7 @@ import pl.touk.humantask.model.Task.TaskTypes;
 public class TaskOperationsImpl implements TaskOperations {
 
     private TaskDao taskDao;
-    
+
     /**
      * Implementation of WH-HT services.
      */
@@ -85,25 +85,25 @@ public class TaskOperationsImpl implements TaskOperations {
             if (null == identifier) {
                 throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Must specific a Task id.","Id");
             }
-            
+
             Task task = this.taskDao.fetch(Long.valueOf(identifier));
-            
+
             if (null == task) {
-            	throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found.","Id: " + identifier);
+                throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found.","Id: " + identifier);
             }
-            
+
             this.services.claimTask(task,this.securityContext.getLoggedInUser().getUsername());
-            
+
         } catch (HumanTaskException xHT) {
-        	this.translateIllegalArgumentException(xHT);
-        	this.translateIllegalStateException(xHT);
-        	this.translateIllegalAccessException(xHT);
+            translateIllegalArgumentException(xHT);
+            translateIllegalStateException(xHT);
+            translateIllegalAccessException(xHT);
         } catch (NumberFormatException xNF) {
             throw new IllegalArgumentFault("Task identifier must be a number.","Id: " + identifier);
         }
-        
+
         throw new RuntimeException("operation failed: claim");
-        
+
     }
 
     public void complete(String identifier, Object taskData) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
@@ -162,22 +162,23 @@ public class TaskOperationsImpl implements TaskOperations {
         return null;
     }
 
-    public List<TTask> getMyTasks(String taskType, String genericHumanRole, String workQueue, List<TStatus> status, String whereClause, String createdOnClause, Integer maxTasks) throws IllegalArgumentFault, IllegalStateFault {
+    public List<TTask> getMyTasks(String taskType, String genericHumanRole, String workQueue, List<TStatus> status, String whereClause, String createdOnClause,
+            Integer maxTasks) throws IllegalArgumentFault, IllegalStateFault {
         try {
-            return translateTaskAPI(services.getMyTasks(securityContext.getLoggedInUser().getUsername(), TaskTypes.valueOf(taskType), GenericHumanRole.valueOf(genericHumanRole), workQueue, translateStatusAPI(status), whereClause, createdOnClause, maxTasks));
+            return translateTaskAPI(services.getMyTasks(securityContext.getLoggedInUser().getUsername(), TaskTypes.valueOf(taskType),
+                    GenericHumanRole.valueOf(genericHumanRole), workQueue, translateStatusAPI(status), whereClause, createdOnClause, maxTasks));
         } catch (HumanTaskException xHT) {
             this.translateIllegalStateException(xHT);
             this.translateIllegalArgumentException(xHT);
         }
-        
+
         throw new RuntimeException("operation failed: getMyTasks");
-        
     }
 
     private void translateIllegalStateException(HumanTaskException xHT) throws IllegalStateFault {
         if (xHT instanceof pl.touk.humantask.exceptions.HTIllegalStateException) {
             IllegalState state = new IllegalState();
-          
+
             state.setStatus(translateStatusAPI(((pl.touk.humantask.exceptions.HTIllegalStateException)xHT).getExceptionInfo()));
             throw new IllegalStateFault(xHT.getMessage(), state, xHT);
         }
@@ -185,7 +186,6 @@ public class TaskOperationsImpl implements TaskOperations {
 
     private void translateIllegalAccessException(HumanTaskException xHT) throws IllegalAccessFault {
         if (xHT instanceof pl.touk.humantask.exceptions.HTIllegalAccessException) {
-           
             throw new IllegalAccessFault(xHT.getMessage(), ((pl.touk.humantask.exceptions.HTIllegalAccessException)xHT).getExceptionInfo(), xHT);
         }
     }
@@ -248,7 +248,7 @@ public class TaskOperationsImpl implements TaskOperations {
             //TODO implement cjeck
             //ttask.setHasFault(null != task.getFault());
             ttask.setHasFault(false);
-            
+
             ttask.setHasAttachments(!task.getAttachments().isEmpty());
             //ttask.setHasComments(!task.getComments().isEmpty());
 
@@ -304,9 +304,9 @@ public class TaskOperationsImpl implements TaskOperations {
     }
 
     public TTaskQueryResultSet query(String selectClause, String whereClause, String orderByClause, Integer maxTasks, Integer taskIndexOffset)
-    		throws IllegalArgumentFault, IllegalStateFault {
-    	// TODO Auto-generated method stub
-    	return null;
+            throws IllegalArgumentFault, IllegalStateFault {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     public void release(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
@@ -327,7 +327,7 @@ public class TaskOperationsImpl implements TaskOperations {
     }
 
     public void setGenericHumanRole(String identifier, String genericHumanRole, TOrganizationalEntity organizationalEntity) throws IllegalArgumentFault,
-    		IllegalStateFault, IllegalAccessFault {
+            IllegalStateFault, IllegalAccessFault {
         // TODO Auto-generated method stub
     }
 
@@ -379,7 +379,7 @@ public class TaskOperationsImpl implements TaskOperations {
     public SecurityContextInterface getSecurityContext() {
         return this.securityContext;
     }
-    
+
     protected TaskDao getTaskDao() {
         return this.taskDao;
     }
