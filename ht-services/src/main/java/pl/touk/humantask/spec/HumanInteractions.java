@@ -12,7 +12,7 @@ import org.w3c.dom.Document;
 /**
  * Provides access methods to Human Interactions document defined
  * using http://www.example.org/WS-HT schema.
- * 
+ * <p/>
  * Instance of this class can be obtained using {@link HumanInteractionsFactoryBean}.
  *
  * @author Witek Wołejszo
@@ -40,22 +40,10 @@ public class HumanInteractions {
     private HumanInteractions() {
     }
 
-//    /**
-//     * Constructor called by {@link HumanInteractionsFactoryBean}.
-//     * 
-//     * @param document                          the human interactions DOM document
-//     * @param humanInteractionsDefinitionKey    the key Human Interactions definition can be looked up by  
-//     */
-//    HumanInteractions(Document document, String humanInteractionsDefinitionKey) {
-//        super();
-//        this.setDocument(document);
-//        this.humanInteractionsDefinitionKey = humanInteractionsDefinitionKey;
-//    }
-    
     /**
-     * Constructor called by {@link HumanInteractionsFactoryBean}.
-     * 
-     * @param document                          the human interactions DOM document
+     * Constructor called by {@link HumanInteractionsManagerInterface implementation}.
+     *
+     * @param document the human interactions DOM document
      */
     HumanInteractions(Document document) {
         super();
@@ -81,4 +69,6 @@ public class HumanInteractions {
 //    public List<Group> getGroupList() {
 //        return groupList;
 //    }
+
+
 }

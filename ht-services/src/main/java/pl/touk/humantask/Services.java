@@ -460,7 +460,7 @@ public class Services implements HumanTaskServicesInterface {
      * Suspends task.
      * 
      * @param task
-     * @param person
+     * @param personName
      * @throws HumanTaskException
      */
     public void suspendTask(Task task, String personName) throws HumanTaskException {
@@ -764,8 +764,8 @@ public class Services implements HumanTaskServicesInterface {
     /**
      * adding potential owner
      * 
-     * @param t
-     * @param p
+     * @param task
+     * @param list
      * @return
      * @throws Exception
      */

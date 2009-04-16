@@ -4,10 +4,7 @@
  */
 package pl.touk.humantask.spec;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
@@ -27,6 +24,7 @@ import org.w3c.dom.NodeList;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Message;
+import pl.touk.humantask.exceptions.HumanTaskException;
 
 /**
  * Holds information about task version runnable in TouK Human Task engine. Task
@@ -82,16 +80,7 @@ public class TaskDefinition {
 
             Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);
 
-            if ("text/html".equals(contentType)) {
-
-                // TODO serialize ?
-                return node.getTextContent();
-
-            } else {
-
-                return node.getTextContent();
-
-            }
+            return node.getTextContent();
 
         } catch (XPathExpressionException e) {
 
@@ -109,9 +98,9 @@ public class TaskDefinition {
      * @param input         the input message that created the task
      * @return list of task assignees or empty list, when no assignments were made to this task.
      */
-    public List<Assignee> evaluateHumanRoleAssignees(GenericHumanRole humanRoleName, Map<String, Message> input) {
+    public List<Assignee> evaluateHumanRoleAssignees(GenericHumanRole humanRoleName, Map<String, Message> input) throws HumanTaskException {
         List<String> groupNames = new ArrayList<String>();
-        List<Assignee> result = new ArrayList<Assignee>();
+        List<Assignee> evaluatedAssigneeList = new ArrayList<Assignee>();
 
         //read htd
         XPath xpath = createXpathInstance();
@@ -129,7 +118,10 @@ public class TaskDefinition {
 
             NodeList nl = (NodeList) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODESET);
 
-
+            if (nl.getLength() == 0) {
+                return Collections.EMPTY_LIST;
+            }
+            
             for (int i = 0; i < nl.getLength(); i++) {
 
                 NodeList children = nl.item(i).getChildNodes();
@@ -143,18 +135,19 @@ public class TaskDefinition {
 
 
         } catch (XPathExpressionException e) {
+            if (log.isErrorEnabled()) {
+                log.error("Error evaluating XPath for task: " + taskName, e);
+            }
 
-            log.error("Error evaluating XPath.", e);
-            // TODO throw
-
+            throw  new HumanTaskException("Error evaluating XPath for task: " + taskName);
         }
         
         for (String groupName : groupNames) {
-            List<Assignee> assignees = peopleQuery.evaluate(groupName, input);
-            result.addAll(assignees);
+            List<Assignee> peopleQueryResult = peopleQuery.evaluate(groupName, input);
+            evaluatedAssigneeList.addAll(peopleQueryResult);
         }
 
-        return result;
+        return evaluatedAssigneeList;
     }
 
     /**
@@ -176,54 +169,57 @@ public class TaskDefinition {
                     "htd:subject[@xml:lang='" + lang + "']";
 
             XPathExpression expr = xpath.compile(XPATH_EXPRESSION_FOR_SUBJECT_EVALUATION);
+            
             Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);
+            
             result = node.getTextContent();
+            
         } catch (XPathExpressionException e) {
             log.error("Error evaluating XPath.", e);
         }
         return result;
     }
-
-
-    public List<LogicalPeopleGroup> getLogicalpeopleGroups() {
-
-        List<LogicalPeopleGroup> result = new ArrayList<LogicalPeopleGroup>();
-
-        XPath xpath = createXpathInstance();
-
-        try {
-
-            String XPATH_EXPRESSION_FOR_LOGICAL_PEOPLE_GROUPS_EVALUATION = "" +
-                    "/htd:humanInteractions" +
-                    "/htd:logicalPeopleGroups" +
-                    "/htd:logicalPeopleGroup";
-
-            XPathExpression expr = xpath.compile(XPATH_EXPRESSION_FOR_LOGICAL_PEOPLE_GROUPS_EVALUATION);
-
-            NodeList nl = (NodeList) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODESET);
-            for (int i = 0; i < nl.getLength(); i++) {
-
-                Node n = nl.item(i);
-
-                LogicalPeopleGroup pg = new LogicalPeopleGroup();
-                pg.setName(n.getAttributes().getNamedItem("name").getNodeValue());
-                // TODO set parameters
-
-                result.add(pg);
-
-            }
-
-            return result;
-
-        } catch (XPathExpressionException e) {
-
-            log.error("Error evaluating XPath.", e);
-            // TODO throw
-
-        }
-
-        return null;
-    }
+//
+//
+//    public List<LogicalPeopleGroup> getLogicalpeopleGroups() {
+//
+//        List<LogicalPeopleGroup> result = new ArrayList<LogicalPeopleGroup>();
+//
+//        XPath xpath = createXpathInstance();
+//
+//        try {
+//
+//            String XPATH_EXPRESSION_FOR_LOGICAL_PEOPLE_GROUPS_EVALUATION = "" +
+//                    "/htd:humanInteractions" +
+//                    "/htd:logicalPeopleGroups" +
+//                    "/htd:logicalPeopleGroup";
+//
+//            XPathExpression expr = xpath.compile(XPATH_EXPRESSION_FOR_LOGICAL_PEOPLE_GROUPS_EVALUATION);
+//
+//            NodeList nl = (NodeList) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODESET);
+//            for (int i = 0; i < nl.getLength(); i++) {
+//
+//                Node n = nl.item(i);
+//
+//                LogicalPeopleGroup pg = new LogicalPeopleGroup();
+//                pg.setName(n.getAttributes().getNamedItem("name").getNodeValue());
+//                // TODO set parameters
+//
+//                result.add(pg);
+//
+//            }
+//
+//            return result;
+//
+//        } catch (XPathExpressionException e) {
+//
+//            log.error("Error evaluating XPath.", e);
+//            // TODO throw
+//
+//        }
+//
+//        return null;
+//    }
 
     public static class LogicalPeopleGroup {
 

@@ -42,7 +42,7 @@ public class TaskMockery extends Mockery {
         this.taskDao = taskDao;
     }
     
-    public Task getGoodTaskMock(){ 
+    public Task getGoodTaskMock() throws HumanTaskException {
     
         setImposteriser(ClassImposteriser.INSTANCE);  
        

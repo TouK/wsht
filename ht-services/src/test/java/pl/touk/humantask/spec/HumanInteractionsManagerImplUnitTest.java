@@ -13,36 +13,29 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import pl.touk.humantask.exceptions.HumanTaskException;
-import pl.touk.humantask.model.Group;
+import pl.touk.humantask.util.TestUtil;
 
 import java.util.List;
 import java.util.ArrayList;
 
 /**
  * {@link HumanInteractionsManagerImpl} class unit tests.
- * 
- * @author Jakub Kurlenda
+ *
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
  */
 public class HumanInteractionsManagerImplUnitTest {
 
     private HumanInteractionsManagerInterface taskManager;
 
-
     @Before
     public void setUp() throws Exception {
-        List<Resource> resources = new ArrayList<Resource>();
-        Resource resource = new ClassPathResource("htd1.xml");
-        resources.add(resource);
-        resource = new ClassPathResource("testHtd1.xml");
-        resources.add(resource);
-        this.taskManager = new HumanInteractionsManagerImpl(resources);
+
+        this.taskManager = TestUtil.createHumanInteractionsManager("htd1.xml", "testHtd1.xml");
     }
 
     @Test
     public void testGetTaskDefinitionByName() throws HumanTaskException {
         TaskDefinition taskDefinition = taskManager.getTaskDefinition("ApproveClaim");
-
         assertNotNull(taskDefinition);
     }
 
@@ -51,17 +44,13 @@ public class HumanInteractionsManagerImplUnitTest {
         taskManager.getTaskDefinition("JKR");
     }
 
-//    @Test
-//    public void testGetTaskDefinitions() {
-//        List<TaskDefinition> taskDefinitions = taskManager.getTaskDefinitions();
-//        assertNotNull(taskDefinitions);
-//        assertEquals(3, taskDefinitions.size());
-//    }
-
-//    @Test
-//    public void testGetLogicalPeopleGroups() {
-////        List<Group> groups = taskManager.getLogicalPeopleGroups();
-////        assertNotNull(groups);
-////        assertEquals(6, groups.size());
-//    }
+    /**
+     * Sprawdzenie, czy w przypadku duplikacji nazwy tasku konstruktor managera wyrzuci wyjątek.
+     *
+     * @throws HumanTaskException
+     */
+    @Test(expected = HumanTaskException.class)
+    public void testNonUniqueTaskDefinitionsNameException() throws HumanTaskException {
+        TestUtil.createHumanInteractionsManager("htd2.xml");
+    }
 }

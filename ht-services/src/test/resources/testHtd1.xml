@@ -35,7 +35,7 @@
     
     <htd:tasks>
     
-        <htd:task name="ApproveClaim">
+        <htd:task name="ApproveClaim1">
             
             <htd:documentation xml:lang="en-US">This task is used to handle claims that require manual approval. </htd:documentation>
             <htd:interface portType="tns:ClaimsHandlingPT" operation="approve" responsePortType="tns:ClaimsHandlingCallbackPT" responseOperation="approvalResponse"/>
