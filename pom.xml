@@ -20,6 +20,22 @@
 		<cxf.version>2.2</cxf.version>
 		<spring.version>2.5.6</spring.version>
 	</properties>
+	<issueManagement>
+		<system>Jira</system>
+		<url>https://touk.pl/jira/browse/WSHT</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Hudson</system>
+		<url>http://hudson.touk.pl/hudson/job/touk-wsht/</url>
+	</ciManagement>
+	<developers>
+		<developer>
+			<id>witek</id>
+			<name>Witek Wołejszo</name>
+			<email>ww@touk.pl</email>
+			<timezone>Europe/Warsaw</timezone>
+		</developer>
+	</developers>
 	<build>
 		<pluginManagement>
 			<plugins>
