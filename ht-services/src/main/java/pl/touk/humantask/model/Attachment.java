@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
 
 @Entity
 public class Attachment extends Base {
@@ -35,6 +36,7 @@ public class Attachment extends Base {
     private String contentType;
 
     @Column
+    @Temporal(javax.persistence.TemporalType.TIME)
     private Date attachedAt;
 
     @Column
@@ -100,14 +102,63 @@ public class Attachment extends Base {
         this.task = task;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        throw new UnsupportedOperationException("Not yet implemented.");
-    }
-
+    /**
+     * Returns the attachment hashcode.
+     * @return attachment hash code
+     */
     @Override
     public int hashCode() {
-        throw new UnsupportedOperationException("Not yet implemented.");
+        int hash = 7;
+        hash = 17 * hash + (this.id != null ? this.id.hashCode() : 0);
+        hash = 17 * hash + (this.attachment != null ? this.attachment.hashCode() : 0);
+        hash = 17 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 17 * hash + (this.accessType != null ? this.accessType.hashCode() : 0);
+        hash = 17 * hash + (this.contentType != null ? this.contentType.hashCode() : 0);
+        hash = 17 * hash + (this.attachedAt != null ? this.attachedAt.hashCode() : 0);
+        hash = 17 * hash + (int) (this.userId ^ (this.userId >>> 32));
+        hash = 17 * hash + (this.task != null ? this.task.hashCode() : 0);
+        return hash;
+    }
+
+    /**
+     * Checks whether the attachment is equal to another object.
+     * @param obj object to compare
+     * @return true if the objects are equal, false otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Attachment other = (Attachment) obj;
+        if (this.id != other.id && (this.id == null || !this.id.equals(other.id))) {
+            return false;
+        }
+        if ((this.attachment == null) ? (other.attachment != null) : !this.attachment.equals(other.attachment)) {
+            return false;
+        }
+        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+            return false;
+        }
+        if ((this.accessType == null) ? (other.accessType != null) : !this.accessType.equals(other.accessType)) {
+            return false;
+        }
+        if ((this.contentType == null) ? (other.contentType != null) : !this.contentType.equals(other.contentType)) {
+            return false;
+        }
+        if (this.attachedAt != other.attachedAt && (this.attachedAt == null || !this.attachedAt.equals(other.attachedAt))) {
+            return false;
+        }
+        if (this.userId != other.userId) {
+            return false;
+        }
+        if (this.task != other.task && (this.task == null || !this.task.equals(other.task))) {
+            return false;
+        }
+        return true;
     }
 
 }

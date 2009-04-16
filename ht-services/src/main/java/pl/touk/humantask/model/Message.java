@@ -68,12 +68,21 @@ public class Message extends Base {
      * Infrastructure methods. *
      ***************************************************************/
 
+    /**
+     * Returns the message hashcode.
+     * @return message hash code
+     */
     @Override
     public int hashCode() {
         int result = ((id == null) ? 0 : id.hashCode());
         return result;
     }
 
+    /**
+     * Checks whether the message is equal to another object.
+     * @param obj object to compare
+     * @return true if the objects are equal, false otherwise
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Message == false) {

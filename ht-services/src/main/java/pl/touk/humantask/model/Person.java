@@ -32,12 +32,20 @@ public class Person extends Assignee {
         return name;
     }
 
+    /**
+     * Returns the person hashcode.
+     * @return person hash code
+     */
     @Override
     public int hashCode() {
-        int result = ((name == null) ? 0 : name.hashCode());
-        return result;
+        return ((name == null) ? 0 : name.hashCode());
     }
 
+    /**
+     * Checks whether the person is equal to another object.
+     * @param obj object to compare
+     * @return true if the objects are equal, false otherwise
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Person == false) {
