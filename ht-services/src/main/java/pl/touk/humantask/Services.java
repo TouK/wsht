@@ -27,7 +27,7 @@ import pl.touk.humantask.model.Attachment;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.model.TaskTypes;
+import pl.touk.humantask.model.Task.TaskTypes;
 import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.spec.PeopleQuery;
 import pl.touk.humantask.spec.TaskDefinition;

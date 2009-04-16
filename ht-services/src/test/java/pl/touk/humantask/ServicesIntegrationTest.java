@@ -24,7 +24,7 @@ import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.exceptions.RecipientNotAllowedException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.model.TaskTypes;
+import pl.touk.humantask.model.Task.TaskTypes;
 import pl.touk.humantask.model.Task.Status;
 import pl.touk.mock.TaskMockery;
 

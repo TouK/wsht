@@ -62,7 +62,14 @@ public class Task extends Base {
     @Column(nullable = false)
     protected String taskDefinitionKey; // task definition
 
+    public enum TaskTypes {
+        ALL, TASKS, NOTIFICATIONS;
+    }
 
+    public enum TaskType {
+        TASK, NOTIFICATION;
+    }
+    
     public static enum Status {
 
         CREATED, READY, RESERVED, IN_PROGRESS, SUSPENDED, COMPLETED, FAILED, ERROR, EXITED, OBSOLETE;
@@ -326,6 +333,7 @@ public class Task extends Base {
                 }
 
                 break;
+
 
             case IN_PROGRESS:
 

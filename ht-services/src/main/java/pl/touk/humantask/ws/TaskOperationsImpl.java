@@ -12,11 +12,9 @@ import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
-import javax.xml.ws.WebFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.dom4j.DocumentFactory;
 import org.example.ws_ht.TOrganizationalEntity;
 import org.example.ws_ht.api.TAttachment;
 import org.example.ws_ht.api.TAttachmentInfo;
@@ -39,12 +37,10 @@ import pl.touk.humantask.HumanTaskServicesInterface;
 import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
-import pl.touk.humantask.exceptions.HTIllegalAccessException;
-import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.model.TaskType;
-import pl.touk.humantask.model.TaskTypes;
+import pl.touk.humantask.model.Task.TaskType;
+import pl.touk.humantask.model.Task.TaskTypes;
 
 /**
  * Implementation of WS-HT API.

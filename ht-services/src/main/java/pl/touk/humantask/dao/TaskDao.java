@@ -14,7 +14,7 @@ import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.model.TaskTypes;
+import pl.touk.humantask.model.Task.TaskTypes;
 
 /**
  * DAO operations specific to {@link Task}.
