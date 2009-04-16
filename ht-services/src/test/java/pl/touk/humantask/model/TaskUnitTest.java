@@ -46,11 +46,8 @@ public class TaskUnitTest {
         assignees.add(new Person("mateusz"));
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap);          will(returnValue(assignees));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, mockMap);   will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS, mockMap);           will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, mockMap);   will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS, mockMap);         will(returnValue(Collections.EMPTY_LIST));
+            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap); will(returnValue(assignees));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(Collections.EMPTY_LIST));
         }});
 
         Task task = new Task(taskDefinition, null, null);
@@ -75,11 +72,7 @@ public class TaskUnitTest {
         mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message(null));
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap);          will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, mockMap);   will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS, mockMap);           will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, mockMap);   will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS, mockMap);         will(returnValue(Collections.EMPTY_LIST));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(Collections.EMPTY_LIST));
         }});
 
         Task task = new Task(taskDefinition, null, null);
@@ -107,11 +100,8 @@ public class TaskUnitTest {
         assignees.add(new Person("witek"));
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap);          will(returnValue(assignees));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, mockMap);   will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS, mockMap);           will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, mockMap);   will(returnValue(Collections.EMPTY_LIST));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS, mockMap);         will(returnValue(Collections.EMPTY_LIST));
+            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap); will(returnValue(assignees));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(Collections.EMPTY_LIST));
         }});
 
         Task task = new Task(taskDefinition, null, null);
