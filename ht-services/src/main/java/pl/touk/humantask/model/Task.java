@@ -107,6 +107,7 @@ public class Task extends Base {
     @OneToMany(cascade = CascadeType.PERSIST)
     @MapKey(name = "partName")
     @JoinTable(name = "TASK_MSG_OUTPUT")
+    
     private Map<String, Message> output = new HashMap<String, Message>();
 
     @Enumerated(EnumType.STRING)
@@ -160,6 +161,7 @@ public class Task extends Base {
     @JoinTable(name = "TASK_EXCLUDED_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> excludedOwners;
 
+    //THIS ONE
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "TASK_STAKEHOLDERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> taskStakeholders;

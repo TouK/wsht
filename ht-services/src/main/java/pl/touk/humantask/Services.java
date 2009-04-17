@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
+import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
@@ -129,7 +130,7 @@ public class Services implements HumanTaskServicesInterface {
         }
 
         if (null == person && null == workQueue) {
-            throw new RecipientNotAllowedException("is not a valid name, no such Assignee found",personName);
+            throw new HTIllegalAccessException("Not a valid name, no such Assignee found: " + personName);
         }
 
         if (null == taskType) {
@@ -163,14 +164,14 @@ public class Services implements HumanTaskServicesInterface {
      * @see HumanTaskServicesInterface.claimTask
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public Task claimTask(Task task, String assigneeName) throws RecipientNotAllowedException, HTIllegalArgumentException, HTIllegalStateException {
+    public Task claimTask(Task task, String assigneeName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
 
         Person person = assigneeDao.getPerson(assigneeName);
         
         if (null == person) {
-            throw new RecipientNotAllowedException("Not found",assigneeName);
+        	throw new HTIllegalAccessException("Not found",assigneeName);
         }
-
+        
         if (task.getId() != null && taskDao.fetch(task.getId()) == null) {
             //TODO: dead code, is this code ever even called
             throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found");
@@ -182,7 +183,7 @@ public class Services implements HumanTaskServicesInterface {
 
         // check if the task can be claimed by person
         if (!task.getPotentialOwners().contains(person) || (task.getExcludedOwners() != null && task.getExcludedOwners().contains(person))) {
-            throw new RecipientNotAllowedException("Not a potential owner.",person.getName());
+            throw new HTIllegalAccessException("Not a potential owner.", person.getName());
         }
 
         task.setActualOwner(person);
@@ -193,44 +194,37 @@ public class Services implements HumanTaskServicesInterface {
         return task;
     }
 
-//    /**
-//     * Starts task. Sets status to inProgess. Actual Owner Potential Owners (state Ready)
-//     *
-//     * @param task
-//     * @param personName
-//     * @return
-//     */
-//    @Transactional(propagation = Propagation.REQUIRED)
-//    public Task startTask(Task task, String personName) throws HumanTaskException {
-//
-//        if (task.getId() == null) {
-//            log.error("Task has to be persisted before performing any operation.");
-//            throw new RuntimeException("Task has to be persisted before performing any operation.");
-//        }
-//
-//        Person person = assigneeDao.getPerson(personName);
-//
-//        // TODO exception if not found
-//
-//        // TODO w stanie ready musi byc podany person
-//        if (task.getStatus() == Status.READY) {
-//            if (!task.getPotentialOwners().contains(person)) {
-//                log.error("This person is not permited to start the task");
-//                throw new HumanTaskException("This person is not permited to start the task");
-//            }
-//            task.setActualOwner(person);
-//        } else if (!(person == null) && !task.getPotentialOwners().contains(person)) {
-//            log.error("This person is not permited to start the task");
-//            throw new HumanTaskException("This person is not permited to start the task");
-//        }
-//
-//        task.setStatus(Status.IN_PROGRESS);
-//        // TODO was update
-//        taskDao.create(task);
-//
-//        return task;
-//    }
-//
+    /**
+     * Starts task. Sets status to inProgess. Actual Owner Potential Owners (state Ready)
+     *
+     * @param task
+     * @param personName
+     * @return
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Task startTask(Task task, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
+
+        Person person = assigneeDao.getPerson(personName);
+
+        if (null == person) 
+            throw new HTIllegalAccessException("Person not found: ", personName);
+
+        if (!task.getPotentialOwners().contains(person)) {
+            log.error("This person is not permited to start the task");
+            throw new HTIllegalAccessException("This person is not permited to start the task",personName);
+        }
+
+        task.setStatus(Status.IN_PROGRESS);
+
+        if (task.getStatus() == Status.READY) {
+            task.setActualOwner(person);
+        }
+
+        taskDao.update(task);
+
+        return task;
+    }
+
 //    /**
 //     * Loads single task from persistent store. TODO implement
 //     *

@@ -7,6 +7,7 @@ package pl.touk.humantask;
 
 import java.util.List;
 
+import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HumanTaskException;
@@ -93,5 +94,22 @@ public interface HumanTaskServicesInterface {
      * @throws RecipientNotAllowedException when the personName is not in the list
      *         of potential owners
      */
-    public Task claimTask(Task task,String personName) throws RecipientNotAllowedException, HTIllegalArgumentException, HTIllegalStateException;
+    public Task claimTask(Task task,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+
+
+    /**
+     * 
+     * Start the execution of the task, i.e. set the task to status InProgress.
+     *
+     * @param task
+     *          The task to start
+     * @param personName
+     *          The person who will become the actual owner if the task is in the
+     *          READY state @see pl.touk.humantask.model.Task.Status.READY
+     * @return
+     * @throws pl.touk.humantask.exceptions.HTIllegalAccessException
+     * @throws pl.touk.humantask.exceptions.HTIllegalArgumentException
+     * @throws pl.touk.humantask.exceptions.HTIllegalStateException
+     */
+    public Task startTask(Task task,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 }

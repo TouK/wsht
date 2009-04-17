@@ -19,9 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
+import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HumanTaskException;
-import pl.touk.humantask.exceptions.RecipientNotAllowedException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.TaskTypes;
@@ -167,7 +167,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         }catch(HTIllegalStateException xRNA){
             //sucess
         }
-
+        
         mock.assertIsSatisfied();
     }
 
@@ -180,9 +180,10 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Task mockTask = mock.getGoodTaskMock();
         
         try {
+
             Task task = services.claimTask(mockTask, mock.getImpossibleOwner().getName());
             Assert.fail();
-        }catch(RecipientNotAllowedException xRNA){
+        }catch(HTIllegalAccessException xRNA){
             //sucess
         }
 

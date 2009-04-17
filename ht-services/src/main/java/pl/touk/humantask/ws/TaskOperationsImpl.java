@@ -344,7 +344,29 @@ public class TaskOperationsImpl implements TaskOperations {
     }
 
     public void start(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
+       try {
+            if (null == identifier) {
+                throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Must specific a Task id.","Id");
+            }
+
+            Task task = taskDao.fetch(Long.valueOf(identifier));
+
+            if (null == task) {
+               throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found.","Id: " + identifier);
+            }
+
+            services.startTask(task,securityContext.getLoggedInUser().getUsername());
+
+        } catch (HumanTaskException xHT) {
+            translateIllegalArgumentException(xHT);
+            translateIllegalStateException(xHT);
+            translateIllegalAccessException(xHT);
+        } catch (NumberFormatException xNF) {
+            throw new IllegalArgumentFault("Task identifier must be a number.","Id: " + identifier);
+        }
+
+        throw new RuntimeException("operation failed: claim");
+
     }
 
     public void stop(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
