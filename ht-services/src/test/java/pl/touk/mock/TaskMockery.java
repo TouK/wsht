@@ -86,10 +86,10 @@ public class TaskMockery extends Mockery {
            
         }
 
-        List list = new ArrayList();
-        list.add((Assignee)jacek);
+        List<Assignee> stakeholders = new ArrayList<Assignee>();
+        stakeholders.add((Assignee)jacek);
 
-        task.setTaskStakeholders(list);
+        task.setTaskStakeholders(stakeholders);
         
         taskDao.create(task);
       
