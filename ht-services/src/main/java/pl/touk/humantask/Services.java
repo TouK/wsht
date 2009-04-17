@@ -4,7 +4,6 @@
  */
 package pl.touk.humantask;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,24 +17,24 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
-import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
+import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.exceptions.RecipientNotAllowedException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Attachment;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.model.Task.TaskTypes;
 import pl.touk.humantask.model.Task.Status;
+import pl.touk.humantask.model.Task.TaskTypes;
+import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 import pl.touk.humantask.spec.PeopleQuery;
 import pl.touk.humantask.spec.TaskDefinition;
-import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 
 /**
  * Human task engine services.
- * 
+ *
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
  * @author Mateusz Lipczyński
@@ -43,27 +42,27 @@ import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 public class Services implements HumanTaskServicesInterface {
 
     private final Log log = LogFactory.getLog(Services.class);
-    
+
     /**
      * DAO for accessing {@link Task}s.
      */
     private TaskDao taskDao;
-    
+
     /**
      * DAO for accessing {@link Assignee}s.
      */
     private AssigneeDao assigneeDao;
-    
+
     /**
      * {@link PeopleQuery} implementation for user evaluation.
      */
     private PeopleQuery peopleQuery;
-    
+
     /**
      * Definitions of tasks available in WSHT.
      */
 //    private List<TaskDefinition> taskDefinitions;
-    
+
     /**
      * Fully implemented methods - visible in interface.
      */
@@ -80,23 +79,23 @@ public class Services implements HumanTaskServicesInterface {
 
     /**
      * Creates {@link Task} instance based on a definition. See detailed contract in {@link HumanTaskServicesInterface#createTask(String, String, String)}
-     * 
+     *
      * @param taskName
      *            name of the task template from the definition file
      * @param createdBy
      *            user creating task
      * @param requestXml
      *            xml request used to invoke business method; can contain task-specific attributes, like last name, amount, etc.
-     * 
+     *
      * @return created Task
-     * @throws HumanTaskException
+     * @throws HumanTaskException Thrown in case of problems at task creation 
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public Task createTask(String taskName, String createdBy, String requestXml) throws HumanTaskException {
 
         log.info("Creating task: " + taskName + " , createdBy: " + createdBy);
 
-        TaskDefinition taskDefinition = taskManager.getTaskDefinition(taskName);
+        TaskDefinition taskDefinition = this.taskManager.getTaskDefinition(taskName);
 
 
         Person createdByPerson = assigneeDao.getPerson(createdBy);
@@ -106,66 +105,54 @@ public class Services implements HumanTaskServicesInterface {
         }
 
         Task newTask = new Task(taskDefinition, createdByPerson, requestXml);
-        
+
         taskDao.create(newTask);
         return newTask;
 
     }
-    
+
     /**
      *
      * @see HumanTaskServicesInterface.getMyTasks
      */
     public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
             String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException {
-        
+
         if (null == personName && null == workQueue) {
             throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("parameter not specified","workQueue");
         }
-        
+
         Person person = null;
-        
+
         if (null == workQueue) {
             person = assigneeDao.getPerson(personName);
         }
-        
+
         if (null == person && null == workQueue) {
             throw new RecipientNotAllowedException("is not a valid name, no such Assignee found",personName);
         }
-        
+
         if (null == taskType) {
             throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("parameter not specified","task type");
         }
-                    
-        try{
-            
+
+        try {
             return taskDao.getTasks(person, taskType, genericHumanRole, workQueue, status, whereClause, createdOnClause, maxTasks);
-        }catch(Exception x){
-            
+
+        } catch (Exception x) {
             throw new HTIllegalOperationException(x.getMessage(),"getMyTasks",x);
         }
     }
-
-//    /**
-//     * Returns task owned by specified person.
-//     * 
-//     * @param owner
-//     * @return
-//     */
-//    public List<Task> getMyTasks(String personName) {
-//        Person person = assigneeDao.getPerson(personName);
-//        return taskDao.getTasks(person);
-//    }
-    
+   
     /**
      * Later.
      */
 
     /**
      * Returns task owned by specified person.
-     * 
-     * @param personName
-     * @return
+     *
+     * @param personName Name of tasks owner
+     * @return List of specified person tasks
      */
     public List<Task> getMyTasks(String personName) {
         Person person = assigneeDao.getPerson(personName);
@@ -181,11 +168,10 @@ public class Services implements HumanTaskServicesInterface {
         Person person = assigneeDao.getPerson(assigneeName);
         
         if (null == person) {
-        	throw new RecipientNotAllowedException("Not found",assigneeName);
+            throw new RecipientNotAllowedException("Not found",assigneeName);
         }
-        
-        
-        if (task.getId() !=null && taskDao.fetch(task.getId()) == null) {
+
+        if (task.getId() != null && taskDao.fetch(task.getId()) == null) {
             //TODO: dead code, is this code ever even called
             throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found");
         }
@@ -195,13 +181,10 @@ public class Services implements HumanTaskServicesInterface {
         }
 
         // check if the task can be claimed by person
-        
-        if (!(task.getPotentialOwners().contains(person) &&
-                !(task.getExcludedOwners() != null && task.getExcludedOwners().contains(person))
-             )) {
+        if (!task.getPotentialOwners().contains(person) || (task.getExcludedOwners() != null && task.getExcludedOwners().contains(person))) {
             throw new RecipientNotAllowedException("Not a potential owner.",person.getName());
         }
-        
+
         task.setActualOwner(person);
         task.reserve();
 
@@ -348,11 +331,12 @@ public class Services implements HumanTaskServicesInterface {
 //    }
 
     /**
-     * removes person form potential owners
-     * 
-     * @param p
+     * Removes person from potential owners of specified task.
+     *
+     * @param task Task to process
+     * @param person Person to remove from task owners
      */
-    public void removeAssigneeFromPotentialOwners(Task task, Assignee p) {
+    public void removeAssigneeFromPotentialOwners(Task task, Assignee person) {
         int i = 0;
         boolean removed = false;
         List<Assignee> list = task.getPotentialOwners();
@@ -360,7 +344,7 @@ public class Services implements HumanTaskServicesInterface {
         while (!removed) {
             assignee = list.get(i);
 
-            if (((Person) assignee).equals(p)) {
+            if (((Person) assignee).equals(person)) {
                 list.remove(i);
                 removed = true;
             }
@@ -369,11 +353,11 @@ public class Services implements HumanTaskServicesInterface {
     }
 
     /**
-     * releases task from Inprogress and Reserved state
+     * Releases task from Inprogress and Reserved state.
      * 
-     * @param task
-     * @param personName
-     * @throws Exception
+     * @param task Task to process
+     * @param personName Name of person processing task
+     * @throws HumanTaskException Thrown if specified person is not assigned to the task or in case of problems while processing task
      */
     public Task releaseTask(Task task, final String personName) throws HumanTaskException {
 
@@ -394,9 +378,10 @@ public class Services implements HumanTaskServicesInterface {
 
     /**
      * Stops task in progres.
-     * 
-     * @param task
-     * @return
+     *
+     * @param task Task to process
+     * @return Updated task
+     * @throws HumanTaskException Thrown if task is not in progress or in case of problems while updating task
      */
     public Task stopTaskInProgress(Task task) throws HumanTaskException {
 
@@ -414,14 +399,14 @@ public class Services implements HumanTaskServicesInterface {
 
 //    /**
 //     * Returns task definition object matching given key.
-//     * 
+//     *
 //     * @param key
 //     * @return task definition
 //     */
 //    private TaskDefinition findTaskDefinitionByKey(String key) throws HumanTaskException {
 //
 //        return taskManager.getTaskDefinitionByKey(key);
-////        
+////
 ////        for (TaskDefinition td : taskDefinitions) {
 ////            if (key.equals(td.getKey())) {
 ////                return td;
@@ -433,9 +418,9 @@ public class Services implements HumanTaskServicesInterface {
 
     /**
      * Changes task priority.
-     * 
-     * @param task
-     * @param priority
+     *
+     * @param task Task to process
+     * @param priority Priority to set
      */
     public void changeTaskPrioity(Task task, int priority) {
 
@@ -444,13 +429,14 @@ public class Services implements HumanTaskServicesInterface {
     }
 
     /**
-     * TODO name? finishing task
+     * Sets task status to COMPLETED.
+     * TODO implement assignee check ?
      * 
-     * @param task
-     * @param persons
-     * @throws HumanTaskException
+     * @param task Task to process
+     * @param person Person processing task
+     * @throws HumanTaskException Thrown in case of problems while updating task
      */
-    public void finishTask(Task task, Assignee persons) throws HumanTaskException {
+    public void finishTask(Task task, Assignee person) throws HumanTaskException {
 
         task.setStatus(Status.COMPLETED);
         taskDao.update(task);
@@ -459,16 +445,16 @@ public class Services implements HumanTaskServicesInterface {
     /**
      * Suspends task.
      * 
-     * @param task
-     * @param personName
-     * @throws HumanTaskException
+     * @param task Task to process
+     * @param personName Name of person processing task
+     * @throws HumanTaskException Thrown if specified person doesn't have permission to process task or in case of problems while updating task
      */
     public void suspendTask(Task task, String personName) throws HumanTaskException {
 
         Person person = (Person) assigneeDao.getPerson(personName);
 
-        if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY) || task.getActualOwner().equals(person) || task
-                .getBusinessAdministrators().equals(person))) {
+        if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY)
+                || task.getActualOwner().equals(person) || task.getBusinessAdministrators().contains(person))) {
             log.error("you don't have a permission to suspend the task");
             throw new HumanTaskException("you don't have a permission to suspend the task");
         }
@@ -479,16 +465,17 @@ public class Services implements HumanTaskServicesInterface {
 
     /**
      * Resumes task after suspension.
-     * TODO getBusinessAdministrators().equals(person) == crap 
-     * @param task
-     * @throws HumanTaskException
+     * 
+     * @param task Task to process
+     * @param personName Name of person processing task
+     * @throws HumanTaskException Thrown if specified person doesn't have permission to process task or in case of problems while updating task
      */
     public void resumeTask(Task task, String personName) throws HumanTaskException {
 
         Person person = (Person) assigneeDao.getPerson(personName);
 
-        if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY) || task.getActualOwner().equals(person) || task
-                .getBusinessAdministrators().equals(person))) {
+        if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY)
+                || task.getActualOwner().equals(person) || task.getBusinessAdministrators().contains(person))) {
             log.error("you don't have a permission to resume the task");
             throw new HumanTaskException("you don't have a permission to resume the task");
         }
@@ -497,7 +484,14 @@ public class Services implements HumanTaskServicesInterface {
         taskDao.update(task);
     }
 
-    // tymczasowo dodany parametr typu Person
+    /**
+     * Completes task.
+     *
+     * @param task Task to process
+     * @param data ?
+     * @param personName Name of person processing task
+     * @throws HumanTaskException Thrown if specified person doesn't have permission to process task or in case of problems while updating task
+     */
     public void completeTask(Task task, String data, String personName) throws HumanTaskException {
 
         Person person = (Person) assigneeDao.getPerson(personName);
@@ -521,7 +515,7 @@ public class Services implements HumanTaskServicesInterface {
 
 //    /**
 //     * overloaded method setTaskOutput - gets only 3 parameters
-//     * 
+//     *
 //     * @param task
 //     * @param dataSetXml
 //     * @param personName
@@ -534,7 +528,7 @@ public class Services implements HumanTaskServicesInterface {
 
 //    /**
 //     * method that sets task output
-//     * 
+//     *
 //     * @param task
 //     * @param dataSetXml
 //     * @param pName
@@ -556,7 +550,7 @@ public class Services implements HumanTaskServicesInterface {
 
 //    /**
 //     * overloaded getting task output
-//     * 
+//     *
 //     * @param task
 //     * @param personName
 //     * @return
@@ -569,7 +563,7 @@ public class Services implements HumanTaskServicesInterface {
 
 //    /**
 //     * getting task output
-//     * 
+//     *
 //     * @param task
 //     * @param partName
 //     * @param personName
@@ -590,7 +584,7 @@ public class Services implements HumanTaskServicesInterface {
 
 //    /**
 //     * Deletes output.
-//     * 
+//     *
 //     * @param task
 //     */
 //    public void deleteOutput(Task task) {
@@ -600,7 +594,7 @@ public class Services implements HumanTaskServicesInterface {
 
 //    /**
 //     * complete task with fault response
-//     * 
+//     *
 //     * @param task
 //     * @param personName
 //     * @throws HumanTaskException
@@ -635,7 +629,7 @@ public class Services implements HumanTaskServicesInterface {
 
 //    /**
 //     * set fault name and fault Data
-//     * 
+//     *
 //     * @param task
 //     * @param faultName
 //     * @param faultData
@@ -663,7 +657,7 @@ public class Services implements HumanTaskServicesInterface {
 
 //    /**
 //     * delete fault name and fault data
-//     * 
+//     *
 //     * @param task
 //     * @param personName
 //     * @throws HumanTaskException
@@ -701,6 +695,13 @@ public class Services implements HumanTaskServicesInterface {
 //
 //    }
 
+    /**
+     * Suspends task for given period of time.
+     * 
+     * @param task Task to process
+     * @param timePeriod Time of suspension in milliseconds
+     * @throws HumanTaskException Thrown in case of problems while processing task 
+     */
     public void suspendUntilPeriod(Task task, long timePeriod) throws HumanTaskException {
 
         Calendar cal = Calendar.getInstance();
@@ -708,6 +709,13 @@ public class Services implements HumanTaskServicesInterface {
         suspendUntil(task, cal.getTime());
     }
 
+    /**
+     * Suspends task until given point of time.
+     *
+     * @param task Task to be processed
+     * @param pointOfTime Point of time until which task is to be suspended
+     * @throws HumanTaskException Thrown in case of problems while processing task 
+     */
     // TODO can be suspeneded?
     public void suspendUntil(Task task, Date pointOfTime) throws HumanTaskException {
 
@@ -718,19 +726,19 @@ public class Services implements HumanTaskServicesInterface {
 
     /**
      * Adds {@link Attachment} to the task.
-     * 
-     * @param task
-     * @param attName
-     * @param accessType
-     * @param contentType
-     * @param attachment
-     * @param person
-     * @throws HumanTaskException
+     *
+     * @param task Task to process
+     * @param attName Attachment name
+     * @param accessType Access type of attachment
+     * @param contentType Content type of attachment
+     * @param attachment Content of attachment
+     * @param person Person processing task
+     * @throws HumanTaskException  Thrown if specified person doesn't have permission to process task or in case of problems while updating task
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public void addAttachment(Task task, String attName, String accessType, String contentType, String attachment, Person person) throws HumanTaskException {
 
-        if (!(person.equals(task.getActualOwner()) || person.equals(task.getBusinessAdministrators()))) {
+        if (!(person.equals(task.getActualOwner()) || task.getBusinessAdministrators().contains(person))) {
             log.error(person + "cannot add attachemnt");
             throw new HumanTaskException(person + "cannot add attachemnt");
         }
@@ -761,13 +769,12 @@ public class Services implements HumanTaskServicesInterface {
     // return list;
     // }
     //
+    
     /**
-     * adding potential owner
-     * 
-     * @param task
-     * @param list
-     * @return
-     * @throws Exception
+     * Adds potential owners to task.
+     *
+     * @param task Task to add owners to
+     * @param list List of persons to add to potential task owners
      */
     public void addPotentialOwner(Task task, List<Person> list) {
         for (Person person : list) {
@@ -776,10 +783,15 @@ public class Services implements HumanTaskServicesInterface {
     }
 
     // TODO move to Task
+    /**
+     * Adds potential owner to task.
+     * 
+     * @param task Task to add owner to
+     * @param assignee Person to add as potential owner
+     */
     private void addPotentialOwner(Task task, Assignee assignee) {
 
-        List<Assignee> owners = new ArrayList<Assignee>();
-        owners = task.getPotentialOwners();
+        List<Assignee> owners = task.getPotentialOwners();
         if (!owners.contains(assignee)) {
             owners.add(assignee);
         }
@@ -806,10 +818,17 @@ public class Services implements HumanTaskServicesInterface {
     // }
     // }
 
+    /**
+     * @return TaskDao object
+     */
     protected TaskDao getTaskDao() {
         return taskDao;
     }
 
+    /**
+     * Sets taskDao to given object.
+     * @param taskDao TaskDao to set
+     */
     public void setTaskDao(TaskDao taskDao) {
         this.taskDao = taskDao;
     }
@@ -822,18 +841,32 @@ public class Services implements HumanTaskServicesInterface {
 //        this.taskDefinitions = taskDefinitions;
 //    }
 
+    /**
+     * Sets assigneeDao to given object.
+     * @param assigneeDao AssigneeDao to set
+     */
     public void setAssigneeDao(AssigneeDao assigneeDao) {
         this.assigneeDao = assigneeDao;
     }
 
+    /**
+     * @return AssigneeDao object
+     */
     public AssigneeDao getAssigneeDao() {
         return assigneeDao;
     }
 
+    /**
+     * Sets peopleQuery to given object
+     * @param peopleQuery PeopleQuery to set
+     */
     public void setPeopleQuery(PeopleQuery peopleQuery) {
         this.peopleQuery = peopleQuery;
     }
 
+    /**
+     * @return PeopleQuery object
+     */
     public PeopleQuery getPeopleQuery() {
         return peopleQuery;
     }
