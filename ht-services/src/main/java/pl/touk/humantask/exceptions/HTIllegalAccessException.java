@@ -9,36 +9,62 @@ package pl.touk.humantask.exceptions;
  * 
  * @author Warren Crossing 
  */
- 
-
-
 public class HTIllegalAccessException extends HumanTaskException {
     public static final long serialVersionUID = 20090414103047L;
     
+    /**
+     *  Additional information about illegal access.
+     */
     private java.lang.String illegalAccess;
 
+    /**
+     * Creates empty HTIllegalAccessException.
+     */
     public HTIllegalAccessException() {
         super();
     }
     
+    /**
+     * Creates HTIllegalAccessException and sets exception message.
+     * @param message Exception message to set
+     */
     public HTIllegalAccessException(String message) {
         super(message);
     }
     
+    /**
+     * Creates HTIllegalAccessException and sets exception message and cause.
+     * @param message Exception message to set
+     * @param cause Throwable that caused current exception
+     */
     public HTIllegalAccessException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    /**
+     * Creates HTIllegalAccessException and sets exception message and information about illegal access.
+     * @param message Exception message to set
+     * @param illegalAccess Additional information about illegal access 
+     */
     public HTIllegalAccessException(String message, java.lang.String illegalAccess) {
         super(message);
         this.illegalAccess = illegalAccess;
     }
 
-    public HTIllegalAccessException(String message, java.lang.String illegalAccess, Throwable cause) {
+    /**
+     * Creates HTIllegalAccessException and sets exception message and information about illegal access.
+     * @param message Exception message to set
+     * @param illegalAccess Additional information about illegal access 
+     * @param cause Throwable that caused current exception
+     */
+    public HTIllegalAccessException(String message, String illegalAccess, Throwable cause) {
         super(message, cause);
         this.illegalAccess = illegalAccess;
     }
 
+    /**
+     * @return Additional information about illegal access
+     */
     public java.lang.String getExceptionInfo() {
         return this.illegalAccess;
     }
