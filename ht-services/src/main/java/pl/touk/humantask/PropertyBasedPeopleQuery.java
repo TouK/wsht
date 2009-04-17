@@ -5,24 +5,17 @@
 
 package pl.touk.humantask;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.io.Resource;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Message;
-import pl.touk.humantask.model.Person;
-import pl.touk.humantask.model.Task;
 import pl.touk.humantask.spec.PeopleQuery;
-import pl.touk.humantask.spec.TaskDefinition;
 
 /**
  * Loads property file. Returns all people listed in property file together with

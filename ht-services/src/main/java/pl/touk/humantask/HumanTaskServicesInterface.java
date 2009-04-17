@@ -18,12 +18,12 @@ import pl.touk.humantask.model.Task.TaskTypes;
 
 /**
  * Human task engine services interface.
- * 
+ *
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
  */
 public interface HumanTaskServicesInterface {
-    
+
     /**
      * Creates {@link Task} instance basing on a definition. The definitions are provided by the services. They can come from a file, e.g. htd1.xml, a database
      * or any other source. We assume that the task is activated upon creation provided that it has any potential owners. Upon creation the following sets of
@@ -42,9 +42,9 @@ public interface HumanTaskServicesInterface {
      * 1 - RESERVED, since there's only one possibility;<br/>
      * 2 or more - READY - the potential owners are welcome to take the task.<br/>
      * Request data depends on the task definition, e.g. approving a claim requires a money amount, which may not make sense in case of another task. Request
-     * data might be empty in some cases.</br> If the task initiators are not empty and createdBy is not empty, it is checked whether task initiators contain
+     * data might be empty in some cases.<br/> If the task initiators are not empty and createdBy is not empty, it is checked whether task initiators contain
      * createdBy. If not, it is not allowed to create the task. Depending on the situation, createdBy may be empty. At the end, the new task is stored.
-     * 
+     *
      * @param taskName
      *            name of the task template from the definition file
      * @param createdBy
@@ -52,13 +52,13 @@ public interface HumanTaskServicesInterface {
      * @param requestXml
      *            xml request used to invoke business method; can contain task-specific attributes, like last name, amount, etc.
      * @return created Task
-     * @throws HumanTaskException
+     * @throws HumanTaskException In case of problems while creating task
      */
-    public Task createTask(String taskName, String createdBy, String requestXml) throws HumanTaskException;
-    
+    Task createTask(String taskName, String createdBy, String requestXml) throws HumanTaskException;
+
     /**
      * Retrieve the task details. This operation is used to obtain the data required to display a task list, as well as the details for the individual tasks.
-     * 
+     *
      * @param personName
      *            If specified and no work queue has been specified then only personal tasks are returned, classified by genericHumanRole.
      * @param taskType
@@ -78,27 +78,29 @@ public interface HumanTaskServicesInterface {
      * @param maxTasks
      *            - the maximum number of results returned in the List after ordering by activationTime.
      * @return List of Tasks which meet the criteria.
+     * @throws HumanTaskException In case of problems while getting tasks
      */
-    public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
+    List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
             String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException;
-    
+
     /**
-     * Claim responsibility for a task, i.e. set the task to status Reserved
+     * Claim responsibility for a task, i.e. set the task to status Reserved.
      *
      * @param  task
      *          The task to claim
      * @param  personName
      *          The person will become the new actual owner.
+     * @return claimed Task
      *
-     * @throws HTIllegalStateException when the state is not possible for the task
-     * @throws RecipientNotAllowedException when the personName is not in the list
-     *         of potential owners
+     * @throws HTIllegalAccessException In case that given person is not authorized to perform operation
+     * @throws HTIllegalArgumentException In case that given argument is incorrect
+     * @throws HTIllegalStateException In case that current task state doesn't allow for the operation to perform
      */
-    public Task claimTask(Task task,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+    Task claimTask(Task task,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 
 
     /**
-     * 
+     *
      * Start the execution of the task, i.e. set the task to status InProgress.
      *
      * @param task
@@ -106,10 +108,11 @@ public interface HumanTaskServicesInterface {
      * @param personName
      *          The person who will become the actual owner if the task is in the
      *          READY state @see pl.touk.humantask.model.Task.Status.READY
-     * @return
-     * @throws pl.touk.humantask.exceptions.HTIllegalAccessException
-     * @throws pl.touk.humantask.exceptions.HTIllegalArgumentException
-     * @throws pl.touk.humantask.exceptions.HTIllegalStateException
+     * @return started Task
+     *
+     * @throws HTIllegalAccessException In case that given person is not authorized to perform operation
+     * @throws HTIllegalArgumentException In case that given argument is incorrect
+     * @throws HTIllegalStateException In case that current task state doesn't allow for the operation to perform
      */
-    public Task startTask(Task task,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+    Task startTask(Task task,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 }
