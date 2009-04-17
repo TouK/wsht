@@ -214,11 +214,17 @@ public class Services implements HumanTaskServicesInterface {
             throw new HTIllegalAccessException("This person is not permited to start the task",personName);
         }
 
-        task.setStatus(Status.IN_PROGRESS);
+        if (task.getActualOwner() != null && (!task.getActualOwner().equals(person))) {
+            throw new HTIllegalAccessException("This task is already claimed by:",task.getActualOwner().toString());
+        }
+
 
         if (task.getStatus() == Status.READY) {
             task.setActualOwner(person);
         }
+
+        task.setStatus(Status.IN_PROGRESS);
+
 
         taskDao.update(task);
 

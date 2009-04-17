@@ -178,7 +178,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mock.getGoodTaskMock();
-        
+
         try {
 
             Task task = services.claimTask(mockTask, mock.getImpossibleOwner().getName());
@@ -190,24 +190,54 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         mock.assertIsSatisfied();
     }
 
-//    /**
-//     * No exceptions expected.
-//     * @throws HumanTaskException
-//     */
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void testStartAndClaimTask() throws HumanTaskException {
-//
-//        Task t = services.createTask("ApproveClaim", "ww", "request");
-//    
-//        services.startTask(t, "kamil");
-//        services.releaseTask(t, "kamil");
-//        services.claimTask(t, "kamil");
-//        services.startTask(t, "kamil");
-//
-//    }
+    /**
+     * 
+     * @throws HumanTaskException
+     */
     @Test
+    @Transactional
+    @Rollback
+    public void testStart() throws HumanTaskException {
+
+        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mock.getGoodTaskMock();
+
+        try {
+            services.startTask(mockTask, mock.getImpossibleOwner().getName());
+            Assert.fail();
+        } catch (HTIllegalAccessException xIA) {
+
+        }
+
+        try {
+            services.startTask(mockTask, mock.getPossibleOwner().getName());
+        } catch (HTIllegalAccessException xIA) {
+            Assert.fail();
+        }
+
+    }
+
+     /**
+     *
+     * @throws HumanTaskException
+     */
+    @Test
+    @Transactional
+    @Rollback
+    public void testStartAfterClaim() throws HumanTaskException {
+
+        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mock.getGoodTaskMock(true);
+
+        try {
+            services.startTask(mockTask, mock.getPossibleOwner().getName());
+        } catch (HTIllegalAccessException xIA) {
+            Assert.fail();
+        }
+    }
+
+/*
+ @Test
     @Transactional
     @Rollback
     public void testTaskLifecycle() throws HumanTaskException {
@@ -219,6 +249,8 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
     //TODO the rest of default lifecycle
     }
+ *
+ * /
 
 //    @Test
 //    @Transactional

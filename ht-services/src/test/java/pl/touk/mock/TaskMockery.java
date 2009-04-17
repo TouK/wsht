@@ -38,7 +38,11 @@ public class TaskMockery extends Mockery {
     }
     
     public Task getGoodTaskMock() {
-    
+        return getGoodTaskMock(false);
+    }
+
+    public Task getGoodTaskMock(boolean onlyOnePotentialOwner) {
+
         setImposteriser(ClassImposteriser.INSTANCE);  
        
         final TaskDefinition taskDefinition = mock(TaskDefinition.class);
@@ -48,7 +52,10 @@ public class TaskMockery extends Mockery {
         final List<Assignee> assignees = new ArrayList<Assignee>();
 
         assignees.add(jacek);
-        assignees.add(witek);
+
+        if (!onlyOnePotentialOwner) {
+            assignees.add(witek);
+        }
 
         assigneeDao.create(jacek);
         assigneeDao.create(witek);
