@@ -2,15 +2,15 @@ package pl.touk.humantask.exceptions;
 
 /**
  *  Invoking an operation that does not apply to the task type (e.g., invoking claim on anotification) results in an illegalOperationFault.
- * 
- * @author Warren Crossing 
+ *
+ * @author Warren Crossing
  */
 
 public class HTIllegalOperationException extends HumanTaskException {
     public static final long serialVersionUID = 20090414103047L;
     
     /**
-     * Information about illegal operation that was invoked
+     * Information about illegal operation that was invoked.
      */
     private java.lang.String illegalOperation;
 
@@ -41,7 +41,7 @@ public class HTIllegalOperationException extends HumanTaskException {
     /**
      * Creates HTIllegalOperationException and sets exception message and information about illegal operation.
      * @param message Exception message to set
-     * @param illegalArgument Additional information about illegal operation that was invoked
+     * @param illegalOperation Additional information about illegal operation that was invoked
      */
     public HTIllegalOperationException(String message, java.lang.String illegalOperation) {
         super(message);
@@ -51,7 +51,7 @@ public class HTIllegalOperationException extends HumanTaskException {
     /**
      * Creates HTIllegalOperationException and sets exception message and information about illegal operation.
      * @param message Exception message to set
-     * @param illegalArgument Additional information about illegal operation that was invoked
+     * @param illegalOperation Additional information about illegal operation that was invoked
      * @param cause Throwable that caused current exception
      */
     public HTIllegalOperationException(String message, java.lang.String illegalOperation, Throwable cause) {

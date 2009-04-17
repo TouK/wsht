@@ -11,7 +11,7 @@ public class HTIllegalArgumentException extends HumanTaskException {
     private static final long serialVersionUID = 1L;
     
     /**
-     * Information about illegal argument that was given
+     * Information about illegal argument that was given.
      */
     private java.lang.String illegalArgument;
 
