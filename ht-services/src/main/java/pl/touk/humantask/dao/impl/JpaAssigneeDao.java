@@ -55,8 +55,8 @@ public class JpaAssigneeDao implements AssigneeDao {
 
     /**
      * Retrieves domain object from persistent store.
-     * @param id
-     * @return
+     * @param id Identifier of requested domain object
+     * @return fetched object
      */
     public Assignee fetch(Long id) {
         return entityManager.find(Assignee.class, id);
@@ -64,7 +64,7 @@ public class JpaAssigneeDao implements AssigneeDao {
     
     /**
      * Saves domain object in persistent store. 
-     * @param entity
+     * @param entity Domain object to save
      */
     public void update(Assignee entity) {
         entityManager.merge(entity);
@@ -72,18 +72,18 @@ public class JpaAssigneeDao implements AssigneeDao {
     
     /**
      * Creates domain object in persistent store. 
-     * @param entity
+     * @param entity Domain object to create
      */
     public void create(Assignee entity) {
         entityManager.persist(entity);
     }
     
-    public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
-        this.entityManagerFactory = entityManagerFactory;
-    }
-
     public EntityManagerFactory getEntityManagerFactory() {
         return entityManagerFactory;
+    }
+
+    public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
     }
 
 }

@@ -18,14 +18,14 @@ import javax.persistence.Query;
 
 import org.springframework.stereotype.Repository;
 
-import pl.touk.humantask.Services;
+import pl.touk.humantask.HumanTaskServicesInterface;
 import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.model.Task.TaskTypes;
 import pl.touk.humantask.model.Task.Status;
+import pl.touk.humantask.model.Task.TaskTypes;
 
 /**
  * Implements basic JPA DAO for Task {@link Task} and convenience search
@@ -39,10 +39,10 @@ public class JpaTaskDao implements TaskDao {
 
     @PersistenceContext(name = "TOUK-WSHT-PU")
     protected EntityManager entityManager;
-    
+
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
-    
+
     /**
      * Returns all {@link Task}s currenty owned by specifed {@link Person}.
      * 
@@ -59,16 +59,6 @@ public class JpaTaskDao implements TaskDao {
     /**
      * Returns tasks. See {@link HumanTaskServicesInterface#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
      * for method contract.
-     * 
-     * @param owner
-     * @param taskType
-     * @param genericHumanRole
-     * @param workQueue
-     * @param status
-     * @param whereClause
-     * @param createdOnClause
-     * @param maxTasks
-     * @return
      */
     public List<Task> getTasks(Assignee owner, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Status> statuses,
             String whereClause, String createdOnClause, Integer maxTasks) {
@@ -179,6 +169,9 @@ public class JpaTaskDao implements TaskDao {
         return query.getResultList();
     }
 
+    /* (non-Javadoc)
+     * @see pl.touk.humantask.dao.TaskDao#exists(java.lang.Long)
+     */
     public boolean exists(Long id) {
         try{
             entityManager.find(Task.class,id);
@@ -187,10 +180,11 @@ public class JpaTaskDao implements TaskDao {
             return false;
         }
     }
+    
     /**
      * Retrieves domain object from persistent store.
-     * @param id
-     * @return
+     * @param id Identifier of requested domain object
+     * @return fetched domain object
      */
     public Task fetch(Long id) {
         return entityManager.find(Task.class, id);
@@ -198,7 +192,7 @@ public class JpaTaskDao implements TaskDao {
     
     /**
      * Saves domain object in persistent store. 
-     * @param entity
+     * @param entity Domain object to save
      */
     public void update(Task entity) {
         entityManager.merge(entity);
@@ -206,7 +200,7 @@ public class JpaTaskDao implements TaskDao {
     
     /**
      * Creates domain object in persistent store. 
-     * @param entity
+     * @param entity Domain object to create
      */
     public void create(Task entity) {
         entityManager.persist(entity);
