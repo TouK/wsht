@@ -100,7 +100,6 @@ public interface HumanTaskServicesInterface {
 
 
     /**
-     *
      * Start the execution of the task, i.e. set the task to status InProgress.
      *
      * @param task
@@ -114,5 +113,30 @@ public interface HumanTaskServicesInterface {
      * @throws HTIllegalArgumentException In case that given argument is incorrect
      * @throws HTIllegalStateException In case that current task state doesn't allow for the operation to perform
      */
-    Task startTask(Task task,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+    Task startTask(Task task, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+
+    /**
+     * Releases the task, i.e. set the task back to status Ready.  .
+     *
+     * @param task
+     *          The task to release.
+     * @param personName
+     *          The person who is releasing the task.
+     *
+     * @throws HTIllegalAccessException In case that given person is not authorized to perform operation
+     * @throws HTIllegalArgumentException In case that given argument is incorrect
+     * @throws HTIllegalStateException In case that current task state doesn't allow for the operation to perform
+     */
+    void releaseTask(Task task, final String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+
+    /**
+     * Gets task object by task identifier.
+     *
+     * @param taskId
+     *          The task identifier.
+     * @return
+     *          If the identifier has a correspoding task, the function returns this task object.
+     * @throws HTIllegalArgumentException In case where the task of the specified taskId doesn't exist.
+     */
+    Task getTaskInfo(Long taskId) throws HTIllegalArgumentException;
 }

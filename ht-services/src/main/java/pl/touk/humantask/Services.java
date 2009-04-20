@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.example.ws_ht.TTaskInterface;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,7 +99,6 @@ public class Services implements HumanTaskServicesInterface {
 
         TaskDefinition taskDefinition = this.taskManager.getTaskDefinition(taskName);
 
-
         Person createdByPerson = assigneeDao.getPerson(createdBy);
         if (createdByPerson == null) {
             createdByPerson = new Person(createdBy);
@@ -106,7 +106,6 @@ public class Services implements HumanTaskServicesInterface {
         }
 
         Task newTask = new Task(taskDefinition, createdByPerson, requestXml);
-
         taskDao.create(newTask);
         return newTask;
 
@@ -197,9 +196,9 @@ public class Services implements HumanTaskServicesInterface {
     /**
      * Starts task. Sets status to inProgess. Actual Owner Potential Owners (state Ready)
      *
-     * @param task
-     * @param personName
-     * @return
+     * @param task          task to be started
+     * @param personName    starting person's name
+     * @return              started task
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public Task startTask(Task task, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
@@ -359,21 +358,26 @@ public class Services implements HumanTaskServicesInterface {
      * @param personName Name of person processing task
      * @throws HumanTaskException Thrown if specified person is not assigned to the task or in case of problems while processing task
      */
-    public Task releaseTask(Task task, final String personName) throws HumanTaskException {
+    public void releaseTask(Task task, final String personName) throws HTIllegalAccessException, HTIllegalStateException {
 
-        Person person = (Person) assigneeDao.getPerson(personName);
+        Person person = assigneeDao.getPerson(personName);
 
-        if (task.getActualOwner() == null || !task.getActualOwner().equals((Person) person)) {
-            log.error("Task without actual owner cannot be released ");
-            throw new HumanTaskException("Task without actual owner cannot be released");
+        if (person == null) {
+            throw new HTIllegalAccessException("Person not found: ", personName);
+        }
+
+        if (task.getActualOwner() == null) {
+            throw new HTIllegalAccessException("Task without actual owner cannot be released");
+        }
+
+        if (!task.getActualOwner().equals(person) && !task.getBusinessAdministrators().contains(person)) {
+            throw new HTIllegalAccessException("Calling person is neither the task's actual owner not business administrator");
         }
 
         task.releaseActualOwner();
         task.setStatus(Status.READY);
 
         taskDao.update(task);
-
-        return task;
     }
 
     /**
@@ -870,4 +874,17 @@ public class Services implements HumanTaskServicesInterface {
     public PeopleQuery getPeopleQuery() {
         return peopleQuery;
     }
+
+    /**
+     * @return If the identifier has a correspoding task, the function returns this task object.
+     * @throws HTIllegalArgumentException In case where the task of the specified taskId doesn't exist.
+     */
+    public Task getTaskInfo(Long taskId) throws HTIllegalArgumentException {
+        if (taskDao.exists(taskId)) {
+            return taskDao.fetch(taskId);
+        } else {
+            throw new HTIllegalArgumentException("Task not found");
+        }
+    }
+
 }
