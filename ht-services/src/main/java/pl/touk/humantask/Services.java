@@ -113,7 +113,7 @@ public class Services implements HumanTaskServicesInterface {
 
     /**
      *
-     * @see HumanTaskServicesInterface.getMyTasks
+     * @see pl.touk.humantask.HumanTaskServicesInterface#getMyTasks(java.lang.String, pl.touk.humantask.model.Task.TaskTypes, pl.touk.humantask.model.GenericHumanRole, java.lang.String, java.util.List, java.lang.String, java.lang.String, java.lang.Integer) 
      */
     public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
             String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException {
@@ -160,10 +160,10 @@ public class Services implements HumanTaskServicesInterface {
     }
 
     /**
-     * @see HumanTaskServicesInterface.claimTask
+     * @see pl.touk.humantask.HumanTaskServicesInterface#claimTask(pl.touk.humantask.model.Task, java.lang.String) 
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public Task claimTask(Task task, String assigneeName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
+    public void claimTask(Task task, String assigneeName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
 
         Person person = assigneeDao.getPerson(assigneeName);
         
@@ -189,19 +189,14 @@ public class Services implements HumanTaskServicesInterface {
         task.reserve();
 
         taskDao.update(task);
-
-        return task;
     }
 
     /**
-     * Starts task. Sets status to inProgess. Actual Owner Potential Owners (state Ready)
      *
-     * @param task          task to be started
-     * @param personName    starting person's name
-     * @return              started task
+     * @see pl.touk.humantask.HumanTaskServicesInterface#startTask(pl.touk.humantask.model.Task, java.lang.String)
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public Task startTask(Task task, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
+    public void startTask(Task task, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
 
         Person person = assigneeDao.getPerson(personName);
 
@@ -226,8 +221,6 @@ public class Services implements HumanTaskServicesInterface {
 
 
         taskDao.update(task);
-
-        return task;
     }
 
 //    /**
@@ -352,11 +345,7 @@ public class Services implements HumanTaskServicesInterface {
     }
 
     /**
-     * Releases task from Inprogress and Reserved state.
-     * 
-     * @param task Task to process
-     * @param personName Name of person processing task
-     * @throws HumanTaskException Thrown if specified person is not assigned to the task or in case of problems while processing task
+     * @see pl.touk.humantask.HumanTaskServicesInterface#releaseTask(pl.touk.humantask.model.Task, java.lang.String)
      */
     public void releaseTask(Task task, final String personName) throws HTIllegalAccessException, HTIllegalStateException {
 
@@ -876,8 +865,7 @@ public class Services implements HumanTaskServicesInterface {
     }
 
     /**
-     * @return If the identifier has a correspoding task, the function returns this task object.
-     * @throws HTIllegalArgumentException In case where the task of the specified taskId doesn't exist.
+    * @see pl.touk.humantask.HumanTaskServicesInterface#getTaskInfo(java.lang.Long) 
      */
     public Task getTaskInfo(Long taskId) throws HTIllegalArgumentException {
         if (taskDao.exists(taskId)) {

@@ -29,12 +29,12 @@ public interface HumanTaskServicesInterface {
      * or any other source. We assume that the task is activated upon creation provided that it has any potential owners. Upon creation the following sets of
      * persons are evaluated:
      * <ul>
-     * <li>task initiators - @see #taskInitiators</li>
-     * <li>task stakeholders - @see #taskStakeholders</li>
-     * <li>potential owners - @see #potentialOwners</li>
-     * <li>excluded owners - @see #excludedOwners</li>
-     * <li>business administrators - @see #businessAdministrators</li>
-     * <li>notification recipients - @see #notificationRecipients</li>
+     * <li>task initiators - {@link pl.touk.humantask.model.GenericHumanRole#TASK_INITIATOR}</li>
+     * <li>task stakeholders - {@link pl.touk.humantask.model.GenericHumanRole#TASK_STAKEHOLDERS}</li>
+     * <li>potential owners - {@link pl.touk.humantask.model.GenericHumanRole#POTENTIAL_OWNERS}</li>
+     * <li>excluded owners - {@link pl.touk.humantask.model.GenericHumanRole#EXCLUDED_OWNERS}</li>
+     * <li>business administrators - {@link pl.touk.humantask.model.GenericHumanRole#BUSINESS_ADMINISTRATORS}</li>
+     * <li>notification recipients - {@link pl.touk.humantask.model.GenericHumanRole#NOTIFICATION_RECIPIENTS}</li>
      * </ul>
      * Those groups have roles in aspect of the task. The source of a group is a part of the definition - it can be a logical group, a set of people or a set of
      * groups, which can be evaluated basing on the requestXml contents. The status after the operation depends on the count of potential owners:<br/>
@@ -62,7 +62,7 @@ public interface HumanTaskServicesInterface {
      * @param personName
      *            If specified and no work queue has been specified then only personal tasks are returned, classified by genericHumanRole.
      * @param taskType
-     *            one of ALL, NOTIFICATIONS, TASKS.
+     *            one of {@link pl.touk.humantask.model.Task.TaskTypes#ALL}, {@link pl.touk.humantask.model.Task.TaskTypes#NOTIFICATIONS}, {@link pl.touk.humantask.model.Task.TaskTypes#TASKS}.
      * @param genericHumanRole
      *            A classifier of names contained in the task.
      * @param workQueue
@@ -90,13 +90,12 @@ public interface HumanTaskServicesInterface {
      *          The task to claim
      * @param  personName
      *          The person will become the new actual owner.
-     * @return claimed Task
      *
      * @throws HTIllegalAccessException In case that given person is not authorized to perform operation
      * @throws HTIllegalArgumentException In case that given argument is incorrect
      * @throws HTIllegalStateException In case that current task state doesn't allow for the operation to perform
      */
-    Task claimTask(Task task,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+    void claimTask(Task task,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 
 
     /**
@@ -106,14 +105,14 @@ public interface HumanTaskServicesInterface {
      *          The task to start
      * @param personName
      *          The person who will become the actual owner if the task is in the
-     *          READY state @see pl.touk.humantask.model.Task.Status.READY
-     * @return started Task
+                {@link pl.touk.humantask.model.Task.Status#READY} state
      *
      * @throws HTIllegalAccessException In case that given person is not authorized to perform operation
+     *              or when then
      * @throws HTIllegalArgumentException In case that given argument is incorrect
      * @throws HTIllegalStateException In case that current task state doesn't allow for the operation to perform
      */
-    Task startTask(Task task, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+    void startTask(Task task,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 
     /**
      * Releases the task, i.e. set the task back to status Ready.  .
@@ -121,7 +120,7 @@ public interface HumanTaskServicesInterface {
      * @param task
      *          The task to release.
      * @param personName
-     *          The person who is releasing the task.
+     *          The person who is releasing the task. Must be either {@link pl.touk.humantask.model.GenericHumanRole#ACTUAL_OWNER} or {@link pl.touk.humantask.model.GenericHumanRole#BUSINESS_ADMINISTRATORS}
      *
      * @throws HTIllegalAccessException In case that given person is not authorized to perform operation
      * @throws HTIllegalArgumentException In case that given argument is incorrect

@@ -306,7 +306,7 @@ public class Task extends Base {
      * @param status
      * @throws HumanTaskException
      */
-    public final void setStatus(Status status) throws HTIllegalStateException {
+    public void setStatus(Status status) throws HTIllegalStateException {
 
         boolean isOk = false;
 

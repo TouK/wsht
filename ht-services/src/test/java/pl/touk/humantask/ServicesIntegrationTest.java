@@ -157,35 +157,43 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mock.getGoodTaskMock();
 
-        Task task = services.claimTask(mockTask, mock.getPossibleOwner().getName());
-
-        Assert.assertNotNull(task);
+        services.claimTask(mockTask, mock.getPossibleOwner().getName());
 
         try {
-            task = services.claimTask(mockTask, mock.getPossibleOwner().getName());
+            services.claimTask(mockTask, mock.getPossibleOwner().getName());
             Assert.fail();
         }catch(HTIllegalStateException xRNA){
             //sucess
         }
-        
+
+        Assert.assertEquals(Task.Status.RESERVED, mockTask.getStatus());
         mock.assertIsSatisfied();
     }
 
     @Test
     @Transactional
     @Rollback
+    /***
+     *  This test should not claim the task becuase the owner was incorrect
+     */
     public void testClaimNotOwner() throws HumanTaskException {
 
         TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mock.getGoodTaskMock();
 
+        Throwable t = null;
+        
         try {
-
-            Task task = services.claimTask(mockTask, mock.getImpossibleOwner().getName());
+            services.claimTask(mockTask, mock.getImpossibleOwner().getName());
             Assert.fail();
         }catch(HTIllegalAccessException xRNA){
-            //sucess
+            //success
+            t = xRNA;
         }
+
+        Assert.assertNotNull("claim Task did not throw on impossible owner",t);
+
+        Assert.assertEquals(Task.Status.READY, mockTask.getStatus());
 
         mock.assertIsSatisfied();
     }
@@ -215,6 +223,8 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
             Assert.fail();
         }
 
+        Assert.assertEquals(Task.Status.IN_PROGRESS, mockTask.getStatus());
+
     }
 
      /**
@@ -234,6 +244,37 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         } catch (HTIllegalAccessException xIA) {
             Assert.fail();
         }
+
+        Assert.assertEquals(Task.Status.IN_PROGRESS, mockTask.getStatus());
+        
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testReleaseAfterClaim() throws HumanTaskException {
+
+        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mock.getGoodTaskMock(true);
+
+        try {
+            services.startTask(mockTask, mock.getPossibleOwner().getName());
+        } catch (HTIllegalAccessException xIA) {
+            Assert.fail();
+        }
+
+        Assert.assertEquals(Task.Status.IN_PROGRESS, mockTask.getStatus());
+
+        try {
+            services.releaseTask(mockTask, mock.getPossibleOwner().getName());
+        } catch (HTIllegalAccessException xIA) {
+            Assert.fail();
+        }
+
+        Assert.assertEquals(Task.Status.READY, mockTask.getStatus());
+
+
+
     }
 
 /*
