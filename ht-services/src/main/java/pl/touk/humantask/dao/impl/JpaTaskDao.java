@@ -169,14 +169,17 @@ public class JpaTaskDao implements TaskDao {
         return query.getResultList();
     }
 
-    /* (non-Javadoc)
-     * @see pl.touk.humantask.dao.TaskDao#exists(java.lang.Long)
+    
+    /**
+     * Checks if given task exists.
+     * @param primaryKey Primary key of the entity
+     * @return true if entity exists false otherwise
      */
     public boolean exists(Long id) {
-        try{
+        try {
             entityManager.find(Task.class,id);
             return true;
-        }catch(EntityNotFoundException xENF) {
+        } catch (EntityNotFoundException xENF) {
             return false;
         }
     }
