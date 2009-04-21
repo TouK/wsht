@@ -208,56 +208,61 @@ public class TaskOperationsImpl implements TaskOperations {
         }
     }
 
-    //TODO move outside
+    /**
+     * Translates a single task to TTask.
+     *
+     * @param task  input task object
+     * @return      output task object
+     */
+    private TTask translateOneTaskAPI(Task task) {
+        TTask ttask = new TTask();
+
+        ttask.setId(Long.toString(task.getId()));
+        ttask.setTaskType(TaskType.TASK.toString());
+        /*
+        ttask.setName(task.getName());
+         */
+        ttask.setStatus(this.translateStatusAPI(task.getStatus()));
+        /*
+        ttask.setPriority(task.getPriority());
+         */
+        //ttask.setTaskInitiator(task.getCreatedBy());
+        /*ttask.setTaskStakeholders(task.getTaskStakeholders());
+        ttask.setPotentialOwners(task.getPotentialOwners());
+        ttask.setBusinessAdministrators(task.getBusinessAdministrators());
+        ttask.setActualOwner(task.getActualOwner());
+        ttask.setNotificationRecipients(task.getNotificationRecipients());
+         */
+        //ttask.setCreatedOn(task.getCreatedOn());
+        ttask.setCreatedBy(task.getCreatedBy());
+        ttask.setActivationTime(task.getActivationTime());
+        ttask.setExpirationTime(task.getExpirationTime());
+        ttask.setIsSkipable(task.isSkippable());
+        /*ttask.setHasPotentialOwners(task.getHasPotentialOwners());
+        ttask.setStartByExists(task.getStartByExists());
+        ttask.setCompleteByExists(task.getCompleteByExists());
+        ttask.setPresentationName(task.getPresentationName());
+        ttask.setPresentationSubject(task.getPresentationSubject());
+        ttask.setRenderingMethodExists(task.getRenderingMethodExists());
+        ttask.setHasOutput(task.getHasOutput());
+         */
+
+        //TODO implement cjeck
+        //ttask.setHasFault(null != task.getFault());
+        ttask.setHasFault(false);
+
+        ttask.setHasAttachments(!task.getAttachments().isEmpty());
+        //ttask.setHasComments(!task.getComments().isEmpty());
+
+        ttask.setEscalated(task.isEscalated());
+        return ttask;
+    }
+
     private List<TTask> translateTaskAPI(List<Task> in) {
         List<TTask> result = new ArrayList<TTask>();
         for (Task task : in) {
-            TTask ttask = new TTask();
-            result.add(ttask);
-
-            ttask.setId(Long.toString(task.getId()));
-            ttask.setTaskType(TaskType.TASK.toString());
-            /*
-            ttask.setName(task.getName());
-             */
-            ttask.setStatus(this.translateStatusAPI(task.getStatus()));
-            /*
-            ttask.setPriority(task.getPriority());
-             */
-            //ttask.setTaskInitiator(task.getCreatedBy());
-            /*ttask.setTaskStakeholders(task.getTaskStakeholders());
-            ttask.setPotentialOwners(task.getPotentialOwners());
-            ttask.setBusinessAdministrators(task.getBusinessAdministrators());
-            ttask.setActualOwner(task.getActualOwner());
-            ttask.setNotificationRecipients(task.getNotificationRecipients());
-             */
-            //ttask.setCreatedOn(task.getCreatedOn());
-            ttask.setCreatedBy(task.getCreatedBy());
-            ttask.setActivationTime(task.getActivationTime());
-            ttask.setExpirationTime(task.getExpirationTime());
-            ttask.setIsSkipable(task.isSkippable());
-            /*ttask.setHasPotentialOwners(task.getHasPotentialOwners());
-            ttask.setStartByExists(task.getStartByExists());
-            ttask.setCompleteByExists(task.getCompleteByExists());
-            ttask.setPresentationName(task.getPresentationName());
-            ttask.setPresentationSubject(task.getPresentationSubject());
-            ttask.setRenderingMethodExists(task.getRenderingMethodExists());
-            ttask.setHasOutput(task.getHasOutput());
-             */
-
-            //TODO implement cjeck
-            //ttask.setHasFault(null != task.getFault());
-            ttask.setHasFault(false);
-
-            ttask.setHasAttachments(!task.getAttachments().isEmpty());
-            //ttask.setHasComments(!task.getComments().isEmpty());
-
-            ttask.setEscalated(task.isEscalated());
-        /*
-        ttask.setPrimarySearchBy(task.getPrimarySearchBy());
-         */
+            result.add(this.translateOneTaskAPI(task));
         }
-
         return result;
     }
 
@@ -294,9 +299,20 @@ public class TaskOperationsImpl implements TaskOperations {
         return null;
     }
 
+    /**
+     * Gets task information by a given identifier.
+     * 
+     * @param identifier task identifier as a number
+     * @return task info
+     * @throws org.example.ws_ht.api.wsdl.IllegalArgumentFault the number format is invalid or the task does not exist
+     */
     public TTask getTaskInfo(String identifier) throws IllegalArgumentFault {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            return this.translateOneTaskAPI(this.services.getTaskInfo(Long.parseLong(identifier)));
+        } catch (HumanTaskException xHT) {
+            this.translateIllegalArgumentException(xHT);
+        }
+        throw new RuntimeException("operation failed: getTaskInfo");
     }
 
     public void nominate(String identifier, TOrganizationalEntity organizationalEntity) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
@@ -309,8 +325,36 @@ public class TaskOperationsImpl implements TaskOperations {
         return null;
     }
 
+    /**
+     * Releases a task by its identifier.
+     * @param identifier task identifier
+     * @throws org.example.ws_ht.api.wsdl.IllegalArgumentFault  Identifier is invalid
+     * @throws org.example.ws_ht.api.wsdl.IllegalStateFault     The current state of the task doesn't allow to release it
+     * @throws org.example.ws_ht.api.wsdl.IllegalAccessFault    The logged in user has no right to release the task
+     */
     public void release(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
+       try {
+            if (null == identifier) {
+                throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Must specific a Task id.","Id");
+            }
+
+            Task task = taskDao.fetch(Long.valueOf(identifier));
+
+            if (null == task) {
+               throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found.","Id: " + identifier);
+            }
+
+            services.releaseTask(task,securityContext.getLoggedInUser().getUsername());
+
+        } catch (HumanTaskException xHT) {
+            translateIllegalArgumentException(xHT);
+            translateIllegalStateException(xHT);
+            translateIllegalAccessException(xHT);
+        } catch (NumberFormatException xNF) {
+            throw new IllegalArgumentFault("Task identifier must be a number.","Id: " + identifier);
+        }
+
+        throw new RuntimeException("operation failed: release");
     }
 
     public void remove(String identifier) throws IllegalArgumentFault, IllegalAccessFault {
@@ -365,7 +409,7 @@ public class TaskOperationsImpl implements TaskOperations {
             throw new IllegalArgumentFault("Task identifier must be a number.","Id: " + identifier);
         }
 
-        throw new RuntimeException("operation failed: claim");
+        throw new RuntimeException("operation failed: start");
 
     }
 
