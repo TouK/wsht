@@ -14,6 +14,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import pl.touk.humantask.exceptions.HTConfigurationException;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Group;
@@ -35,37 +37,44 @@ import java.util.Map;
 import java.util.HashMap;
 
 /* 
- * PoC for the task definition manager.
- * TODO cannot depend on model
+ * Human interactions manager.
  * 
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
- * 
+ * @author <a href="mailto:ww@touk.pl">Witek Wołejszo</a>
  */
 @Service
 public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInterface {
 
-    private final Log log = LogFactory.getLog(getClass());
+    private final Log log = LogFactory.getLog(HumanInteractionsManagerImpl.class);
 
     // ============= FIELDS ===================
 
     private final List<HumanInteractions> humanInteractionsList = new ArrayList<HumanInteractions>();
-
+    
+    private PeopleQuery peopleQuery;
+    
     // ============= CONSTRUCTOR ===================
 
-
     /**
-     * Creates HumanInteractionsManagerImpl, with a given human interactions definition list. 
+     * Creates HumanInteractionsManagerImpl, with a given human interactions definition list. Provides
+     * default {@link PeopleQuery} implementation which returns empty result set.
      *
-     * @param resources - collection of *.xml files with human interactions definitions.
-     * @throws HumanTaskException - if task definition names are duplicated. 
+     * @param resources collection of *.xml files with human interactions definitions.
+     * @throws HumanTaskException thrown when task definition names are not unique 
      */
-    public HumanInteractionsManagerImpl(List<Resource> resources) throws HumanTaskException {
+    public HumanInteractionsManagerImpl(List<Resource> resources, PeopleQuery peopleQuery) throws HumanTaskException {
+        
         Validate.notNull(resources);
+        
+        //TODO ???
+        this.peopleQuery = peopleQuery;
         
         Map<String, String> taskDefinitionsNamesMap = new HashMap<String, String>();
         
         for (Resource htdXml : resources) {
+            
             try {
+                
                 // obtain HumanInteractions instance from a given resource.
                 HumanInteractions humanInteractions = createHumanIteractionsInstance(htdXml);
                 
@@ -78,15 +87,22 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
                 humanInteractions.setTaskDefinitions(taskDefinitions);
 
                 humanInteractionsList.add(humanInteractions);
-            } catch (Exception e) {
-                if (!(e instanceof HumanTaskException)) {
-                    if (log.isErrorEnabled()) {
-                        log.error("Error while unmarshalling XML data");
-                    }
-                }
-                throw (HumanTaskException) e;
+                
+            } catch (SAXException e) {
+                
+                throw new HTConfigurationException("Error parsing configuration.", e);
+            } catch (IOException e) {
+                
+                throw new HTConfigurationException("Error reading configuration.", e);
+            } catch (ParserConfigurationException e) {
+                
+                throw new HTConfigurationException("Error parsing configuration.", e);
+            } catch (JAXBException e) {
+                
+                throw new HTConfigurationException("Error parsing configuration.", e);
             }
         }
+        
     }
 
 
@@ -140,7 +156,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
 
         for (TTask tTask : hiDoc.getTasks().getTask()) {
             checkTaskDefinitionUniqueness(tTask.getName(), taskDefinitionNamesMap);
-            TaskDefinition taskDefinition = new TaskDefinition(tTask.getName(), this);
+            TaskDefinition taskDefinition = new TaskDefinition(tTask.getName(), peopleQuery);
             taskDefinition.setDefinition(humanInteractions);
             taskDefinitions.add(taskDefinition);
             taskDefinitionNamesMap.put(tTask.getName(), "XXX");
@@ -150,7 +166,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
 
     /**
      * Unmarshalls human interactions data from the XML file.
-     * @param htdXml - file containing human interactions definition.
+     * @param htdXml the Resource containing human interactions definition
      * @return
      * @throws JAXBException
      * @throws IOException
@@ -171,9 +187,8 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
      * @throws IOException
      * @throws ParserConfigurationException
      * @throws SAXException
-     * @throws NoSuchAlgorithmException
      */
-    private HumanInteractions createHumanIteractionsInstance(Resource htdXml) throws IOException, ParserConfigurationException, SAXException, NoSuchAlgorithmException {
+    private HumanInteractions createHumanIteractionsInstance(Resource htdXml) throws IOException, ParserConfigurationException, SAXException {
         InputStream is;
 
         // dom
@@ -185,7 +200,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse(is);
 
-        return new HumanInteractions(document);
+        return new HumanInteractions(document, peopleQuery);
     }
 
     /**
@@ -202,4 +217,5 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
         assignees.add(group);
         return assignees;
     }
+
 }

@@ -20,19 +20,10 @@ import org.w3c.dom.Document;
 public class HumanInteractions {
 
     private Document document;
-    //private String humanInteractionsDefinitionKey;
 
     private List<TaskDefinition> taskDefinitions;
-
-//    private List<Group> groupList;
-
-    public void setTaskDefinitions(List<TaskDefinition> taskDefinitions) {
-        this.taskDefinitions = taskDefinitions;
-    }
-
-//    public void setGroupList(List<Group> groupList) {
-//        this.groupList = groupList;
-//    }
+    
+    private PeopleQuery peopleQuery;
 
     /**
      * Private constructor to prevent instantiation.
@@ -42,17 +33,18 @@ public class HumanInteractions {
 
     /**
      * Constructor called by {@link HumanInteractionsManagerInterface implementation}.
-     *
      * @param document the human interactions DOM document
+     * @param peopleQuery
      */
-    HumanInteractions(Document document) {
+    HumanInteractions(Document document, PeopleQuery peopleQuery) {
         super();
         this.setDocument(document);
+        this.peopleQuery = peopleQuery;
     }
 
-//    public String getDefinitionKey() {
-//        return humanInteractionsDefinitionKey;
-//    }
+    public void setTaskDefinitions(List<TaskDefinition> taskDefinitions) {
+        this.taskDefinitions = taskDefinitions;
+    }
 
     public void setDocument(Document document) {
         this.document = document;
@@ -65,10 +57,5 @@ public class HumanInteractions {
     public List<TaskDefinition> getTaskDefinitions() {
         return taskDefinitions;
     }
-
-//    public List<Group> getGroupList() {
-//        return groupList;
-//    }
-
 
 }

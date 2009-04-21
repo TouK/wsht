@@ -5,17 +5,22 @@
 
 package pl.touk.humantask.model;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static org.junit.Assert.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
+import org.w3c.dom.Element;
 
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.spec.TaskDefinition;
@@ -28,11 +33,13 @@ import pl.touk.humantask.spec.TaskDefinition;
  */
 public class TaskUnitTest {
 
-    @Test
+    private final Log log = LogFactory.getLog(TaskUnitTest.class);
+    
     /**
      * Tests Task constructor.
      * Scenario: 1 potential owner. Expected status: RESERVED.
      */
+    @Test
     public void testInstatiationOnePotentialOwner() throws HumanTaskException {
 
         Mockery mockery = new Mockery() {{
@@ -135,4 +142,29 @@ public class TaskUnitTest {
         result = instance.nominateActualOwner(assignees);
         assertEquals(null, result);
     }
+    
+    @Test
+    public void testEvaluateXPathGetInput() throws HumanTaskException {
+        
+        Mockery mockery = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
+
+        final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
+
+        mockery.checking(new Expectations() {{
+            one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(Collections.EMPTY_LIST));
+        }});
+        
+        Task t = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><a><b>test</b></a>");
+        Element e = (Element) t.evaluateXPath("htd:getInput(\"" + Message.DEFAULT_PART_NAME_KEY + "\")/a/b");
+        
+        log.info(e.getTextContent());
+        
+        assertNotNull(e);
+        assertEquals("test", e.getTextContent());
+        
+    }
+
 }

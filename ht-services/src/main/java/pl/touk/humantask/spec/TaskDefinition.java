@@ -13,7 +13,10 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathFunction;
+import javax.xml.xpath.XPathFunctionException;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -24,6 +27,7 @@ import org.w3c.dom.NodeList;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Message;
+import pl.touk.humantask.model.Task;
 import pl.touk.humantask.exceptions.HumanTaskException;
 
 /**
@@ -40,6 +44,7 @@ import pl.touk.humantask.exceptions.HumanTaskException;
 public class TaskDefinition {
 
     private final Log log = LogFactory.getLog(TaskDefinition.class);
+    
     /**
      * Human Interactions specification containing this {@link TaskDefinition}.
      */
@@ -49,16 +54,22 @@ public class TaskDefinition {
 
     private boolean instantiable;
 
-    //TODO jkr: here? configured at human interactions manager level
-    private PeopleQuery peopleQuery;
     private XPathFactory xPathFactory;
+    
+    private PeopleQuery peopleQuery;
 
     // ==================== CONSTRUCTOR =========================
 
     public TaskDefinition(String taskName, PeopleQuery peopleQuery) {
+        
         super();
-        this.peopleQuery = peopleQuery;
+        
+        Validate.notNull(taskName);
+        Validate.notNull(peopleQuery);
+
         this.taskName = taskName;
+        this.peopleQuery = peopleQuery;
+        
         xPathFactory = XPathFactory.newInstance();
     }
 
@@ -143,7 +154,8 @@ public class TaskDefinition {
         }
         
         for (String groupName : groupNames) {
-            List<Assignee> peopleQueryResult = peopleQuery.evaluate(groupName, input);
+            //TODO add parameters
+            List<Assignee> peopleQueryResult = peopleQuery.evaluate(groupName, null);
             evaluatedAssigneeList.addAll(peopleQueryResult);
         }
 
@@ -179,6 +191,7 @@ public class TaskDefinition {
         }
         return result;
     }
+
 //
 //
 //    public List<LogicalPeopleGroup> getLogicalpeopleGroups() {
@@ -220,21 +233,24 @@ public class TaskDefinition {
 //
 //        return null;
 //    }
+//
+//    public static class LogicalPeopleGroup {
+//
+//        private String name;
+//
+//        public void setName(String name) {
+//            this.name = name;
+//        }
+//
+//        public String getName() {
+//            return name;
+//        }
+//    }
 
-    public static class LogicalPeopleGroup {
-
-        private String name;
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
-    private static class HtdNamespaceContext implements NamespaceContext {
+    /**
+     * TODO ww
+     */
+    public static class HtdNamespaceContext implements NamespaceContext {
 
         public String getNamespaceURI(String prefix) {
             if (prefix == null) {
@@ -292,4 +308,5 @@ public class TaskDefinition {
         xpath.setNamespaceContext(new HtdNamespaceContext());
         return xpath;
     }
+
 }

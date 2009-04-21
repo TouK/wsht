@@ -5,14 +5,17 @@
 
 package pl.touk.humantask.util;
 
+import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 import pl.touk.humantask.spec.HumanInteractionsManagerImpl;
+import pl.touk.humantask.spec.PeopleQuery;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ClassPathResource;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 /*
  * TODO: ADD SHORT DESCRIPTION 
  *
@@ -33,6 +36,12 @@ public class TestUtil {
         for (String htdFile : htdFiles) {
             resources.add(new ClassPathResource(htdFile));
         }
-        return new HumanInteractionsManagerImpl(resources);
+        return new HumanInteractionsManagerImpl(resources, new PeopleQuery() {
+
+            public List<Assignee> evaluate(String logicalPeopleGroupName, Map<String, Object> parameters) {
+                return new ArrayList();
+            }
+            
+        });
     }
 }

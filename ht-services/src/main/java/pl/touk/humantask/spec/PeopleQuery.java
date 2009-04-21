@@ -21,11 +21,19 @@ import pl.touk.humantask.model.Message;
  * @author Witek Wołejszo
  */
 public interface PeopleQuery {
+    
+//    /**
+//     * Evaluates assignees in logical people group.
+//     * @param logicalPeopleGroupName the logical people group name
+//     * @param input the input message that created the task
+//     */
+//    List<Assignee> evaluate(String logicalPeopleGroupName, Map<String, Message> input);
+
     /**
      * Evaluates assignees in logical people group.
      * @param logicalPeopleGroupName the logical people group name
-     * @param input the input message that created the task
+     * @param parameters the map of parameters
      */
-    List<Assignee> evaluate(String logicalPeopleGroupName, Map<String, Message> input);
+    List<Assignee> evaluate(String logicalPeopleGroupName, Map<String, Object> parameters);
 
 }

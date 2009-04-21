@@ -14,7 +14,7 @@ import pl.touk.humantask.exceptions.HumanTaskException;
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
  * @author Witek Wołejszo
  */
-public interface HumanInteractionsManagerInterface extends PeopleQuery {
+public interface HumanInteractionsManagerInterface {
     
     /*
      * Retrieves task definition by name.
@@ -24,32 +24,5 @@ public interface HumanInteractionsManagerInterface extends PeopleQuery {
      * @throws HumanTaskException in case when no such task definition was found
      */
     TaskDefinition getTaskDefinition(String taskName) throws HumanTaskException;
-    
-    //TaskDefinition getTaskDefinitionByName(String taskName) throws HumanTaskException;
 
-    /*
-    * Method for retrieving all task definitions defined inside application context
-    *
-    * @return java.util.List implementation, containing TaskDefinition instances
-    */
-    //List<TaskDefinition> getTaskDefinitions();
-
-    /*
-    * Method for retrieving people group, according to its name
-    *
-    * @param taskName
-    * @return TaskDefinition instance
-    *
-    * @throws HumanTaskException in case when no such people group was found
-    */
-    //Group getLogicalPeopleGroupByName(String groupName) throws HumanTaskException;
-
-    /*
-    * Method for retrieving all people groups defined inside application context
-    *
-    * @return java.util.List implementation, containing Group instances
-    */
-//    public List<Group> getLogicalPeopleGroups();
-    //List<HumanInteractions> getHumanInteractions();
-    
 }

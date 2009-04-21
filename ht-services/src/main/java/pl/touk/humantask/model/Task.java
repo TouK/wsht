@@ -5,6 +5,8 @@
 
 package pl.touk.humantask.model;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,15 +32,32 @@ import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathFunction;
+import javax.xml.xpath.XPathFunctionException;
+import javax.xml.xpath.XPathFunctionResolver;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.spec.HumanInteractions;
 import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 import pl.touk.humantask.spec.TaskDefinition;
+import pl.touk.humantask.spec.TaskDefinition.HtdNamespaceContext;
 
 /**
  * Holds task instance information.
@@ -555,6 +574,112 @@ public class Task extends Base {
      */
     public void reserve() throws HTIllegalStateException {
         this.setStatus(Status.RESERVED);
+    }
+
+    /**
+     * Evaluates XPath expression in context of the Task. Expression can contain 
+     * XPath Exension functions as defined by WS-HumanTask v1. Following
+     * XPath functions are implemented:
+     * <ul>
+     * <li> {@link GetInputXPathFunction} </li>
+     * </ul>
+     * @param xpathString the XPath 1.0 expression.
+     * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
+     */
+    public Object evaluateXPath(String xpathString) {
+        
+        Object o = null;
+        
+        XPathFactory xPathFactory = XPathFactory.newInstance();        
+        XPath xpath = xPathFactory.newXPath();
+        xpath.setNamespaceContext(new TaskDefinition.HtdNamespaceContext());
+        
+        xpath.setXPathFunctionResolver(new XPathFunctionResolver() {
+
+            public XPathFunction resolveFunction(QName functionName, int arity) {
+
+                if (functionName == null) {
+                    throw new NullPointerException("The function name cannot be null.");
+                }
+
+                if (functionName.equals(new QName("http://www.example.org/WS-HT", "getInput", "htd"))) {
+
+                    return new GetInputXPathFunction();
+                    
+                } else {
+                    
+                    return null;
+                }
+
+            }
+
+        });
+
+        try {
+
+            //TODO create empty document only once
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document emptyDocument = builder.newDocument();
+
+            XPathExpression expr = xpath.compile(xpathString);            
+            o = expr.evaluate(emptyDocument, XPathConstants.NODE);
+               
+        } catch (XPathExpressionException e) {
+            
+            log.error("Error evaluating XPath.", e);
+        } catch (ParserConfigurationException e) {
+            
+            log.error("Error evaluating XPath.", e);
+        }
+        
+        return o;    
+    }
+    
+    /**
+     * Implements getInput {@link XPathFunction} - get the data for the part of the task's input message.
+     * @author Witek Wołejszo
+     */
+    private class GetInputXPathFunction implements XPathFunction {
+
+        /**
+         * <p>Evaluate the function with the specified arguments.</p>
+         * @see XPathFunction#evaluate(List)
+         * @param args The arguments, <code>null</code> is a valid value.
+         * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
+         * @throws XPathFunctionException If <code>args</code> cannot be evaluated with this <code>XPath</code> function.
+         */
+        public Object evaluate(List args) throws XPathFunctionException {
+            
+            Document document = null;
+            Message m = input.get(args.get(0));
+            
+            if (m == null) {
+                throw new XPathFunctionException("Task's input does not contain partName: " + args.get(0));
+            }
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+
+            DocumentBuilder builder;
+            try {
+                
+                builder = factory.newDocumentBuilder();
+                document = builder.parse(m.getMessageInputStream());
+                
+            } catch (ParserConfigurationException e) {
+
+                throw new XPathFunctionException(e);
+            } catch (SAXException e) {
+                
+                throw new XPathFunctionException(e);
+            } catch (IOException e) {
+                
+                throw new XPathFunctionException(e);
+            }
+            
+            return document == null ? null : document.getChildNodes();
+        }
+
     }
 
     /***************************************************************

@@ -5,6 +5,9 @@
 
 package pl.touk.humantask.model;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -62,6 +65,14 @@ public class Message extends Base {
 
     public String getMessage() {
         return message;
+    }
+    
+    /**
+     * Returns {@link InputStream} with message contents using platform encoding. 
+     * @return
+     */
+    public InputStream getMessageInputStream() {
+        return new ByteArrayInputStream(message.getBytes());
     }
 
     /***************************************************************

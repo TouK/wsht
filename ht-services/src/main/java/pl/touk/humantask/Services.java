@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.example.ws_ht.TTaskInterface;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +21,6 @@ import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HumanTaskException;
-import pl.touk.humantask.exceptions.RecipientNotAllowedException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Attachment;
 import pl.touk.humantask.model.GenericHumanRole;
@@ -31,7 +29,6 @@ import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.model.Task.TaskTypes;
 import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
-import pl.touk.humantask.spec.PeopleQuery;
 import pl.touk.humantask.spec.TaskDefinition;
 
 /**
@@ -54,11 +51,6 @@ public class Services implements HumanTaskServicesInterface {
      * DAO for accessing {@link Assignee}s.
      */
     private AssigneeDao assigneeDao;
-
-    /**
-     * {@link PeopleQuery} implementation for user evaluation.
-     */
-    private PeopleQuery peopleQuery;
 
     /**
      * Definitions of tasks available in WSHT.
@@ -168,7 +160,7 @@ public class Services implements HumanTaskServicesInterface {
         Person person = assigneeDao.getPerson(assigneeName);
         
         if (null == person) {
-        	throw new HTIllegalAccessException("Not found",assigneeName);
+        	throw new HTIllegalAccessException("Not found", assigneeName);
         }
         
         if (task.getId() != null && taskDao.fetch(task.getId()) == null) {
@@ -847,21 +839,6 @@ public class Services implements HumanTaskServicesInterface {
      */
     public AssigneeDao getAssigneeDao() {
         return assigneeDao;
-    }
-
-    /**
-     * Sets peopleQuery to given object
-     * @param peopleQuery PeopleQuery to set
-     */
-    public void setPeopleQuery(PeopleQuery peopleQuery) {
-        this.peopleQuery = peopleQuery;
-    }
-
-    /**
-     * @return PeopleQuery object
-     */
-    public PeopleQuery getPeopleQuery() {
-        return peopleQuery;
     }
 
     /**

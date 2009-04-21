@@ -6,9 +6,7 @@
        xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd"
-    
-    >
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
 
     <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
@@ -47,27 +45,6 @@
         -->
     </bean>
 
-<!-- 
-    <bean id="persistenceUnitManager" class="org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager">
-        <property name="defaultDataSource" ref="dataSource" />
-        <property name=""></property>
-    </bean>
- -->
- 
-    <!--
-        <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"> <property name="jpaVendorAdapter"> <bean
-        class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"> <property name="showSql" value="true" /> <property name="generateDdl" value="true"
-        /> <property name="databasePlatform" value="org.hibernate.dialect.H2Dialect" /> </bean> </property> </bean> <bean id="hibernateSessionFactory"
-        class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"> <property name="dataSource" ref="dataSource" /> <property
-        name="hibernateProperties"> <props> <prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop> <prop key="show_sql">true</prop> <prop
-        key="hibernate.hbm2ddl.auto">create-drop</prop> </props> </property> <property name="annotatedPackages"> <list> <value>pl.touk.humantask.model</value>
-        </list> </property> <property name="annotatedClasses"> <list> <value>pl.touk.humantask.model.Deadline</value>
-        <value>pl.touk.humantask.model.Task</value> <value>pl.touk.humantask.model.Assignee</value> <value>pl.touk.humantask.model.Person</value>
-        <value>pl.touk.humantask.model.Group</value> <value>pl.touk.humantask.model.Attachment</value> <value>pl.touk.humantask.model.Comment</value> </list>
-        </property> </bean> <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager"> <property
-        name="sessionFactory" ref="hibernateSessionFactory" /> </bean>
-    -->
-
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory" />
         <property name="dataSource" ref="dataSource"/>
@@ -75,10 +52,6 @@
 
     <tx:annotation-driven />
 
-    <!--
-        <bean id="taskDao" class="pl.touk.humantask.dao.impl.HibernateTaskDao"> <property name="sessionFactory" ref="hibernateSessionFactory" /> </bean> <bean
-        id="assigneeDao" class="pl.touk.humantask.dao.impl.HibernateAssigneeDao"> <property name="sessionFactory" ref="hibernateSessionFactory" /> </bean>
-    -->
     <bean id="taskDao" class="pl.touk.humantask.dao.impl.JpaTaskDao">
         <property name="entityManagerFactory" ref="entityManagerFactory" />
     </bean>
@@ -93,50 +66,22 @@
 
     <bean name="peopleQuery" class="pl.touk.humantask.PropertyBasedPeopleQuery">
         <property name="configuration" value="classpath:peopleGroups.properties" />
-        <property name="assigneeDao" ref="assigneeDao" />
     </bean>
-
-    <!--<bean id="humanInteractions" class="pl.touk.humantask.spec.HumanInteractionsFactoryBean">-->
-        <!--<property name="htdXml" value="classpath:htd1.xml" />-->
-    <!--</bean>-->
-
-    <!--<bean id="ApproveClaimTask" class="pl.touk.humantask.spec.TaskDefinition">-->
-        <!--<property name="name" value="ApproveClaim" />-->
-        <!--<property name="definition" ref="humanInteractions" />-->
-        <!--<property name="instantiable" value="true" />-->
-    <!--</bean>-->
-
-    <!--<bean id="ApproveClaimTask2" class="pl.touk.humantask.spec.TaskDefinition">-->
-        <!--<property name="name" value="ApproveClaim2" />-->
-        <!--<property name="definition" ref="humanInteractions" />-->
-        <!--<property name="instantiable" value="true" />-->
-    <!--</bean>-->
 
     <bean id="taskManager" class="pl.touk.humantask.spec.HumanInteractionsManagerImpl">
         <constructor-arg>
             <list>
-                <value>
-                    classpath:htd1.xml
-                </value>
-                <value>
-                    classpath:testHtd1.xml
-                </value>
+                <value>classpath:htd1.xml</value>
+                <value>classpath:testHtd1.xml</value>
             </list>
         </constructor-arg>
-        <!--type="org.springframework.core.io.Resource" value="classpath:htd1.xml"/>-->
+        <constructor-arg ref="peopleQuery"/>
     </bean>    
     
 	<bean id="humanTaskServices" class="pl.touk.humantask.Services">
 		<property name="taskDao" ref="taskDao" />
 		<property name="assigneeDao" ref="assigneeDao" />
-		<property name="peopleQuery" ref="peopleQuery"/>
         <property name="taskManager" ref="taskManager"/>
-		<!--<property name="taskDefinitions">-->
-			<!--<list>-->
-				<!--<ref bean="ApproveClaimTask" />-->
-				<!--<ref bean="ApproveClaimTask2" />-->
-			<!--</list>-->
-		<!--</property>-->
 	</bean>
 
 	<aop:aspectj-autoproxy proxy-target-class="false"/>
@@ -144,4 +89,5 @@
     <bean class="pl.touk.humantask.ws.TaskOperationsImpl" scope="prototype">
         <property name="taskDao" ref="taskDao"/>
     </bean>
+    
 </beans>
