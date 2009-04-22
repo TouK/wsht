@@ -95,7 +95,7 @@ public interface HumanTaskServicesInterface {
      * @throws HTIllegalArgumentException In case that given argument is incorrect
      * @throws HTIllegalStateException In case that current task state doesn't allow for the operation to perform
      */
-    void claimTask(Task task,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+    void claimTask(Long taskId,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 
 
     /**
@@ -112,7 +112,7 @@ public interface HumanTaskServicesInterface {
      * @throws HTIllegalArgumentException In case that given argument is incorrect
      * @throws HTIllegalStateException In case that current task state doesn't allow for the operation to perform
      */
-    void startTask(Task task,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+    void startTask(Long taskId,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 
     /**
      * Releases the task, i.e. set the task back to status Ready.  .
@@ -126,7 +126,7 @@ public interface HumanTaskServicesInterface {
      * @throws HTIllegalArgumentException In case that given argument is incorrect
      * @throws HTIllegalStateException In case that current task state doesn't allow for the operation to perform
      */
-    void releaseTask(Task task, final String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+    void releaseTask(Long taskId, final String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 
     /**
      * Gets task object by task identifier.

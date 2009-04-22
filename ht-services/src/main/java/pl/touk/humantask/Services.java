@@ -155,13 +155,15 @@ public class Services implements HumanTaskServicesInterface {
      * @see pl.touk.humantask.HumanTaskServicesInterface#claimTask(pl.touk.humantask.model.Task, java.lang.String) 
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public void claimTask(Task task, String assigneeName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
+    public void claimTask(Long taskId, String assigneeName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
 
         Person person = assigneeDao.getPerson(assigneeName);
         
         if (null == person) {
         	throw new HTIllegalAccessException("Not found", assigneeName);
         }
+
+        Task task = locateTask(taskId);
         
         if (task.getId() != null && taskDao.fetch(task.getId()) == null) {
             //TODO: dead code, is this code ever even called
@@ -188,13 +190,15 @@ public class Services implements HumanTaskServicesInterface {
      * @see pl.touk.humantask.HumanTaskServicesInterface#startTask(pl.touk.humantask.model.Task, java.lang.String)
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public void startTask(Task task, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
+    public void startTask(Long taskId, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
 
         Person person = assigneeDao.getPerson(personName);
 
         if (null == person) 
             throw new HTIllegalAccessException("Person not found: ", personName);
 
+        Task task = locateTask(taskId);
+        
         if (!task.getPotentialOwners().contains(person)) {
             log.error("This person is not permited to start the task");
             throw new HTIllegalAccessException("This person is not permited to start the task",personName);
@@ -238,7 +242,7 @@ public class Services implements HumanTaskServicesInterface {
 //     * @param assigneeName
 //     * @throws HumanTaskException
 //     */
-//    public Task delegateTask(Task task, String assigneeName) throws HumanTaskException {
+//    public Task delegateTask(Long taskId, String assigneeName) throws HumanTaskException {
 //
 //        Person person = assigneeDao.getPerson(assigneeName);
 //
@@ -253,7 +257,7 @@ public class Services implements HumanTaskServicesInterface {
 //
 //    @Transactional(propagation = Propagation.REQUIRED)
 //    // TODO How to distinguish groups and people? now works on people only
-//    public Task forwardTask(Task task, String assigneeName) throws HumanTaskException {
+//    public Task forwardTask(Long taskId, String assigneeName) throws HumanTaskException {
 //
 //        Person owner = (Person) task.getActualOwner();
 //
@@ -320,9 +324,10 @@ public class Services implements HumanTaskServicesInterface {
      * @param task Task to process
      * @param person Person to remove from task owners
      */
-    public void removeAssigneeFromPotentialOwners(Task task, Assignee person) {
+    public void removeAssigneeFromPotentialOwners(Long taskId, Assignee person) throws HTIllegalArgumentException {
         int i = 0;
         boolean removed = false;
+        Task task = locateTask(taskId);
         List<Assignee> list = task.getPotentialOwners();
         Assignee assignee;
         while (!removed) {
@@ -339,13 +344,14 @@ public class Services implements HumanTaskServicesInterface {
     /**
      * @see pl.touk.humantask.HumanTaskServicesInterface#releaseTask(pl.touk.humantask.model.Task, java.lang.String)
      */
-    public void releaseTask(Task task, final String personName) throws HTIllegalAccessException, HTIllegalStateException {
+    public void releaseTask(Long taskId, final String personName) throws HTIllegalArgumentException,HTIllegalAccessException, HTIllegalStateException {
 
-        Person person = assigneeDao.getPerson(personName);
+        final Person person = assigneeDao.getPerson(personName);
 
         if (person == null) {
             throw new HTIllegalAccessException("Person not found: ", personName);
         }
+        final Task task = locateTask(taskId);
 
         if (task.getActualOwner() == null) {
             throw new HTIllegalAccessException("Task without actual owner cannot be released");
@@ -368,8 +374,10 @@ public class Services implements HumanTaskServicesInterface {
      * @return Updated task
      * @throws HumanTaskException Thrown if task is not in progress or in case of problems while updating task
      */
-    public Task stopTaskInProgress(Task task) throws HumanTaskException {
+    public Task stopTaskInProgress(Long taskId) throws HumanTaskException {
 
+        Task task = locateTask(taskId);
+        
         if (!(task.getStatus() == Status.IN_PROGRESS)) {
             log.error("Task has to be In_Progress");
             throw new HumanTaskException("Cannot stop task that is not in progress");
@@ -407,8 +415,10 @@ public class Services implements HumanTaskServicesInterface {
      * @param task Task to process
      * @param priority Priority to set
      */
-    public void changeTaskPrioity(Task task, int priority) {
+    public void changeTaskPrioity(Long taskId, int priority) throws HTIllegalArgumentException{
 
+        Task task = locateTask(taskId);
+        
         task.setPriority(priority);
         taskDao.update(task);
     }
@@ -421,8 +431,9 @@ public class Services implements HumanTaskServicesInterface {
      * @param person Person processing task
      * @throws HumanTaskException Thrown in case of problems while updating task
      */
-    public void finishTask(Task task, Assignee person) throws HumanTaskException {
+    public void finishTask(Long taskId, Assignee person) throws HumanTaskException {
 
+        final Task task = locateTask(taskId);
         task.setStatus(Status.COMPLETED);
         taskDao.update(task);
     }
@@ -434,10 +445,10 @@ public class Services implements HumanTaskServicesInterface {
      * @param personName Name of person processing task
      * @throws HumanTaskException Thrown if specified person doesn't have permission to process task or in case of problems while updating task
      */
-    public void suspendTask(Task task, String personName) throws HumanTaskException {
+    public void suspendTask(Long taskId, String personName) throws HumanTaskException {
 
-        Person person = (Person) assigneeDao.getPerson(personName);
-
+        final Person person = (Person) assigneeDao.getPerson(personName);
+        final Task task = locateTask(taskId);
         if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY)
                 || task.getActualOwner().equals(person) || task.getBusinessAdministrators().contains(person))) {
             log.error("you don't have a permission to suspend the task");
@@ -455,10 +466,11 @@ public class Services implements HumanTaskServicesInterface {
      * @param personName Name of person processing task
      * @throws HumanTaskException Thrown if specified person doesn't have permission to process task or in case of problems while updating task
      */
-    public void resumeTask(Task task, String personName) throws HumanTaskException {
+    public void resumeTask(Long taskId, String personName) throws HumanTaskException {
 
-        Person person = (Person) assigneeDao.getPerson(personName);
-
+        final Person person = (Person) assigneeDao.getPerson(personName);
+        final Task task = locateTask(taskId);
+        
         if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY)
                 || task.getActualOwner().equals(person) || task.getBusinessAdministrators().contains(person))) {
             log.error("you don't have a permission to resume the task");
@@ -477,10 +489,10 @@ public class Services implements HumanTaskServicesInterface {
      * @param personName Name of person processing task
      * @throws HumanTaskException Thrown if specified person doesn't have permission to process task or in case of problems while updating task
      */
-    public void completeTask(Task task, String data, String personName) throws HumanTaskException {
+    public void completeTask(Long taskId, String data, String personName) throws HumanTaskException {
 
-        Person person = (Person) assigneeDao.getPerson(personName);
-
+        final Person person = (Person) assigneeDao.getPerson(personName);
+        final Task task = locateTask(taskId);
         if (!task.getActualOwner().equals(person)) {
 
             log.error("this person doesn't have a permission to complete the task");
@@ -506,7 +518,7 @@ public class Services implements HumanTaskServicesInterface {
 //     * @param personName
 //     * @throws HumanTaskException
 //     */
-//    public void setTaskOutput(Task task, String dataSetXml, String personName) throws HumanTaskException {
+//    public void setTaskOutput(Long taskId, String dataSetXml, String personName) throws HumanTaskException {
 //
 //        this.setTaskOutput(task, dataSetXml, null, personName);
 //    }
@@ -520,7 +532,7 @@ public class Services implements HumanTaskServicesInterface {
 //     * @param personName
 //     * @throws HumanTaskException
 //     */
-//    public void setTaskOutput(Task task, String dataSetXml, String pName, String personName) throws HumanTaskException {
+//    public void setTaskOutput(Long taskId, String dataSetXml, String pName, String personName) throws HumanTaskException {
 //
 //        Person person = assigneeDao.getPerson(personName);
 //
@@ -541,7 +553,7 @@ public class Services implements HumanTaskServicesInterface {
 //     * @return
 //     * @throws HumanTaskException
 //     */
-//    public String getOutput(Task task, String personName) throws HumanTaskException {
+//    public String getOutput(Long taskId, String personName) throws HumanTaskException {
 //
 //        return this.getOutput(task, null, personName);
 //    }
@@ -555,7 +567,7 @@ public class Services implements HumanTaskServicesInterface {
 //     * @return
 //     * @throws HumanTaskException
 //     */
-//    public String getOutput(Task task, String partName, String personName) throws HumanTaskException {
+//    public String getOutput(Long taskId, String partName, String personName) throws HumanTaskException {
 //
 //        Person person = assigneeDao.getPerson(personName);
 //
@@ -572,7 +584,7 @@ public class Services implements HumanTaskServicesInterface {
 //     *
 //     * @param task
 //     */
-//    public void deleteOutput(Task task) {
+//    public void deleteOutput(Long taskId) {
 //        task.deleteOutput();
 //        taskDao.update(task);
 //    }
@@ -585,7 +597,7 @@ public class Services implements HumanTaskServicesInterface {
 //     * @throws HumanTaskException
 //     * @throws IllegalArgumentFault
 //     */
-//    public void failTask(Task task, String faultName, String faultData, String personName) throws HumanTaskException {
+//    public void failTask(Long taskId, String faultName, String faultData, String personName) throws HumanTaskException {
 //
 //        Person person = assigneeDao.getPerson(personName);
 //
@@ -622,7 +634,7 @@ public class Services implements HumanTaskServicesInterface {
 //     * @throws HumanTaskException
 //     * @throws IllegalOperationFault
 //     */
-//    public void setFault(Task task, String faultName, String faultData, String personName) throws HumanTaskException {
+//    public void setFault(Long taskId, String faultName, String faultData, String personName) throws HumanTaskException {
 //
 //        Person person = assigneeDao.getPerson(personName);
 //
@@ -647,7 +659,7 @@ public class Services implements HumanTaskServicesInterface {
 //     * @param personName
 //     * @throws HumanTaskException
 //     */
-//    public void deleteFault(Task task, String personName) throws HumanTaskException {
+//    public void deleteFault(Long taskId, String personName) throws HumanTaskException {
 //        Person person = assigneeDao.getPerson(personName);
 //
 //        if (!person.equals(task.getActualOwner())) {
@@ -660,7 +672,7 @@ public class Services implements HumanTaskServicesInterface {
 //
 //    }
 
-//    public String getFault(Task task, String personName) throws HumanTaskException {
+//    public String getFault(Long taskId, String personName) throws HumanTaskException {
 //
 //        Person person = assigneeDao.getPerson(personName);
 //        if (person.equals(task.getActualOwner()) && person.equals(task.getBusinessAdministrators())) {
@@ -687,11 +699,12 @@ public class Services implements HumanTaskServicesInterface {
      * @param timePeriod Time of suspension in milliseconds
      * @throws HumanTaskException Thrown in case of problems while processing task 
      */
-    public void suspendUntilPeriod(Task task, long timePeriod) throws HumanTaskException {
+    public void suspendUntilPeriod(Long taskId, long timePeriod) throws HumanTaskException {
 
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(System.currentTimeMillis() + timePeriod);
-        suspendUntil(task, cal.getTime());
+        
+        suspendUntil(taskId, cal.getTime());
     }
 
     /**
@@ -702,8 +715,9 @@ public class Services implements HumanTaskServicesInterface {
      * @throws HumanTaskException Thrown in case of problems while processing task 
      */
     // TODO can be suspeneded?
-    public void suspendUntil(Task task, Date pointOfTime) throws HumanTaskException {
+    public void suspendUntil(Long taskId, Date pointOfTime) throws HumanTaskException {
 
+        final Task task = locateTask(taskId);
         task.setSuspentionTime(pointOfTime);
         task.setStatus(Status.SUSPENDED);
         taskDao.update(task);
@@ -721,19 +735,20 @@ public class Services implements HumanTaskServicesInterface {
      * @throws HumanTaskException  Thrown if specified person doesn't have permission to process task or in case of problems while updating task
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addAttachment(Task task, String attName, String accessType, String contentType, String attachment, Person person) throws HumanTaskException {
+    public void addAttachment(Long taskId, String attName, String accessType, String contentType, String attachment, Person person) throws HumanTaskException {
 
+        final Task task = locateTask(taskId);
         if (!(person.equals(task.getActualOwner()) || task.getBusinessAdministrators().contains(person))) {
             log.error(person + "cannot add attachemnt");
             throw new HumanTaskException(person + "cannot add attachemnt");
         }
 
-        Attachment att = new Attachment();
+        final Attachment att = new Attachment();
         att.setName(attName);
         att.setAccessType(accessType);
         att.setContentType(contentType);
 
-        Calendar cal = Calendar.getInstance();
+        final Calendar cal = Calendar.getInstance();
         att.setAttachedAt(cal.getTime());
         att.setUserId(person.getId());
         att.setAttachment(attachment);
@@ -742,7 +757,7 @@ public class Services implements HumanTaskServicesInterface {
         taskDao.update(task);
     }
 
-    // public List<Attachment> getAttachments(Task task, String attachmentName, Assignee assignee) {
+    // public List<Attachment> getAttachments(Long taskId, String attachmentName, Assignee assignee) {
     //
     // List<Attachment> list = new ArrayList<Attachment>();
     //
@@ -761,9 +776,10 @@ public class Services implements HumanTaskServicesInterface {
      * @param task Task to add owners to
      * @param list List of persons to add to potential task owners
      */
-    public void addPotentialOwner(Task task, List<Person> list) {
+    public void addPotentialOwner(Long taskId, List<Person> list) throws HTIllegalArgumentException{
+        //TODO: not very efficient perhaps overload method to take a task
         for (Person person : list) {
-            this.addPotentialOwner(task, person);
+            this.addPotentialOwner(taskId, person);
         }
     }
 
@@ -774,8 +790,9 @@ public class Services implements HumanTaskServicesInterface {
      * @param task Task to add owner to
      * @param assignee Person to add as potential owner
      */
-    private void addPotentialOwner(Task task, Assignee assignee) {
+    private void addPotentialOwner(Long taskId, Assignee assignee) throws HTIllegalArgumentException{
 
+        final Task task = locateTask(taskId);
         List<Assignee> owners = task.getPotentialOwners();
         if (!owners.contains(assignee)) {
             owners.add(assignee);
@@ -794,7 +811,7 @@ public class Services implements HumanTaskServicesInterface {
     //
     // List<Task> list = taskDao.getTasksToResume(Status.SUSPENDED, cal.getTime());
     //
-    // for (Task task : list) {
+    // for (Long taskId : list) {
     // if (cal.getTime().compareTo(task.getSuspentionTime()) > 0) {
     // task.resume();
     // log.info("refreshing tasks status");
@@ -851,5 +868,16 @@ public class Services implements HumanTaskServicesInterface {
             throw new HTIllegalArgumentException("Task not found");
         }
     }
+
+    private Task locateTask(Long identifier) throws HTIllegalArgumentException {
+
+        Task task = taskDao.fetch(taskId);
+
+        if (null == task)
+            throw new HTIllegalArgumentException("Cannot find Task",Long.toString(taskId));
+
+        return task;
+    }
+
 
 }

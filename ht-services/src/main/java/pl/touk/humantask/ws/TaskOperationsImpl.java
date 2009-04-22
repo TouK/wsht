@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import pl.touk.humantask.HumanTaskServicesInterface;
 import pl.touk.humantask.dao.TaskDao;
+import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.GenericHumanRole;
@@ -92,7 +93,7 @@ public class TaskOperationsImpl implements TaskOperations {
                 throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found.","Id: " + identifier);
             }
 
-            this.services.claimTask(task,this.securityContext.getLoggedInUser().getUsername());
+            this.services.claimTask(translateTaskIdentifier(identifier),this.securityContext.getLoggedInUser().getUsername());
 
         } catch (HumanTaskException xHT) {
             this.translateIllegalArgumentException(xHT);
@@ -101,9 +102,6 @@ public class TaskOperationsImpl implements TaskOperations {
         } catch (NumberFormatException xNF) {
             throw new IllegalArgumentFault("Task identifier must be a number.","Id: " + identifier);
         }
-
-        throw new RuntimeException("operation failed: claim");
-
     }
 
     public void complete(String identifier, Object taskData) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
@@ -170,9 +168,8 @@ public class TaskOperationsImpl implements TaskOperations {
         } catch (HumanTaskException xHT) {
             this.translateIllegalStateException(xHT);
             this.translateIllegalArgumentException(xHT);
+            return null;
         }
-
-        throw new RuntimeException("operation failed: getMyTasks");
     }
 
     private void translateIllegalStateException(HumanTaskException xHT) throws IllegalStateFault {
@@ -208,6 +205,17 @@ public class TaskOperationsImpl implements TaskOperations {
         }
     }
 
+    private Long translateTaskIdentifier(String identifier) throws HTIllegalArgumentException {
+        if (null == identifier) {
+            throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Must specific a Task id.","Id");
+        }
+
+        try {
+            return Long.valueOf(identifier);
+        } catch (NumberFormatException xNF) {
+            throw new HTIllegalArgumentException("Task identifier must be a number.", "Id: " + identifier);
+        }
+    }
     /**
      * Translates a single task to TTask.
      *
@@ -311,8 +319,8 @@ public class TaskOperationsImpl implements TaskOperations {
             return this.translateOneTaskAPI(this.services.getTaskInfo(Long.parseLong(identifier)));
         } catch (HumanTaskException xHT) {
             this.translateIllegalArgumentException(xHT);
+            return null;
         }
-        throw new RuntimeException("operation failed: getTaskInfo");
     }
 
     public void nominate(String identifier, TOrganizationalEntity organizationalEntity) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
@@ -338,23 +346,13 @@ public class TaskOperationsImpl implements TaskOperations {
                 throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Must specific a Task id.","Id");
             }
 
-            Task task = taskDao.fetch(Long.valueOf(identifier));
-
-            if (null == task) {
-               throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found.","Id: " + identifier);
-            }
-
-            services.releaseTask(task,securityContext.getLoggedInUser().getUsername());
+            services.releaseTask(translateTaskIdentifier(identifier),securityContext.getLoggedInUser().getUsername());
 
         } catch (HumanTaskException xHT) {
             translateIllegalArgumentException(xHT);
             translateIllegalStateException(xHT);
             translateIllegalAccessException(xHT);
-        } catch (NumberFormatException xNF) {
-            throw new IllegalArgumentFault("Task identifier must be a number.","Id: " + identifier);
         }
-
-        throw new RuntimeException("operation failed: release");
     }
 
     public void remove(String identifier) throws IllegalArgumentFault, IllegalAccessFault {
@@ -389,28 +387,12 @@ public class TaskOperationsImpl implements TaskOperations {
 
     public void start(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
        try {
-            if (null == identifier) {
-                throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Must specific a Task id.","Id");
-            }
-
-            Task task = taskDao.fetch(Long.valueOf(identifier));
-
-            if (null == task) {
-               throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found.","Id: " + identifier);
-            }
-
-            services.startTask(task,securityContext.getLoggedInUser().getUsername());
-
+            services.startTask(translateTaskIdentifier(identifier),securityContext.getLoggedInUser().getUsername());
         } catch (HumanTaskException xHT) {
             translateIllegalArgumentException(xHT);
             translateIllegalStateException(xHT);
             translateIllegalAccessException(xHT);
-        } catch (NumberFormatException xNF) {
-            throw new IllegalArgumentFault("Task identifier must be a number.","Id: " + identifier);
         }
-
-        throw new RuntimeException("operation failed: start");
-
     }
 
     public void stop(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
