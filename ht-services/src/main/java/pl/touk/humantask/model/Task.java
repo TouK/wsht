@@ -650,21 +650,16 @@ public class Task extends Base {
          */
         public Object evaluate(List args) throws XPathFunctionException {
             
+            Message message = input.get(args.get(0));
             Document document = null;
-            Message m = input.get(args.get(0));
             
-            if (m == null) {
+            if (message == null) {
                 throw new XPathFunctionException("Task's input does not contain partName: " + args.get(0));
             }
 
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-
-            DocumentBuilder builder;
             try {
                 
-                builder = factory.newDocumentBuilder();
-                document = builder.parse(m.getMessageInputStream());
+                document = message.getDomDocument();
                 
             } catch (ParserConfigurationException e) {
 

@@ -6,6 +6,7 @@
 package pl.touk.humantask.model;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import javax.persistence.Basic;
@@ -17,8 +18,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * Message part related to Task. It can be either part of input message or part of output message.
@@ -41,9 +48,12 @@ public class Message extends Base {
     @Column(nullable = false)
     @Lob
     private String message;
+    
+    @Transient
+    private Document messageDocument;
 
     /**
-     * TODO ww
+     * Constructs Message.
      * @param message
      */
     public Message(String message) {
@@ -71,8 +81,27 @@ public class Message extends Base {
      * Returns {@link InputStream} with message contents using platform encoding. 
      * @return
      */
-    public InputStream getMessageInputStream() {
+    private InputStream getMessageInputStream() {
         return new ByteArrayInputStream(message.getBytes());
+    }
+    
+    /**
+     * Returns DOM Document with parsed message part.
+     * @return
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
+     */
+    public Document getDomDocument() throws ParserConfigurationException, SAXException, IOException {
+        
+        if (messageDocument == null) {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            this.messageDocument = builder.parse(this.getMessageInputStream());
+        }
+        
+        return this.messageDocument;
     }
 
     /***************************************************************
