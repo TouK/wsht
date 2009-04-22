@@ -73,7 +73,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         // Services services = (Services)
         // applicationContext.getBean("humanTaskServices");
 
-        Task t = services.createTask("ApproveClaim", "ww", "request");
+        Task t = services.createTask("ApproveClaim", "ww2", "request");
 
         String description = t.getTaskDefinition().getDescription("en-US", "text/plain", null);
         String key = t.getTaskDefinition().getTaskName();
@@ -157,10 +157,10 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mock.getGoodTaskMock();
 
-        services.claimTask(mockTask, mock.getPossibleOwner().getName());
+        services.claimTask(mockTask.getId(), mock.getPossibleOwner().getName());
 
         try {
-            services.claimTask(mockTask, mock.getPossibleOwner().getName());
+            services.claimTask(mockTask.getId(), mock.getPossibleOwner().getName());
             Assert.fail();
         }catch(HTIllegalStateException xRNA){
             //sucess
@@ -184,7 +184,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Throwable t = null;
         
         try {
-            services.claimTask(mockTask, mock.getImpossibleOwner().getName());
+            services.claimTask(mockTask.getId(), mock.getImpossibleOwner().getName());
             Assert.fail();
         }catch(HTIllegalAccessException xRNA){
             //success
@@ -211,14 +211,14 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Task mockTask = mock.getGoodTaskMock();
 
         try {
-            services.startTask(mockTask, mock.getImpossibleOwner().getName());
+            services.startTask(mockTask.getId(), mock.getImpossibleOwner().getName());
             Assert.fail();
         } catch (HTIllegalAccessException xIA) {
 
         }
 
         try {
-            services.startTask(mockTask, mock.getPossibleOwner().getName());
+            services.startTask(mockTask.getId(), mock.getPossibleOwner().getName());
         } catch (HTIllegalAccessException xIA) {
             Assert.fail();
         }
@@ -240,7 +240,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Task mockTask = mock.getGoodTaskMock(true);
 
         try {
-            services.startTask(mockTask, mock.getPossibleOwner().getName());
+            services.startTask(mockTask.getId(), mock.getPossibleOwner().getName());
         } catch (HTIllegalAccessException xIA) {
             Assert.fail();
         }
@@ -258,7 +258,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Task mockTask = mock.getGoodTaskMock(true);
 
         try {
-            services.startTask(mockTask, mock.getPossibleOwner().getName());
+            services.startTask(mockTask.getId(), mock.getPossibleOwner().getName());
         } catch (HTIllegalAccessException xIA) {
             Assert.fail();
         }
@@ -266,7 +266,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Assert.assertEquals(Task.Status.IN_PROGRESS, mockTask.getStatus());
 
         try {
-            services.releaseTask(mockTask, mock.getPossibleOwner().getName());
+            services.releaseTask(mockTask.getId(), mock.getPossibleOwner().getName());
         } catch (HTIllegalAccessException xIA) {
             Assert.fail();
         }
