@@ -66,6 +66,9 @@ public class HTIllegalAccessException extends HumanTaskException {
         this.illegalAccess = illegalAccess;
     }
 
+    public String getMessage(){
+        return super.getMessage() + " " + getExceptionInfo();
+    }
     /**
      * @return Additional information about illegal access
      */

@@ -19,9 +19,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 @Entity
 public class Group extends Assignee {
 
-    @Column(unique = true)
-    private String name;
-
     /**
      * Unresolved group of people constructor.
      */
@@ -36,18 +33,6 @@ public class Group extends Assignee {
     Group(String name) {
         super();
         this.setName(name);
-    }
-
-    /***************************************************************
-     * Getters & Setters *
-     ***************************************************************/
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
     }
 
     /**

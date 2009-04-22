@@ -308,9 +308,9 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         mock.assignOwner();
 
-        services.releaseTask(mockTask.getId(),mockTask.getActualOwner().toString());
+        services.releaseTask(mockTask.getId(),mockTask.getActualOwner().getName());
 
-        Assert.assertEquals(Status.READY,mockTask);
+        Assert.assertEquals(Status.READY,mockTask.getStatus());
 
         mock.assertIsSatisfied();
     }
