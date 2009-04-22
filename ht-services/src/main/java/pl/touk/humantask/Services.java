@@ -94,7 +94,7 @@ public class Services implements HumanTaskServicesInterface {
         Person createdByPerson = assigneeDao.getPerson(createdBy);
         if (createdByPerson == null) {
             createdByPerson = new Person(createdBy);
-            assigneeDao.create(createdByPerson);
+            //assigneeDao.create(createdByPerson);
         }
 
         Task newTask = new Task(taskDefinition, createdByPerson, requestXml);
@@ -869,15 +869,14 @@ public class Services implements HumanTaskServicesInterface {
         }
     }
 
+    //TODO: move to task
     private Task locateTask(Long identifier) throws HTIllegalArgumentException {
 
-        Task task = taskDao.fetch(taskId);
+        Task task = taskDao.fetch(identifier);
 
         if (null == task)
-            throw new HTIllegalArgumentException("Cannot find Task",Long.toString(taskId));
+            throw new HTIllegalArgumentException("Cannot find Task",Long.toString(identifier));
 
         return task;
     }
-
-
 }
