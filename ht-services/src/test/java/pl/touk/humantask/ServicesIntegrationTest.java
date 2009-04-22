@@ -276,6 +276,45 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
     }
 
+     /**
+     * TODO wcr - fails, what we test here? please describe in javadoc
+     */
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetTaskInfo() throws HumanTaskException {
+
+        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mock.getGoodTaskMock();
+
+        mock.assignOwner();
+
+        Task resultTask = services.getTaskInfo(mockTask.getId());
+
+        Assert.assertNotNull(resultTask);
+
+        Assert.assertEquals(mockTask.getActualOwner(), resultTask.getActualOwner());
+
+        mock.assertIsSatisfied();
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testReleaseTask() throws HumanTaskException {
+
+        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mock.getGoodTaskMock();
+
+        mock.assignOwner();
+
+        services.releaseTask(mockTask.getId(),mockTask.getActualOwner().toString());
+
+        Assert.assertEquals(Status.READY,mockTask);
+
+        mock.assertIsSatisfied();
+    }
+
 /*
  @Test
     @Transactional

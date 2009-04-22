@@ -136,11 +136,13 @@ public class TaskDefinition {
             for (int i = 0; i < nl.getLength(); i++) {
 
                 NodeList children = nl.item(i).getChildNodes();
-
                 NamedNodeMap map = children.item(1).getAttributes();
+                Node item = map.getNamedItem("logicalPeopleGroup");
 
-                String groupName = map.getNamedItem("logicalPeopleGroup").getNodeValue();
+                if (null == item)
+                    continue;
                 
+                String groupName = item.getNodeValue();
                 groupNames.add(groupName);
             }
 

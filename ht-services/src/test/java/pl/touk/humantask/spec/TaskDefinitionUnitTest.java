@@ -52,11 +52,11 @@ public class TaskDefinitionUnitTest {
 
     @Test
     public void testEvaluateHumanRoleAssignees() throws HumanTaskException {
-        TaskDefinition td = humanInteractionsManager.getTaskDefinition("ApproveClaim");
+        TaskDefinition td = humanInteractionsManager.getTaskDefinition("ApproveClaim1");
         List<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, null);
-        Assert.assertEquals(2, assigneeList.size());
+        Assert.assertEquals(0, assigneeList.size());
         List<Assignee> bussinessAdministrators = td.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, null);
-        Assert.assertEquals(1, bussinessAdministrators.size());
+        Assert.assertEquals(0, bussinessAdministrators.size());
     }
 
     @Test
