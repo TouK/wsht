@@ -6,14 +6,12 @@
 package pl.touk.humantask.model;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -49,15 +47,12 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HumanTaskException;
-import pl.touk.humantask.spec.HumanInteractions;
 import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 import pl.touk.humantask.spec.TaskDefinition;
-import pl.touk.humantask.spec.TaskDefinition.HtdNamespaceContext;
 
 /**
  * Holds task instance information.
@@ -139,7 +134,7 @@ public class Task extends Base {
     /**
      * People assigned to different generic human roles.
      */
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     private Assignee actualOwner;
 
     /**
@@ -172,7 +167,7 @@ public class Task extends Base {
     // Human roles assigned to Task instance during creation
     // TODO initiator???
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany
     @JoinTable(name = "TASK_POTENTIAL_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private List<Assignee> potentialOwners;
 

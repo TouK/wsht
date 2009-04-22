@@ -82,7 +82,6 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         LOG.info("Task description: " + description);
         Assert.assertTrue(description.contains("claim"));
         Assert.assertTrue(key.contains("Appr"));
-
     }
 
 //    @Test
