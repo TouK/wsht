@@ -11,7 +11,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Person;
@@ -82,7 +82,7 @@ public class TaskMockery extends Mockery {
         
         try {
             task = new Task(taskDefinition, jacek, "<?xml version='1.0'?><root/>");
-        } catch (HumanTaskException ex) {
+        } catch (HTException ex) {
            
         }
 
@@ -96,7 +96,7 @@ public class TaskMockery extends Mockery {
         return task;
     }
 
-    public void assignOwner() throws HumanTaskException{
+    public void assignOwner() throws HTException{
         task.setActualOwner(jacek);
 
         task.setStatus(Status.IN_PROGRESS);

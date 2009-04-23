@@ -13,7 +13,7 @@ package pl.touk.humantask.exceptions;
  * 
  * @author Warren Crossing 
  */
-public class RecipientNotAllowedException extends HumanTaskException {
+public class RecipientNotAllowedException extends HTException {
     
     private static final long serialVersionUID = 1L;
     

@@ -10,7 +10,7 @@ import java.util.List;
 import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.RecipientNotAllowedException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
@@ -52,9 +52,9 @@ public interface HumanTaskServicesInterface {
      * @param requestXml
      *            xml request used to invoke business method; can contain task-specific attributes, like last name, amount, etc.
      * @return created Task
-     * @throws HumanTaskException In case of problems while creating task
+     * @throws HTException In case of problems while creating task
      */
-    Task createTask(String taskName, String createdBy, String requestXml) throws HumanTaskException;
+    Task createTask(String taskName, String createdBy, String requestXml) throws HTException;
 
     /**
      * Retrieve the task details. This operation is used to obtain the data required to display a task list, as well as the details for the individual tasks.
@@ -78,10 +78,10 @@ public interface HumanTaskServicesInterface {
      * @param maxTasks
      *            - the maximum number of results returned in the List after ordering by activationTime.
      * @return List of Tasks which meet the criteria.
-     * @throws HumanTaskException In case of problems while getting tasks
+     * @throws HTException In case of problems while getting tasks
      */
     List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
-            String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException;
+            String whereClause, String createdOnClause, Integer maxTasks) throws HTException;
 
     /**
      * Claim responsibility for a task, i.e. set the task to status Reserved.

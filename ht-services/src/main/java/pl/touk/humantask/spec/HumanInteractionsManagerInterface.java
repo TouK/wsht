@@ -5,7 +5,7 @@
 
 package pl.touk.humantask.spec;
 
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTException;
 
 /**
  * This interface introduces methods for task retrieving. We assume that task name is unique
@@ -21,8 +21,8 @@ public interface HumanInteractionsManagerInterface {
      *
      * @param taskName
      * @return TaskDefinition instance
-     * @throws HumanTaskException in case when no such task definition was found
+     * @throws HTConfigurationException in case when no such task definition was found
      */
-    TaskDefinition getTaskDefinition(String taskName) throws HumanTaskException;
+    TaskDefinition getTaskDefinition(String taskName);
 
 }

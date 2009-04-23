@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -46,11 +47,12 @@ import javax.xml.xpath.XPathFunctionResolver;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import pl.touk.humantask.exceptions.HTIllegalStateException;
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 import pl.touk.humantask.spec.TaskDefinition;
 
@@ -64,14 +66,19 @@ import pl.touk.humantask.spec.TaskDefinition;
  */
 @Entity
 @Table(name = "TASK")
+@Configurable
 public class Task extends Base {
 
     @Transient
     private final Log log = LogFactory.getLog(Task.class);
-
+    
+    /**
+     * Human interactions manager injected by IoC container.
+     */
     @Transient
-    private TaskDefinition taskDefinition;
-
+    @Resource
+    protected HumanInteractionsManagerInterface humanInteractionsManager;
+    
     /**
      * Key {@link Task} definition is looked up in {@link HumanInteractionsManagerInterface} by.
      */
@@ -215,15 +222,15 @@ public class Task extends Base {
      * @param taskDefinition  task definition as an object
      * @param createdBy       person who created the task, can be null
      * @param requestXml      input data as XML string
-     * @throws HumanTaskException
+     * @throws HTException
      */
-    public Task(TaskDefinition taskDefinition, Person createdBy, String requestXml) throws HumanTaskException {
+    public Task(TaskDefinition taskDefinition, Person createdBy, String requestXml) throws HTException {
 
         if (taskDefinition == null) {
             throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task definition must not be null.");
         }
 
-        this.taskDefinition = taskDefinition;
+        //this.taskDefinition = taskDefinition;
         this.taskDefinitionKey = taskDefinition.getTaskName();
         
         Message m = new Message(requestXml);
@@ -285,7 +292,8 @@ public class Task extends Base {
      * @return subject
      */
     public String getSubject(String lang) {
-        return this.taskDefinition.getSubject(lang, this.input);
+        return this.getTaskDefinition().getSubject(lang, this.input);
+        //return this.taskDefinition.getSubject(lang, this.input);
     }
 
     /**
@@ -296,7 +304,7 @@ public class Task extends Base {
      * @return description
      */
     public String getDescription(String lang, String contentType) {
-        return this.taskDefinition.getDescription(lang, contentType, this.input);
+        return this.getTaskDefinition().getDescription(lang, contentType, this.input);
     }
 
     /***************************************************************
@@ -320,7 +328,7 @@ public class Task extends Base {
      * TODO change to private
      * 
      * @param status
-     * @throws HumanTaskException
+     * @throws HTException
      */
     public void setStatus(Status status) throws HTIllegalStateException {
 
@@ -489,7 +497,7 @@ public class Task extends Base {
     // }
     //
     public TaskDefinition getTaskDefinition() {
-        return this.taskDefinition;
+        return this.humanInteractionsManager.getTaskDefinition(this.getTaskDefinitionKey());
     }
 
     //

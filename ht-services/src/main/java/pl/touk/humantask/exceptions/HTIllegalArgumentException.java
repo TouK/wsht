@@ -10,7 +10,7 @@ package pl.touk.humantask.exceptions;
  * being thrown.
  * @author Warren Crossing 
  */
-public class HTIllegalArgumentException extends HumanTaskException {
+public class HTIllegalArgumentException extends HTException {
     
     private static final long serialVersionUID = 1L;
     

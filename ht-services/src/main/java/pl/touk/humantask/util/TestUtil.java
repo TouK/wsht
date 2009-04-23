@@ -9,7 +9,7 @@ import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 import pl.touk.humantask.spec.HumanInteractionsManagerImpl;
 import pl.touk.humantask.spec.PeopleQuery;
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ClassPathResource;
 
@@ -23,23 +23,26 @@ import java.util.Map;
  */
 
 public class TestUtil {
+    
     /**
      * Helper method for creating HumanInteractionsManagerInterface instance from a given fileset.
      *
      * @param htdFiles - files, which contain human interactions definitions.
      * @return
-     * @throws HumanTaskException
+     * @throws HTException
      */
-    
-    public static HumanInteractionsManagerInterface createHumanInteractionsManager(String... htdFiles) throws HumanTaskException {
+    public static HumanInteractionsManagerInterface createHumanInteractionsManager(String... htdFiles) throws HTException {
+        
         List<Resource> resources = new ArrayList<Resource>();
+        
         for (String htdFile : htdFiles) {
             resources.add(new ClassPathResource(htdFile));
         }
+        
         return new HumanInteractionsManagerImpl(resources, new PeopleQuery() {
 
             public List<Assignee> evaluate(String logicalPeopleGroupName, Map<String, Object> parameters) {
-                return new ArrayList();
+                return new ArrayList<Assignee>();
             }
             
         });

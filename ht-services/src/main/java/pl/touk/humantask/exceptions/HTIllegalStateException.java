@@ -12,7 +12,7 @@ import pl.touk.humantask.model.Task;
  *
  * @author Warren Crossing 
  */
-public class HTIllegalStateException extends HumanTaskException {
+public class HTIllegalStateException extends HTException {
     
     private static final long serialVersionUID = 1L;
     

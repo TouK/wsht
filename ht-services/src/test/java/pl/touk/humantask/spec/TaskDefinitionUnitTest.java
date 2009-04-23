@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.junit.Before;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ClassPathResource;
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Message;
@@ -39,13 +39,13 @@ public class TaskDefinitionUnitTest {
     private HumanInteractionsManagerInterface humanInteractionsManager;
 
     @Before
-    public void setUpTestContext() throws HumanTaskException {
+    public void setUpTestContext() throws HTException {
 
         this.humanInteractionsManager = TestUtil.createHumanInteractionsManager("htd1.xml", "testHtd1.xml");
     }
 
     @Test
-    public void testGetDescriptionPlain() throws HumanTaskException {
+    public void testGetDescriptionPlain() throws HTException {
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("ApproveClaim");
         String description = td.getDescription("en-US", "text/plain", null);
 
@@ -53,7 +53,7 @@ public class TaskDefinitionUnitTest {
     }
 
     @Test
-    public void testEvaluateHumanRoleAssignees() throws HumanTaskException {
+    public void testEvaluateHumanRoleAssignees() throws HTException {
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("ApproveClaim1");
         List<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, null);
         Assert.assertEquals(0, assigneeList.size());
@@ -62,14 +62,14 @@ public class TaskDefinitionUnitTest {
     }
 
     @Test
-    public void testGenericHumanRoleNotFoundInTaskDefinition() throws HumanTaskException {
+    public void testGenericHumanRoleNotFoundInTaskDefinition() throws HTException {
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("ApproveClaim");
         List<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, null);
         Assert.assertEquals(0, assigneeList.size());
     }
 
     @Test
-    public void testGetSubject() throws HumanTaskException {
+    public void testGetSubject() throws HTException {
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("ApproveClaim");
         String expResult = "Approve the insurance claim for €$euroAmount$ on";
         String result = td.getSubject("en-US", null);
@@ -77,7 +77,7 @@ public class TaskDefinitionUnitTest {
     }
 
     @Test
-    public void testGetKey() throws HumanTaskException {
+    public void testGetKey() throws HTException {
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("ApproveClaim");
         String expResult = "ApproveClaim";
         String result = td.getTaskName();
@@ -90,10 +90,10 @@ public class TaskDefinitionUnitTest {
      *     htd:getInput("ClaimApprovalRequest")/cust/firstname
      * </htd:presentationParameter>
      * 
-     * @throws HumanTaskException
+     * @throws HTException
      */
     @Test
-    public void testGetTaskPresentationParameters() throws HumanTaskException {
+    public void testGetTaskPresentationParameters() throws HTException {
         
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("ApproveClaim");
         

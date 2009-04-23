@@ -20,7 +20,7 @@ import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Attachment;
 import pl.touk.humantask.model.GenericHumanRole;
@@ -82,10 +82,10 @@ public class Services implements HumanTaskServicesInterface {
      *            xml request used to invoke business method; can contain task-specific attributes, like last name, amount, etc.
      *
      * @return created Task
-     * @throws HumanTaskException Thrown in case of problems at task creation 
+     * @throws HTException Thrown in case of problems at task creation 
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public Task createTask(String taskName, String createdBy, String requestXml) throws HumanTaskException {
+    public Task createTask(String taskName, String createdBy, String requestXml) throws HTException {
 
         log.info("Creating task: " + taskName + " , createdBy: " + createdBy);
 
@@ -108,7 +108,7 @@ public class Services implements HumanTaskServicesInterface {
      * @see pl.touk.humantask.HumanTaskServicesInterface#getMyTasks(java.lang.String, pl.touk.humantask.model.Task.TaskTypes, pl.touk.humantask.model.GenericHumanRole, java.lang.String, java.util.List, java.lang.String, java.lang.String, java.lang.Integer) 
      */
     public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
-            String whereClause, String createdOnClause, Integer maxTasks) throws HumanTaskException {
+            String whereClause, String createdOnClause, Integer maxTasks) throws HTException {
 
         if (null == personName && null == workQueue) {
             throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("parameter not specified","workQueue");
@@ -372,15 +372,15 @@ public class Services implements HumanTaskServicesInterface {
      *
      * @param task Task to process
      * @return Updated task
-     * @throws HumanTaskException Thrown if task is not in progress or in case of problems while updating task
+     * @throws HTException Thrown if task is not in progress or in case of problems while updating task
      */
-    public Task stopTaskInProgress(Long taskId) throws HumanTaskException {
+    public Task stopTaskInProgress(Long taskId) throws HTException {
 
         Task task = locateTask(taskId);
         
         if (!(task.getStatus() == Status.IN_PROGRESS)) {
             log.error("Task has to be In_Progress");
-            throw new HumanTaskException("Cannot stop task that is not in progress");
+            throw new HTException("Cannot stop task that is not in progress");
         }
 
         task.setStatus(Status.RESERVED);
@@ -429,9 +429,9 @@ public class Services implements HumanTaskServicesInterface {
      * 
      * @param task Task to process
      * @param person Person processing task
-     * @throws HumanTaskException Thrown in case of problems while updating task
+     * @throws HTException Thrown in case of problems while updating task
      */
-    public void finishTask(Long taskId, Assignee person) throws HumanTaskException {
+    public void finishTask(Long taskId, Assignee person) throws HTException {
 
         final Task task = locateTask(taskId);
         task.setStatus(Status.COMPLETED);
@@ -443,16 +443,16 @@ public class Services implements HumanTaskServicesInterface {
      * 
      * @param task Task to process
      * @param personName Name of person processing task
-     * @throws HumanTaskException Thrown if specified person doesn't have permission to process task or in case of problems while updating task
+     * @throws HTException Thrown if specified person doesn't have permission to process task or in case of problems while updating task
      */
-    public void suspendTask(Long taskId, String personName) throws HumanTaskException {
+    public void suspendTask(Long taskId, String personName) throws HTException {
 
         final Person person = (Person) assigneeDao.getPerson(personName);
         final Task task = locateTask(taskId);
         if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY)
                 || task.getActualOwner().equals(person) || task.getBusinessAdministrators().contains(person))) {
             log.error("you don't have a permission to suspend the task");
-            throw new HumanTaskException("you don't have a permission to suspend the task");
+            throw new HTException("you don't have a permission to suspend the task");
         }
         task.setStatus(Status.SUSPENDED);
 
@@ -464,9 +464,9 @@ public class Services implements HumanTaskServicesInterface {
      * 
      * @param task Task to process
      * @param personName Name of person processing task
-     * @throws HumanTaskException Thrown if specified person doesn't have permission to process task or in case of problems while updating task
+     * @throws HTException Thrown if specified person doesn't have permission to process task or in case of problems while updating task
      */
-    public void resumeTask(Long taskId, String personName) throws HumanTaskException {
+    public void resumeTask(Long taskId, String personName) throws HTException {
 
         final Person person = (Person) assigneeDao.getPerson(personName);
         final Task task = locateTask(taskId);
@@ -474,7 +474,7 @@ public class Services implements HumanTaskServicesInterface {
         if (!((task.getPotentialOwners().contains(person) && task.getStatus() == Status.READY)
                 || task.getActualOwner().equals(person) || task.getBusinessAdministrators().contains(person))) {
             log.error("you don't have a permission to resume the task");
-            throw new HumanTaskException("you don't have a permission to resume the task");
+            throw new HTException("you don't have a permission to resume the task");
         }
 
         task.resume();
@@ -487,16 +487,16 @@ public class Services implements HumanTaskServicesInterface {
      * @param task Task to process
      * @param data ?
      * @param personName Name of person processing task
-     * @throws HumanTaskException Thrown if specified person doesn't have permission to process task or in case of problems while updating task
+     * @throws HTException Thrown if specified person doesn't have permission to process task or in case of problems while updating task
      */
-    public void completeTask(Long taskId, String data, String personName) throws HumanTaskException {
+    public void completeTask(Long taskId, String data, String personName) throws HTException {
 
         final Person person = (Person) assigneeDao.getPerson(personName);
         final Task task = locateTask(taskId);
         if (!task.getActualOwner().equals(person)) {
 
             log.error("this person doesn't have a permission to complete the task");
-            throw new HumanTaskException("this person doesn't have a permission to complete the task");
+            throw new HTException("this person doesn't have a permission to complete the task");
         }
 
         if (data == null) {
@@ -697,9 +697,9 @@ public class Services implements HumanTaskServicesInterface {
      * 
      * @param task Task to process
      * @param timePeriod Time of suspension in milliseconds
-     * @throws HumanTaskException Thrown in case of problems while processing task 
+     * @throws HTException Thrown in case of problems while processing task 
      */
-    public void suspendUntilPeriod(Long taskId, long timePeriod) throws HumanTaskException {
+    public void suspendUntilPeriod(Long taskId, long timePeriod) throws HTException {
 
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(System.currentTimeMillis() + timePeriod);
@@ -712,10 +712,10 @@ public class Services implements HumanTaskServicesInterface {
      *
      * @param task Task to be processed
      * @param pointOfTime Point of time until which task is to be suspended
-     * @throws HumanTaskException Thrown in case of problems while processing task 
+     * @throws HTException Thrown in case of problems while processing task 
      */
     // TODO can be suspeneded?
-    public void suspendUntil(Long taskId, Date pointOfTime) throws HumanTaskException {
+    public void suspendUntil(Long taskId, Date pointOfTime) throws HTException {
 
         final Task task = locateTask(taskId);
         task.setSuspentionTime(pointOfTime);
@@ -732,15 +732,15 @@ public class Services implements HumanTaskServicesInterface {
      * @param contentType Content type of attachment
      * @param attachment Content of attachment
      * @param person Person processing task
-     * @throws HumanTaskException  Thrown if specified person doesn't have permission to process task or in case of problems while updating task
+     * @throws HTException  Thrown if specified person doesn't have permission to process task or in case of problems while updating task
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addAttachment(Long taskId, String attName, String accessType, String contentType, String attachment, Person person) throws HumanTaskException {
+    public void addAttachment(Long taskId, String attName, String accessType, String contentType, String attachment, Person person) throws HTException {
 
         final Task task = locateTask(taskId);
         if (!(person.equals(task.getActualOwner()) || task.getBusinessAdministrators().contains(person))) {
             log.error(person + "cannot add attachemnt");
-            throw new HumanTaskException(person + "cannot add attachemnt");
+            throw new HTException(person + "cannot add attachemnt");
         }
 
         final Attachment att = new Attachment();

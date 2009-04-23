@@ -21,7 +21,7 @@ import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.TaskTypes;
@@ -68,7 +68,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Test
     @Transactional
     @Rollback
-    public void testCreateTask() throws HumanTaskException {
+    public void testCreateTask() throws HTException {
 
         // Services services = (Services)
         // applicationContext.getBean("humanTaskServices");
@@ -113,7 +113,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Test
     @Transactional
     @Rollback
-    public void testGetMyTasksNoCreate() throws HumanTaskException {
+    public void testGetMyTasksNoCreate() throws HTException {
 
         TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mockery.getGoodTaskMock();
@@ -151,7 +151,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Test
     @Transactional
     @Rollback
-    public void testClaimOwner() throws HumanTaskException {
+    public void testClaimOwner() throws HTException {
 
         TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mock.getGoodTaskMock();
@@ -175,7 +175,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     /***
      *  This test should not claim the task becuase the owner was incorrect
      */
-    public void testClaimNotOwner() throws HumanTaskException {
+    public void testClaimNotOwner() throws HTException {
 
         TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mock.getGoodTaskMock();
@@ -199,12 +199,12 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
     /**
      * 
-     * @throws HumanTaskException
+     * @throws HTException
      */
     @Test
     @Transactional
     @Rollback
-    public void testStart() throws HumanTaskException {
+    public void testStart() throws HTException {
 
         TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mock.getGoodTaskMock();
@@ -228,12 +228,12 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
      /**
      *
-     * @throws HumanTaskException
+     * @throws HTException
      */
     @Test
     @Transactional
     @Rollback
-    public void testStartAfterClaim() throws HumanTaskException {
+    public void testStartAfterClaim() throws HTException {
 
         TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mock.getGoodTaskMock(true);
@@ -251,7 +251,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Test
     @Transactional
     @Rollback
-    public void testReleaseAfterClaim() throws HumanTaskException {
+    public void testReleaseAfterClaim() throws HTException {
 
         TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mock.getGoodTaskMock(true);
@@ -282,7 +282,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Test
     @Transactional
     @Rollback
-    public void testGetTaskInfo() throws HumanTaskException {
+    public void testGetTaskInfo() throws HTException {
 
         TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mock.getGoodTaskMock();
@@ -301,7 +301,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Test
     @Transactional
     @Rollback
-    public void testReleaseTask() throws HumanTaskException {
+    public void testReleaseTask() throws HTException {
 
         TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
         Task mockTask = mock.getGoodTaskMock();

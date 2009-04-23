@@ -16,7 +16,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import pl.touk.humantask.exceptions.HTConfigurationException;
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Message;
@@ -60,9 +60,9 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
      * default {@link PeopleQuery} implementation which returns empty result set.
      *
      * @param resources collection of *.xml files with human interactions definitions.
-     * @throws HumanTaskException thrown when task definition names are not unique 
+     * @throws HTException thrown when task definition names are not unique 
      */
-    public HumanInteractionsManagerImpl(List<Resource> resources, PeopleQuery peopleQuery) throws HumanTaskException {
+    public HumanInteractionsManagerImpl(List<Resource> resources, PeopleQuery peopleQuery) throws HTException {
         
         Validate.notNull(resources);
         
@@ -116,7 +116,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
      * @throws HumanTaskException in case when no such task definition was found.
      */
 
-    public TaskDefinition getTaskDefinition(String taskName) throws HumanTaskException {
+    public TaskDefinition getTaskDefinition(String taskName) {
         Validate.notNull(taskName);
 
         for (HumanInteractions humanInteractions : humanInteractionsList) {
@@ -126,7 +126,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
                 }
             }
         }
-        throw new HumanTaskException("Task definition with a given name: " + taskName + " not found!");
+        throw new HTConfigurationException("Task definition with a given name: " + taskName + " not found!", null);
     }
 
     // ============= HELPER METHODS ===================
@@ -135,11 +135,11 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
      * Checks, if a task with a given name already exists in the context. 
      *
      * @param taskName
-     * @throws HumanTaskException if task with a given name already exists.
+     * @throws HTException if task with a given name already exists.
      */
-    private void checkTaskDefinitionUniqueness(String taskName, Map<String, String> taskDefinitionNamesMap) throws HumanTaskException {
+    private void checkTaskDefinitionUniqueness(String taskName, Map<String, String> taskDefinitionNamesMap) throws HTException {
         if (taskDefinitionNamesMap.containsKey(taskName)) {
-            throw new HumanTaskException("Task definition names must be unique!");
+            throw new HTException("Task definition names must be unique!");
         }
     }
 
@@ -149,9 +149,9 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
      * @param hiDoc JAXB model containing task definition data.
      * @param humanInteractions parent for a given task definition, which contains all the data from the xml file. 
      * @return list of TaskDefinition instances.
-     * @throws HumanTaskException if task with a given name already exists.
+     * @throws HTException if task with a given name already exists.
      */
-    private List<TaskDefinition> extractTaskDefinitionList(THumanInteractions hiDoc, HumanInteractions humanInteractions, Map<String, String> taskDefinitionNamesMap) throws HumanTaskException {
+    private List<TaskDefinition> extractTaskDefinitionList(THumanInteractions hiDoc, HumanInteractions humanInteractions, Map<String, String> taskDefinitionNamesMap) throws HTException {
         List<TaskDefinition> taskDefinitions = new ArrayList<TaskDefinition>();
 
         for (TTask tTask : hiDoc.getTasks().getTask()) {

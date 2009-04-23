@@ -81,7 +81,7 @@
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>org.springframework</groupId>
-                            <artifactId>spring-aspects</artifactId>
+                            <artifactId>spring-aspects-AnnotationBeanConfigurerAspectOnly</artifactId>
                         </aspectLibrary>
                     </aspectLibraries>
                 </configuration>
@@ -269,7 +269,7 @@
 		</dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-aspects</artifactId>
+            <artifactId>spring-aspects-AnnotationBeanConfigurerAspectOnly</artifactId>
 			<version>${spring.version}</version>
 			<scope>provided</scope>
         </dependency>

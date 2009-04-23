@@ -22,7 +22,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.w3c.dom.Element;
 
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.spec.TaskDefinition;
 
 /**
@@ -40,7 +40,7 @@ public class TaskUnitTest {
      * Scenario: 1 potential owner. Expected status: RESERVED.
      */
     @Test
-    public void testInstatiationOnePotentialOwner() throws HumanTaskException {
+    public void testInstatiationOnePotentialOwner() throws HTException {
 
         Mockery mockery = new Mockery() {{
             setImposteriser(ClassImposteriser.INSTANCE);
@@ -68,7 +68,7 @@ public class TaskUnitTest {
      * Scenario: no potential owners. Expected status: CREATED.
      */
     @Test
-    public void testInstatiationNoPotentialOwners() throws HumanTaskException {
+    public void testInstatiationNoPotentialOwners() throws HTException {
 
         Mockery mockery = new Mockery() {{
             setImposteriser(ClassImposteriser.INSTANCE);
@@ -93,7 +93,7 @@ public class TaskUnitTest {
      * Scenario: 2 potential owners. Expected status: READY.
      */
     @Test
-    public void testInstatiationManyPotentialOwners() throws HumanTaskException {
+    public void testInstatiationManyPotentialOwners() throws HTException {
 
         Mockery mockery = new Mockery() {{
             setImposteriser(ClassImposteriser.INSTANCE);
@@ -147,7 +147,7 @@ public class TaskUnitTest {
     }
     
     @Test
-    public void testEvaluateXPathGetInput() throws HumanTaskException {
+    public void testEvaluateXPathGetInput() throws HTException {
         
         Mockery mockery = new Mockery() {{
             setImposteriser(ClassImposteriser.INSTANCE);

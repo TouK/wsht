@@ -34,7 +34,7 @@ import pl.touk.humantask.HumanTaskServicesInterface;
 import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.TaskType;
@@ -95,7 +95,7 @@ public class TaskOperationsImpl implements TaskOperations {
 
             this.services.claimTask(translateTaskIdentifier(identifier),this.securityContext.getLoggedInUser().getUsername());
 
-        } catch (HumanTaskException xHT) {
+        } catch (HTException xHT) {
             this.translateIllegalArgumentException(xHT);
             this.translateIllegalStateException(xHT);
             this.translateIllegalAccessException(xHT);
@@ -165,14 +165,14 @@ public class TaskOperationsImpl implements TaskOperations {
         try {
             return translateTaskAPI(this.services.getMyTasks(this.securityContext.getLoggedInUser().getUsername(), TaskTypes.valueOf(taskType),
                     GenericHumanRole.valueOf(genericHumanRole), workQueue, translateStatusAPI(status), whereClause, createdOnClause, maxTasks));
-        } catch (HumanTaskException xHT) {
+        } catch (HTException xHT) {
             this.translateIllegalStateException(xHT);
             this.translateIllegalArgumentException(xHT);
             return null;
         }
     }
 
-    private void translateIllegalStateException(HumanTaskException xHT) throws IllegalStateFault {
+    private void translateIllegalStateException(HTException xHT) throws IllegalStateFault {
         if (xHT instanceof pl.touk.humantask.exceptions.HTIllegalStateException) {
             IllegalState state = new IllegalState();
 
@@ -181,25 +181,25 @@ public class TaskOperationsImpl implements TaskOperations {
         }
     }
 
-    private void translateIllegalAccessException(HumanTaskException xHT) throws IllegalAccessFault {
+    private void translateIllegalAccessException(HTException xHT) throws IllegalAccessFault {
         if (xHT instanceof pl.touk.humantask.exceptions.HTIllegalAccessException) {
             throw new IllegalAccessFault(xHT.getMessage(), ((pl.touk.humantask.exceptions.HTIllegalAccessException)xHT).getExceptionInfo(), xHT);
         }
     }
 
-    private void translateIllegalOperationException(HumanTaskException xHT) throws IllegalOperationFault {
+    private void translateIllegalOperationException(HTException xHT) throws IllegalOperationFault {
         if (xHT instanceof pl.touk.humantask.exceptions.HTIllegalOperationException) {
             throw new IllegalOperationFault(xHT.getMessage(), ((HTIllegalOperationException) xHT).getExceptionInfo(), xHT);
         }
     }
 
-    private void translateIllegalArgumentException(HumanTaskException xHT) throws IllegalArgumentFault {
+    private void translateIllegalArgumentException(HTException xHT) throws IllegalArgumentFault {
         if (xHT instanceof pl.touk.humantask.exceptions.HTIllegalArgumentException) {
             throw new IllegalArgumentFault(xHT.getMessage(), ((pl.touk.humantask.exceptions.HTIllegalArgumentException) xHT).getExceptionInfo(), xHT);
         }
     }
 
-    private void translateRecipientNotAllowedException(HumanTaskException xHT) throws RecipientNotAllowed {
+    private void translateRecipientNotAllowedException(HTException xHT) throws RecipientNotAllowed {
         if (xHT instanceof pl.touk.humantask.exceptions.RecipientNotAllowedException) {
             throw new RecipientNotAllowed(xHT.getMessage(), ((pl.touk.humantask.exceptions.RecipientNotAllowedException) xHT).getExceptionInfo(), xHT);
         }
@@ -317,7 +317,7 @@ public class TaskOperationsImpl implements TaskOperations {
     public TTask getTaskInfo(String identifier) throws IllegalArgumentFault {
         try {
             return this.translateOneTaskAPI(this.services.getTaskInfo(Long.parseLong(identifier)));
-        } catch (HumanTaskException xHT) {
+        } catch (HTException xHT) {
             this.translateIllegalArgumentException(xHT);
             return null;
         }
@@ -348,7 +348,7 @@ public class TaskOperationsImpl implements TaskOperations {
 
             services.releaseTask(translateTaskIdentifier(identifier),securityContext.getLoggedInUser().getUsername());
 
-        } catch (HumanTaskException xHT) {
+        } catch (HTException xHT) {
             translateIllegalArgumentException(xHT);
             translateIllegalStateException(xHT);
             translateIllegalAccessException(xHT);
@@ -388,7 +388,7 @@ public class TaskOperationsImpl implements TaskOperations {
     public void start(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
        try {
             services.startTask(translateTaskIdentifier(identifier),securityContext.getLoggedInUser().getUsername());
-        } catch (HumanTaskException xHT) {
+        } catch (HTException xHT) {
             translateIllegalArgumentException(xHT);
             translateIllegalStateException(xHT);
             translateIllegalAccessException(xHT);

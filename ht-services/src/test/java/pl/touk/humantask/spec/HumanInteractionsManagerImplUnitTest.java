@@ -7,12 +7,16 @@ package pl.touk.humantask.spec;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTConfigurationException;
+import pl.touk.humantask.exceptions.HTException;
+
 import pl.touk.humantask.util.TestUtil;
 
 import java.util.List;
@@ -34,23 +38,23 @@ public class HumanInteractionsManagerImplUnitTest {
     }
 
     @Test
-    public void testGetTaskDefinitionByName() throws HumanTaskException {
+    public void testGetTaskDefinitionByName() throws HTException {
         TaskDefinition taskDefinition = taskManager.getTaskDefinition("ApproveClaim");
         assertNotNull(taskDefinition);
     }
 
-    @Test(expected = HumanTaskException.class)
-    public void testTaskDefinitionNotFound() throws HumanTaskException {
+    @Test(expected = HTConfigurationException.class)
+    public void testTaskDefinitionNotFound() {
         taskManager.getTaskDefinition("JKR");
     }
 
     /**
      * Sprawdzenie, czy w przypadku duplikacji nazwy tasku konstruktor managera wyrzuci wyjątek.
      *
-     * @throws HumanTaskException
+     * @throws HTException
      */
-    @Test(expected = HumanTaskException.class)
-    public void testNonUniqueTaskDefinitionsNameException() throws HumanTaskException {
-        TestUtil.createHumanInteractionsManager("htd2.xml");
+    @Test(expected = HTException.class)
+    public void testNonUniqueTaskDefinitionsNameException() throws HTException {
+        TestUtil.createHumanInteractionsManager("testHtdDuplicateTaskDefinition.xml");
     }
 }

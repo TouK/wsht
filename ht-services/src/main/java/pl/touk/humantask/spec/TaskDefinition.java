@@ -30,7 +30,7 @@ import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Message;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.exceptions.HumanTaskException;
+import pl.touk.humantask.exceptions.HTException;
 
 /**
  * Holds information about task version runnable in TouK Human Task engine. Task
@@ -141,7 +141,7 @@ public class TaskDefinition {
      * @param input         the input message that created the task
      * @return list of task assignees or empty list, when no assignments were made to this task.
      */
-    public List<Assignee> evaluateHumanRoleAssignees(GenericHumanRole humanRoleName, Map<String, Message> input) throws HumanTaskException {
+    public List<Assignee> evaluateHumanRoleAssignees(GenericHumanRole humanRoleName, Map<String, Message> input) throws HTException {
         List<String> groupNames = new ArrayList<String>();
         List<Assignee> evaluatedAssigneeList = new ArrayList<Assignee>();
 
@@ -184,7 +184,7 @@ public class TaskDefinition {
                 log.error("Error evaluating XPath for task: " + tTask.getName(), e);
             }
 
-            throw  new HumanTaskException("Error evaluating XPath for task: " + tTask.getName());
+            throw  new HTException("Error evaluating XPath for task: " + tTask.getName());
         }
         
         for (String groupName : groupNames) {

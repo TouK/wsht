@@ -13,7 +13,7 @@ package pl.touk.humantask.exceptions;
  * 
  * @author Warren Crossing 
  */
-public class HTIllegalAccessException extends HumanTaskException {
+public class HTIllegalAccessException extends HTException {
     public static final long serialVersionUID = 20090414103047L;
     
     /**
