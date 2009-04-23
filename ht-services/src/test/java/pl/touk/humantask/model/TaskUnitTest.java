@@ -47,17 +47,17 @@ public class TaskUnitTest {
         }};
 
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
-        final Map<String, Message> mockMap = new HashMap<String, Message>();
-        mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message(null));
+        
         final List<Assignee> assignees = new ArrayList<Assignee>();
         assignees.add(new Person("mateusz"));
+        
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap); will(returnValue(assignees));
+            one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(assignees));
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(Collections.EMPTY_LIST));
         }});
 
-        Task task = new Task(taskDefinition, null, null);
+        Task task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?></x>");
         assertEquals(Task.Status.RESERVED, task.getStatus());
 
         mockery.assertIsSatisfied();
@@ -75,14 +75,14 @@ public class TaskUnitTest {
         }};
 
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
-        final Map<String, Message> mockMap = new HashMap<String, Message>();
-        mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message(null));
+        //final Map<String, Message> mockMap = new HashMap<String, Message>();
+        //mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message(null));
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(Collections.EMPTY_LIST));
         }});
 
-        Task task = new Task(taskDefinition, null, null);
+        Task task = new Task(taskDefinition, null, "</x>");
         assertEquals(Task.Status.CREATED, task.getStatus());
 
         mockery.assertIsSatisfied();
@@ -100,18 +100,21 @@ public class TaskUnitTest {
         }};
 
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
-        final Map<String, Message> mockMap = new HashMap<String, Message>();
-        mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message(null));
+        
+//        final Map<String, Message> mockMap = new HashMap<String, Message>();
+//        mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message(null));
+        
         final List<Assignee> assignees = new ArrayList<Assignee>();
         assignees.add(new Person("mateusz"));
         assignees.add(new Person("witek"));
+        
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
-            one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap); will(returnValue(assignees));
+            one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(assignees));
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(Collections.EMPTY_LIST));
         }});
 
-        Task task = new Task(taskDefinition, null, null);
+        Task task = new Task(taskDefinition, null, "</x>");
         assertEquals(Task.Status.READY, task.getStatus());
 
         mockery.assertIsSatisfied();
@@ -158,9 +161,9 @@ public class TaskUnitTest {
         }});
         
         Task t = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><a><b>test</b></a>");
-        Element e = (Element) t.evaluateXPath("htd:getInput(\"" + Message.DEFAULT_PART_NAME_KEY + "\")/a/b");
+        Element e = (Element) t.evaluateXPath("htd:getInput('a')/a/b");
         
-        log.info(e.getTextContent());
+        //log.info(e.getTextContent());
         
         assertNotNull(e);
         assertEquals("test", e.getTextContent());

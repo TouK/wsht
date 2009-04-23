@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import pl.touk.humantask.model.Assignee;
-import pl.touk.humantask.model.Message;
 
 /**
  * A People Query evaluation interface. People queries are evaluated during the creation of a human task or a notification. If a people query fails then the
@@ -21,13 +20,6 @@ import pl.touk.humantask.model.Message;
  * @author Witek Wołejszo
  */
 public interface PeopleQuery {
-    
-//    /**
-//     * Evaluates assignees in logical people group.
-//     * @param logicalPeopleGroupName the logical people group name
-//     * @param input the input message that created the task
-//     */
-//    List<Assignee> evaluate(String logicalPeopleGroupName, Map<String, Message> input);
 
     /**
      * Evaluates assignees in logical people group.

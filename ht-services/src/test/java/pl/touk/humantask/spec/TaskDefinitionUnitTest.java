@@ -8,8 +8,10 @@ package pl.touk.humantask.spec;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,11 +22,13 @@ import org.springframework.core.io.ClassPathResource;
 import pl.touk.humantask.exceptions.HumanTaskException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
+import pl.touk.humantask.model.Message;
+import pl.touk.humantask.model.Task;
 import pl.touk.humantask.util.TestUtil;
 import junit.framework.Assert;
 
 /**
- * TODO switch to unit test
+ * Test of {@link TaskDefinition} class.
  *
  * @author Witek Wołejszo
  */
@@ -38,7 +42,6 @@ public class TaskDefinitionUnitTest {
     public void setUpTestContext() throws HumanTaskException {
 
         this.humanInteractionsManager = TestUtil.createHumanInteractionsManager("htd1.xml", "testHtd1.xml");
-
     }
 
     @Test
@@ -47,7 +50,6 @@ public class TaskDefinitionUnitTest {
         String description = td.getDescription("en-US", "text/plain", null);
 
         assertEquals("Approve this claim following corporate guideline #4711.0815/7 ...", description.trim());
-
     }
 
     @Test
@@ -82,5 +84,26 @@ public class TaskDefinitionUnitTest {
         assertTrue(result.startsWith(expResult));
     }
 
+    /**
+     * Checks for existance and value of presenation parameter:
+     * <htd:presentationParameter name="firstname" type="xsd:string">
+     *     htd:getInput("ClaimApprovalRequest")/cust/firstname
+     * </htd:presentationParameter>
+     * 
+     * @throws HumanTaskException
+     */
+    @Test
+    public void testGetTaskPresentationParameters() throws HumanTaskException {
+        
+        TaskDefinition td = humanInteractionsManager.getTaskDefinition("ApproveClaim");
+        
+//        Map<String, Message> input = new HashMap<String, Message>();
+//        input.put("ClaimApprovalRequest", new Message("<ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>"));
+        
+        Task task = new Task(td, null, "<ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
+        
+        Map<String, Object> result = td.getTaskPresentationParameters(task);
+        
+    }
 
 }

@@ -19,6 +19,8 @@ import javax.xml.xpath.XPathFunctionException;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.example.ws_ht.TPresentationParameter;
+import org.example.ws_ht.TTask;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -49,8 +51,8 @@ public class TaskDefinition {
      * Human Interactions specification containing this {@link TaskDefinition}.
      */
     private HumanInteractions humanInteractions;
-
-    private String taskName;
+    
+    private TTask tTask;
 
     private boolean instantiable;
 
@@ -60,30 +62,39 @@ public class TaskDefinition {
 
     // ==================== CONSTRUCTOR =========================
 
-    public TaskDefinition(String taskName, PeopleQuery peopleQuery) {
+    public TaskDefinition(TTask taskDefinition, PeopleQuery peopleQuery) {
         
         super();
         
-        Validate.notNull(taskName);
+        Validate.notNull(taskDefinition);
         Validate.notNull(peopleQuery);
 
-        this.taskName = taskName;
+        this.tTask = taskDefinition;
         this.peopleQuery = peopleQuery;
         
         xPathFactory = XPathFactory.newInstance();
     }
 
 
+    /**
+     * Returns description of the Task.
+     * TODO change input to Task
+     * TODO rewrite xpath - > jaxb
+     * @param lang
+     * @param contentType
+     * @param input
+     * @return
+     */
     public String getDescription(String lang, String contentType, Map<String, Message> input) {
 
-        XPath xpath = createXpathInstance();
+        XPath xpath = createXPathInstance();
 
         try {
 
             String XPATH_EXPRESSION_FOR_DESCRIPTION_EVALUATION = "" +
                     "/htd:humanInteractions" +
                     "/htd:tasks" +
-                    "/htd:task[@name='" + taskName + "']" +
+                    "/htd:task[@name='" + tTask.getName() + "']" +
                     "/htd:presentationElements" +
                     "/htd:description[@xml:lang='" + lang + "' and @contentType='" + contentType + "']";
 
@@ -101,6 +112,27 @@ public class TaskDefinition {
 
         return null;
     }
+    
+    /**
+     * Return values of Task presentation parameters.
+     * TODO change input to Task
+     * @param input
+     * @return
+     */
+    protected Map<String, Object> getTaskPresentationParameters(Task task) {
+        
+        Map<String, Object> result = new HashMap<String, Object>();
+        
+        List<TPresentationParameter> presentationParameters = tTask.getPresentationElements().getPresentationParameters().getPresentationParameter();
+        
+        for(TPresentationParameter presentationParameter : presentationParameters) {
+            log.info("Evaluating: " + presentationParameter.getContent().get(0).toString().trim());
+            Object o = task.evaluateXPath(presentationParameter.getContent().get(0).toString().trim());
+            result.put(presentationParameter.getName(), o);
+        }
+        
+        return result;
+    }
 
     /**
      * Evaluates assignees of generic human role.
@@ -114,14 +146,14 @@ public class TaskDefinition {
         List<Assignee> evaluatedAssigneeList = new ArrayList<Assignee>();
 
         //read htd
-        XPath xpath = createXpathInstance();
+        XPath xpath = createXPathInstance();
 
         try {
 
             String XPATH_EXPRESSION_FOR_HUMAN_ROLES_EVALUATION = "" +
                     "/htd:humanInteractions" +
                     "/htd:tasks" +
-                    "/htd:task[@name='" + taskName + "']" +
+                    "/htd:task[@name='" + tTask.getName() + "']" +
                     "/htd:peopleAssignments" +
                     "/htd:" + humanRoleName.toString();
 
@@ -149,10 +181,10 @@ public class TaskDefinition {
 
         } catch (XPathExpressionException e) {
             if (log.isErrorEnabled()) {
-                log.error("Error evaluating XPath for task: " + taskName, e);
+                log.error("Error evaluating XPath for task: " + tTask.getName(), e);
             }
 
-            throw  new HumanTaskException("Error evaluating XPath for task: " + taskName);
+            throw  new HumanTaskException("Error evaluating XPath for task: " + tTask.getName());
         }
         
         for (String groupName : groupNames) {
@@ -172,13 +204,13 @@ public class TaskDefinition {
      */
     public String getSubject(String lang, Map<String, Message> input) {
         String result = "";
-        XPath xpath = createXpathInstance();
+        XPath xpath = createXPathInstance();
         try {
             String XPATH_EXPRESSION_FOR_SUBJECT_EVALUATION = "" +
                     "/htd:humanInteractions/" +
                     "htd:tasks/" +
                     "htd:task[@name='" +
-                    taskName + "']/" +
+                    getTaskName() + "']/" +
                     "htd:presentationElements/" +
                     "htd:subject[@xml:lang='" + lang + "']";
 
@@ -294,18 +326,13 @@ public class TaskDefinition {
         return humanInteractions;
     }
 
-    //TODO jkr - do konstruktora
-    public void setTaskName(String name) {
-        this.taskName = name;
-    }
-
     public String getTaskName() {
-        return taskName;
+        return tTask.getName();
     }
 
     // ================== HELPER METHODS ==================
     
-    private XPath createXpathInstance() {
+    private XPath createXPathInstance() {
         XPath xpath = xPathFactory.newXPath();
         xpath.setNamespaceContext(new HtdNamespaceContext());
         return xpath;

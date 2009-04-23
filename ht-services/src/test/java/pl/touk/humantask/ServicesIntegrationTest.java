@@ -115,10 +115,10 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Rollback
     public void testGetMyTasksNoCreate() throws HumanTaskException {
 
-        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mock.getGoodTaskMock();
+        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mockery.getGoodTaskMock();
 
-        mock.assignOwner();
+        mockery.assignOwner();
 
         List<Task> results = services.getMyTasks("Jacek", TaskTypes.ALL,
                 GenericHumanRole.TASK_STAKEHOLDERS, null,
@@ -145,7 +145,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         //Assert.assertEquals(0, results.size());
 
-        mock.assertIsSatisfied();
+        mockery.assertIsSatisfied();
     }
 
     @Test

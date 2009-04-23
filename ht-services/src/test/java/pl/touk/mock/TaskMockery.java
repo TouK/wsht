@@ -48,9 +48,9 @@ public class TaskMockery extends Mockery {
         final TaskDefinition taskDefinition = mock(TaskDefinition.class);
 
         final Map<String, Message> mockMap = new HashMap<String, Message>();
-        mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message("x"));
+        mockMap.put("root", new Message("<?xml version='1.0'?><root/>"));
+        
         final List<Assignee> assignees = new ArrayList<Assignee>();
-
         assignees.add(jacek);
 
         if (!onlyOnePotentialOwner) {
@@ -63,7 +63,7 @@ public class TaskMockery extends Mockery {
 
         checking(new Expectations() {{
             try{
-                one(taskDefinition).getTaskName();
+                allowing(taskDefinition).getTaskName();
                 will(returnValue("taskLookupKey"));
                 one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap);
                 will(returnValue(assignees));

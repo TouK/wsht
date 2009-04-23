@@ -64,7 +64,6 @@ import pl.touk.humantask.spec.TaskDefinition;
  */
 @Entity
 @Table(name = "TASK")
-//@SecondaryTable(name = "TASK_IO", pkJoinColumns = { @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id") })
 public class Task extends Base {
 
     @Transient
@@ -226,7 +225,9 @@ public class Task extends Base {
 
         this.taskDefinition = taskDefinition;
         this.taskDefinitionKey = taskDefinition.getTaskName();
-        this.input.put(Message.DEFAULT_PART_NAME_KEY, new Message(requestXml));
+        
+        Message m = new Message(requestXml);
+        this.input.put(m.getRootNodeName(), m);
         
         this.potentialOwners        = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS,          this.input);
         this.businessAdministrators = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS,   this.input);
@@ -237,6 +238,7 @@ public class Task extends Base {
         this.setCreatedBy(createdBy == null ? null : createdBy.getName());
         this.setActivationTime(new Date());
         this.status = Status.CREATED;
+       
         Person nominatedPerson = this.nominateActualOwner(this.potentialOwners);
         if (nominatedPerson != null) {
             this.setActualOwner(nominatedPerson);

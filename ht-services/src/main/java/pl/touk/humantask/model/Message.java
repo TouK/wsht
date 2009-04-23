@@ -103,6 +103,28 @@ public class Message extends Base {
         
         return this.messageDocument;
     }
+    
+    /**
+     * Retruns root element name.
+     * TODO exceptions???
+     * @return the root element name
+     */
+    public String getRootNodeName() {
+        
+        try {
+            
+            return this.getDomDocument().getDocumentElement().getNodeName();
+            
+        } catch (ParserConfigurationException e) {
+            
+        } catch (SAXException e) {
+            
+        } catch (IOException e) {
+            
+        }
+        
+        return null;
+    }
 
     /***************************************************************
      * Infrastructure methods. *
@@ -134,4 +156,5 @@ public class Message extends Base {
         Message m = (Message) obj;
         return new EqualsBuilder().append(id, m.id).isEquals();
     }
+
 }
