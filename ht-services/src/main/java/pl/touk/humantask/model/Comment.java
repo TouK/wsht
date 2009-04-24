@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
  * Task comment.
  *
  * @author Witek Wołejszo
+ * @author Mateusz Lipczyński
  */
 @Entity(name = "COMMENT_")
 public class Comment extends Base {
