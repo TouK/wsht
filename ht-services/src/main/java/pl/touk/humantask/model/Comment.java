@@ -20,13 +20,14 @@ import javax.persistence.ManyToOne;
  *
  * @author Witek Wołejszo
  */
-@Entity
+@Entity(name = "COMMENT_")
 public class Comment extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+	@Column(name = "DATE_")
     private Date date;
 
     @Column(length = 4096)
