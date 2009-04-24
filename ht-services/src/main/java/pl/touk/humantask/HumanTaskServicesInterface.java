@@ -7,11 +7,19 @@ package pl.touk.humantask;
 
 import java.util.List;
 
+import javax.jws.WebMethod;
+import javax.jws.WebResult;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPBinding.ParameterStyle;
+import javax.jws.soap.SOAPBinding.Style;
+import javax.jws.soap.SOAPBinding.Use;
+import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.ResponseWrapper;
 import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HTException;
-import pl.touk.humantask.exceptions.RecipientNotAllowedException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.TaskTypes;
@@ -22,6 +30,8 @@ import pl.touk.humantask.model.Task.TaskTypes;
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
  */
+@WebService(name="HumanTaskService", targetNamespace="http://touk.pl/HumanTask")
+@SOAPBinding(style=Style.RPC, use=Use.LITERAL, parameterStyle=ParameterStyle.BARE)
 public interface HumanTaskServicesInterface {
 
     /**
@@ -54,6 +64,8 @@ public interface HumanTaskServicesInterface {
      * @return created Task
      * @throws HTException In case of problems while creating task
      */
+    @WebMethod(action="http://touk.pl/HumanTask/createTask")
+    @WebResult(targetNamespace="http://example.org/mybookmarks", name="task", partName="Task")
     Task createTask(String taskName, String createdBy, String requestXml) throws HTException;
 
     /**

@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.jws.WebService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -38,6 +39,7 @@ import pl.touk.humantask.spec.TaskDefinition;
  * @author Witek Wołejszo
  * @author Mateusz Lipczyński
  */
+@WebService(endpointInterface = "ToukHumanTaskService", serviceName = "TaskService", portName = "TaskPort", targetNamespace = "http://touk.pl/HumanTask")
 public class Services implements HumanTaskServicesInterface {
 
     private final Log log = LogFactory.getLog(Services.class);
