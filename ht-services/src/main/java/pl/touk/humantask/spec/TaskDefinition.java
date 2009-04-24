@@ -127,7 +127,7 @@ public class TaskDefinition {
         
         for(TPresentationParameter presentationParameter : presentationParameters) {
             log.info("Evaluating: " + presentationParameter.getContent().get(0).toString().trim());
-            Object o = task.evaluateXPath(presentationParameter.getContent().get(0).toString().trim());
+            Object o = task.evaluateXPath(presentationParameter.getContent().get(0).toString().trim(), XPathConstants.STRING);
             result.put(presentationParameter.getName(), o);
         }
         

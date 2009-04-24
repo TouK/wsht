@@ -93,14 +93,20 @@ public class TaskDefinitionUnitTest {
     public void testGetTaskPresentationParameters() throws HTException {
         
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("ApproveClaim");
-        
-//        Map<String, Message> input = new HashMap<String, Message>();
-//        input.put("ClaimApprovalRequest", new Message("<ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>"));
-        
-        Task task = new Task(td, null, "<ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
+
+        Task task = new Task(td, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>jan</firstname><lastname>kowalski</lastname></cust></ClaimApprovalRequest>");
         
         Map<String, Object> result = td.getTaskPresentationParameters(task);
         
+        assertTrue(result.containsKey("firstname"));
+        assertTrue(result.containsKey("lastname"));
+        assertTrue(result.containsKey("euroAmount"));
+
+        log.info(result.get("firstname"));
+        log.info(result.get("lastname"));
+        log.info(result.get("euroAmount"));
+        
+        assertEquals("jan", result.get("firstname"));
     }
 
 }

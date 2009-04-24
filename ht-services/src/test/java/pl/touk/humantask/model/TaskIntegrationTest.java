@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 public class TaskIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Test
-    public void testTaksConstructor() {
+    public void testTaskConstructor() {
         Task task = new Task();
         assertNotNull(task.humanInteractionsManager);
     }

@@ -588,10 +588,13 @@ public class Task extends Base {
      * <ul>
      * <li> {@link GetInputXPathFunction} </li>
      * </ul>
-     * @param xpathString the XPath 1.0 expression.
+     * @param xPathString The XPath 1.0 expression.
+     * @param returnType The desired return type. See {@link XPathConstants}.
      * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
      */
-    public Object evaluateXPath(String xpathString) {
+    public Object evaluateXPath(String xPathString, QName returnType) {
+        
+        log.debug("Evaluating: " + xPathString);
         
         Object o = null;
         
@@ -626,8 +629,8 @@ public class Task extends Base {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document emptyDocument = builder.newDocument();
 
-            XPathExpression expr = xpath.compile(xpathString);            
-            o = expr.evaluate(emptyDocument, XPathConstants.NODE);
+            XPathExpression expr = xpath.compile(xPathString);            
+            o = expr.evaluate(emptyDocument, returnType);
                
         } catch (XPathExpressionException e) {
             
@@ -645,6 +648,8 @@ public class Task extends Base {
      * @author Witek Wołejszo
      */
     private class GetInputXPathFunction implements XPathFunction {
+        
+        private final Log log = LogFactory.getLog(GetInputXPathFunction.class);
 
         /**
          * <p>Evaluate the function with the specified arguments.</p>
@@ -655,7 +660,11 @@ public class Task extends Base {
          */
         public Object evaluate(List args) throws XPathFunctionException {
             
-            Message message = input.get(args.get(0));
+            log.debug("Evaluating: " + args);
+            
+            String partName = (String) args.get(0);
+            
+            Message message = input.get(partName);
             Document document = null;
             
             if (message == null) {
@@ -677,7 +686,7 @@ public class Task extends Base {
                 throw new XPathFunctionException(e);
             }
             
-            return document == null ? null : document.getChildNodes();
+            return document == null ? null : document.getElementsByTagName(partName);
         }
 
     }

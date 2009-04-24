@@ -85,7 +85,7 @@
                 <htd:name xml:lang="de-DE"> Genehmigung der Schadensforderung </htd:name>
                 <htd:presentationParameters>
                     <htd:presentationParameter name="firstname" type="xsd:string">
-                        htd:getInput("ClaimApprovalRequest")/cust/firstname </htd:presentationParameter>
+                        htd:getInput("ClaimApprovalRequest")/cust/firstname</htd:presentationParameter>
                     <htd:presentationParameter name="lastname" type="xsd:string">
                         htd:getInput("ClaimApprovalRequest")/cust/lastname </htd:presentationParameter>
                     <htd:presentationParameter name="euroAmount" type="xsd:double">
@@ -121,9 +121,9 @@ htd:getInput("ClaimApprovalRequest")/amount < 10000
                         </htd:condition>
                         <htd:toParts>
                             <htd:toPart name="firstname">
-                                htd:getInput("ClaimApprovalRequest","ApproveClaim") /firstname </htd:toPart>
+                                htd:getInput("ClaimApprovalRequest","ApproveClaim")/firstname </htd:toPart>
                             <htd:toPart name="lastname">
-                                htd:getInput("ClaimApprovalRequest","ApproveClaim") /lastname </htd:toPart>
+                                htd:getInput("ClaimApprovalRequest","ApproveClaim")/lastname </htd:toPart>
                             <htd:toPart name="taskId"> htd:getTaskID("ApproveClaim") </htd:toPart>
                         </htd:toParts>
                         <htd:localNotification reference="tns:ClaimApprovalReminder">

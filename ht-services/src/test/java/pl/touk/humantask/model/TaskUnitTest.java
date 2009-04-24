@@ -7,12 +7,16 @@ package pl.touk.humantask.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
+import javax.xml.xpath.XPathConstants;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -147,7 +151,7 @@ public class TaskUnitTest {
     }
     
     @Test
-    public void testEvaluateXPathGetInput() throws HTException {
+    public void testEvaluateXPathGetInput_String() throws HTException {
         
         Mockery mockery = new Mockery() {{
             setImposteriser(ClassImposteriser.INSTANCE);
@@ -161,13 +165,13 @@ public class TaskUnitTest {
         }});
         
         Task t = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><a><b>test</b></a>");
-        Element e = (Element) t.evaluateXPath("htd:getInput('a')/a/b");
+        Object o = t.evaluateXPath("htd:getInput('a')/b", XPathConstants.STRING);
         
         //log.info(e.getTextContent());
         
-        assertNotNull(e);
-        assertEquals("test", e.getTextContent());
-        
+        assertNotNull(o);
+        assertTrue(o instanceof String);
+        assertEquals("test", o.toString());
     }
 
 }
