@@ -96,7 +96,7 @@ public class Services implements HumanTaskServicesInterface {
         Person createdByPerson = assigneeDao.getPerson(createdBy);
         if (createdByPerson == null) {
             createdByPerson = new Person(createdBy);
-            //assigneeDao.create(createdByPerson);
+            assigneeDao.create(createdByPerson);
         }
 
         Task newTask = new Task(taskDefinition, createdByPerson, requestXml);
