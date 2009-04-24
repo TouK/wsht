@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+  <local-tx-datasource>
+    <jndi-name>wshtDataSource</jndi-name>
+    <connection-url>jdbc:oracle:thin:@wsht.touk.pl:1521:wsht</connection-url>
+    <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>
+    <user-name>wsht_devel</user-name>
+    <password>wsht</password>
+    <new-connection-sql>SELECT 1 FROM dual</new-connection-sql>
+    <check-valid-connection-sql>SELECT 1 FROM dual</check-valid-connection-sql>
+    <use-java-context>false</use-java-context>
+  </local-tx-datasource>
+</datasources>
