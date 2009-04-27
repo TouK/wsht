@@ -16,12 +16,13 @@ import org.springframework.core.io.ClassPathResource;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+
 /*
  * TODO: ADD SHORT DESCRIPTION 
  *
  * @author <a href="mailto:jkr@touk.pl">Jakub Kurlenda</a>
  */
-
+@org.junit.Ignore
 public class TestUtil {
     
     /**

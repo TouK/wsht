@@ -30,6 +30,7 @@ import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Message;
 import pl.touk.humantask.model.Task;
+import pl.touk.humantask.util.TemplateEngine;
 import pl.touk.humantask.exceptions.HTException;
 
 /**
@@ -75,22 +76,22 @@ public class TaskDefinition {
         xPathFactory = XPathFactory.newInstance();
     }
 
-
     /**
      * Returns description of the Task.
-     * TODO change input to Task
      * TODO rewrite xpath - > jaxb
      * @param lang
      * @param contentType
-     * @param input
+     * @param task
      * @return
      */
-    public String getDescription(String lang, String contentType, Map<String, Message> input) {
+    public String getDescription(String lang, String contentType, Task task) {
 
         XPath xpath = createXPathInstance();
 
         try {
 
+            //retrieve description template
+            
             String XPATH_EXPRESSION_FOR_DESCRIPTION_EVALUATION = "" +
                     "/htd:humanInteractions" +
                     "/htd:tasks" +
@@ -99,10 +100,14 @@ public class TaskDefinition {
                     "/htd:description[@xml:lang='" + lang + "' and @contentType='" + contentType + "']";
 
             XPathExpression expr = xpath.compile(XPATH_EXPRESSION_FOR_DESCRIPTION_EVALUATION);
-
-            Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);
-
-            return node.getTextContent();
+            Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);            
+            String descriptionTamplate = node.getTextContent();
+            
+            //retrieve presentation parameters
+            
+            Map<String, Object> presentationParameters = this.getTaskPresentationParameters(task);            
+            
+            return new TemplateEngine().merge(descriptionTamplate, presentationParameters);
 
         } catch (XPathExpressionException e) {
 
@@ -112,11 +117,10 @@ public class TaskDefinition {
 
         return null;
     }
-    
+
     /**
      * Return values of Task presentation parameters.
-     * TODO change input to Task
-     * @param input
+     * @param task The task presentation parameters values are evaluated for.
      * @return
      */
     protected Map<String, Object> getTaskPresentationParameters(Task task) {
@@ -197,15 +201,19 @@ public class TaskDefinition {
     }
 
     /**
-     * Returns an unformatted task subject in a required language
-     *
+     * Returns a task subject in a required language.
      * @param lang subject language according ISO, e.g. en-US, pl, de-DE
+     * @param task The task subject value is evaluated for.
      * @return subject
      */
-    public String getSubject(String lang, Map<String, Message> input) {
-        String result = "";
+    public String getSubject(String lang, Task task) {
+        
         XPath xpath = createXPathInstance();
+        
         try {
+            
+            //retrieve subject template
+
             String XPATH_EXPRESSION_FOR_SUBJECT_EVALUATION = "" +
                     "/htd:humanInteractions/" +
                     "htd:tasks/" +
@@ -218,12 +226,19 @@ public class TaskDefinition {
             
             Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);
             
-            result = node.getTextContent();
+            String subjectTemplate = node.getTextContent();
+            
+            //retrieve presentation parameters
+            
+            Map<String, Object> presentationParameters = this.getTaskPresentationParameters(task);            
+            
+            return new TemplateEngine().merge(subjectTemplate, presentationParameters);
             
         } catch (XPathExpressionException e) {
             log.error("Error evaluating XPath.", e);
         }
-        return result;
+        
+        return null;
     }
 
 //

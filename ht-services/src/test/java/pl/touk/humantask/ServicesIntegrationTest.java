@@ -11,7 +11,9 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.junit.Test;
+
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -19,13 +21,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
+
 import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HTException;
+
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.TaskTypes;
 import pl.touk.humantask.model.Task.Status;
+
 import pl.touk.mock.TaskMockery;
 
 /**
@@ -70,18 +75,11 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Rollback
     public void testCreateTask() throws HTException {
 
-        // Services services = (Services)
-        // applicationContext.getBean("humanTaskServices");
+        Task t = services.createTask("ApproveClaim", "ww2", "</request>");
+        String taskDefinitionName = t.getTaskDefinition().getTaskName();
 
-        Task t = services.createTask("ApproveClaim", "ww2", "request");
-
-        String description = t.getTaskDefinition().getDescription("en-US", "text/plain", null);
-        String key = t.getTaskDefinition().getTaskName();
-
-        LOG.info("Task name: " + t.getTaskDefinition().getTaskName());
-        LOG.info("Task description: " + description);
-        Assert.assertTrue(description.contains("claim"));
-        Assert.assertTrue(key.contains("Appr"));
+        LOG.info("Task name: " + taskDefinitionName);
+        Assert.assertEquals("ApproveClaim", taskDefinitionName);
     }
 
 //    @Test

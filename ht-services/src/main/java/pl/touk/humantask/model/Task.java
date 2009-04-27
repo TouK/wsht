@@ -234,13 +234,13 @@ public class Task extends Base {
         this.taskDefinitionKey = taskDefinition.getTaskName();
         
         Message m = new Message(requestXml);
-        this.input.put(m.getRootNodeName(), m);
+        this.getInput().put(m.getRootNodeName(), m);
         
-        this.potentialOwners        = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS,          this.input);
-        this.businessAdministrators = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS,   this.input);
-        this.excludedOwners         = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS,           this.input);
-        this.notificationRecipients = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS,   this.input);
-        this.taskStakeholders       = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS,         this.input);
+        this.potentialOwners        = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS,          this.getInput());
+        this.businessAdministrators = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS,   this.getInput());
+        this.excludedOwners         = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS,           this.getInput());
+        this.notificationRecipients = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS,   this.getInput());
+        this.taskStakeholders       = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS,         this.getInput());
 
         this.setCreatedBy(createdBy == null ? null : createdBy.getName());
         this.setActivationTime(new Date());
@@ -292,19 +292,19 @@ public class Task extends Base {
      * @return subject
      */
     public String getSubject(String lang) {
-        return this.getTaskDefinition().getSubject(lang, this.input);
+        return this.getTaskDefinition().getSubject(lang, this);
         //return this.taskDefinition.getSubject(lang, this.input);
     }
 
     /**
-     * Returns a formatted task description in a required language and form
+     * Returns a formatted task description in a required language and form.
      *
-     * @param lang          description language according ISO, e.g. en-US, pl, de-DE
-     * @param contentType   text/plain for plain text or text/html for HTML-formatted text
+     * @param lang The description language according ISO, e.g. en-US, pl, de-DE
+     * @param contentType The content type, text/plain for plain text or text/html for HTML-formatted text.
      * @return description
      */
     public String getDescription(String lang, String contentType) {
-        return this.getTaskDefinition().getDescription(lang, contentType, this.input);
+        return this.getTaskDefinition().getDescription(lang, contentType, this);
     }
 
     /***************************************************************
@@ -664,7 +664,7 @@ public class Task extends Base {
             
             String partName = (String) args.get(0);
             
-            Message message = input.get(partName);
+            Message message = getInput().get(partName);
             Document document = null;
             
             if (message == null) {
@@ -691,6 +691,10 @@ public class Task extends Base {
 
     }
 
+    public Map<String, Message> getInput() {
+        return input;
+    }
+    
     /***************************************************************
      * Infrastructure methods.                                     *
      ***************************************************************/

@@ -42,10 +42,10 @@ public class TaskDefinitionUnitTest {
     }
 
     @Test
-    public void testGetDescriptionPlain() throws HTException {
+    public void testGetDescriptionPlain() throws HTException {       
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("ApproveClaim");
-        String description = td.getDescription("en-US", "text/plain", null);
-
+        Task task = new Task(td, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>jan</firstname><lastname>kowalski</lastname></cust></ClaimApprovalRequest>");
+        String description = td.getDescription("en-US", "text/plain", task);
         assertEquals("Approve this claim following corporate guideline #4711.0815/7 ...", description.trim());
     }
 
@@ -68,8 +68,9 @@ public class TaskDefinitionUnitTest {
     @Test
     public void testGetSubject() throws HTException {
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("ApproveClaim");
-        String expResult = "Approve the insurance claim for €$euroAmount$ on";
-        String result = td.getSubject("en-US", null);
+        Task task = new Task(td, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>jan</firstname><lastname>kowalski</lastname></cust><amount>3,14</amount></ClaimApprovalRequest>");
+        String expResult = "Approve the insurance claim for €3,14 on";
+        String result = td.getSubject("en-US", task);
         assertTrue(result.contains(expResult));
     }
 
