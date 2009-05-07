@@ -46,40 +46,26 @@ import pl.touk.mock.TaskMockery;
 public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     private final Log LOG = LogFactory.getLog(ServicesIntegrationTest.class);
+
     @Resource(name = "humanTaskServices")
     HumanTaskServicesInterface services;
+
     @Resource(name = "taskDao")
     TaskDao taskDao;
+
     @Resource(name = "assigneeDao")
     AssigneeDao assigneeDao;
 
-    //@Resource(name = "hibernateSessionFactory")
-    //SessionFactory sessionFactory;
-    // ApplicationContext applicationContext;
-
-    // @Override
-    // protected String[] getConfigLocations() {
-    // return new String[] { "classpath:test.xml" };
-    // }
-
-    // @Override
-    // protected void setUp() throws Exception {
-    //
-    // super.setUp();
-    // applicationContext = new ClassPathXmlApplicationContext(new String[] {
-    // "services.xml", "quartz.xml", "test.xml" });
-    //
-    // }
     @Test
     @Transactional
     @Rollback
     public void testCreateTask() throws HTException {
 
-        Task t = services.createTask("ApproveClaim", "ww2", "</request>");
-        String taskDefinitionName = t.getTaskDefinition().getTaskName();
+        Task task = services.createTask("Task1", "ww2", "</request>");
+        String taskDefinitionName = task.getTaskDefinition().getTaskName();
 
         LOG.info("Task name: " + taskDefinitionName);
-        Assert.assertEquals("ApproveClaim", taskDefinitionName);
+        Assert.assertEquals("Task1", taskDefinitionName);
     }
 
 //    @Test
@@ -146,26 +132,18 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         mockery.assertIsSatisfied();
     }
 
-    @Test
-    @Transactional
-    @Rollback
-    public void testClaimOwner() throws HTException {
-
-        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mock.getGoodTaskMock();
-
-        services.claimTask(mockTask.getId(), mock.getPossibleOwner().getName());
-
-        try {
-            services.claimTask(mockTask.getId(), mock.getPossibleOwner().getName());
-            Assert.fail();
-        }catch(HTIllegalStateException xRNA){
-            //sucess
-        }
-
-        Assert.assertEquals(Task.Status.RESERVED, mockTask.getStatus());
-        mock.assertIsSatisfied();
-    }
+//    @Test(expected=HTIllegalStateException.class)
+//    @Transactional
+//    @Rollback
+//    public void testClaimByOwner() throws HTException {
+//
+//        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
+//        Task mockTask = mockery.getGoodTaskMock();
+//
+//        services.claimTask(mockTask.getId(), mockery.getPossibleOwner().getName());
+//
+//        services.claimTask(mockTask.getId(), mockTask.getActualOwner().getName());
+//    }
 
     @Test
     @Transactional
@@ -175,13 +153,13 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
      */
     public void testClaimNotOwner() throws HTException {
 
-        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mock.getGoodTaskMock();
+        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mockery.getGoodTaskMock();
 
         Throwable t = null;
         
         try {
-            services.claimTask(mockTask.getId(), mock.getImpossibleOwner().getName());
+            services.claimTask(mockTask.getId(), mockery.getImpossibleOwner().getName());
             Assert.fail();
         }catch(HTIllegalAccessException xRNA){
             //success
@@ -192,100 +170,91 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         Assert.assertEquals(Task.Status.READY, mockTask.getStatus());
 
-        mock.assertIsSatisfied();
+        mockery.assertIsSatisfied();
     }
 
-    /**
-     * 
-     * @throws HTException
-     */
-    @Test
+    @Test(expected=HTIllegalAccessException.class)
     @Transactional
     @Rollback
-    public void testStart() throws HTException {
+    public void testStartImpossibleOwner() throws HTException {
 
-        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mock.getGoodTaskMock();
+        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mockery.getGoodTaskMock();
 
-        try {
-            services.startTask(mockTask.getId(), mock.getImpossibleOwner().getName());
-            Assert.fail();
-        } catch (HTIllegalAccessException xIA) {
-
-        }
-
-        try {
-            services.startTask(mockTask.getId(), mock.getPossibleOwner().getName());
-        } catch (HTIllegalAccessException xIA) {
-            Assert.fail();
-        }
-
-        Assert.assertEquals(Task.Status.IN_PROGRESS, mockTask.getStatus());
-
+        services.startTask(mockTask.getId(), mockery.getImpossibleOwner().getName());
     }
+    
+//    @Test
+//    @Transactional
+//    @Rollback
+//    public void testStartCorrectOwner() throws HTException {
+//
+//        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
+//        Task mockTask = mock.getGoodTaskMock();
+//
+//        try {
+//            services.startTask(mockTask.getId(), mock.getPossibleOwner().getName());
+//        } catch (HTIllegalAccessException xIA) {
+//            Assert.fail();
+//        }
+//    }
 
-     /**
-     *
-     * @throws HTException
-     */
-    @Test
-    @Transactional
-    @Rollback
-    public void testStartAfterClaim() throws HTException {
+//     /**
+//     *
+//     * @throws HTException
+//     */
+//    @Test
+//    @Transactional
+//    @Rollback
+//    public void testStartAfterClaim() throws HTException {
+//
+//        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
+//        Task mockTask = mockery.getGoodTaskMock(true);
+//
+//        try {
+//            services.startTask(mockTask.getId(), mockery.getPossibleOwner().getName());
+//        } catch (HTIllegalAccessException xIA) {
+//            Assert.fail();
+//        }
+//
+//        Assert.assertEquals(Task.Status.IN_PROGRESS, mockTask.getStatus());
+//        
+//    }
+//
+//    @Test
+//    @Transactional
+//    @Rollback
+//    public void testReleaseAfterClaim() throws HTException {
+//
+//        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
+//        Task mockTask = mockery.getGoodTaskMock(true);
+//
+//        try {
+//            services.startTask(mockTask.getId(), mockery.getPossibleOwner().getName());
+//        } catch (HTIllegalAccessException xIA) {
+//            Assert.fail();
+//        }
+//
+//        Assert.assertEquals(Task.Status.IN_PROGRESS, mockTask.getStatus());
+//
+//        try {
+//            services.releaseTask(mockTask.getId(), mockery.getPossibleOwner().getName());
+//        } catch (HTIllegalAccessException xIA) {
+//            Assert.fail();
+//        }
+//
+//        Assert.assertEquals(Task.Status.READY, mockTask.getStatus());
+//    }
 
-        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mock.getGoodTaskMock(true);
-
-        try {
-            services.startTask(mockTask.getId(), mock.getPossibleOwner().getName());
-        } catch (HTIllegalAccessException xIA) {
-            Assert.fail();
-        }
-
-        Assert.assertEquals(Task.Status.IN_PROGRESS, mockTask.getStatus());
-        
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    public void testReleaseAfterClaim() throws HTException {
-
-        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mock.getGoodTaskMock(true);
-
-        try {
-            services.startTask(mockTask.getId(), mock.getPossibleOwner().getName());
-        } catch (HTIllegalAccessException xIA) {
-            Assert.fail();
-        }
-
-        Assert.assertEquals(Task.Status.IN_PROGRESS, mockTask.getStatus());
-
-        try {
-            services.releaseTask(mockTask.getId(), mock.getPossibleOwner().getName());
-        } catch (HTIllegalAccessException xIA) {
-            Assert.fail();
-        }
-
-        Assert.assertEquals(Task.Status.READY, mockTask.getStatus());
-
-
-
-    }
-
-     /**
-     * TODO wcr - fails, what we test here? please describe in javadoc
-     */
     @Test
     @Transactional
     @Rollback
     public void testGetTaskInfo() throws HTException {
 
-        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mock.getGoodTaskMock();
+        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mockery.getGoodTaskMock();
 
-        mock.assignOwner();
+        mockery.assignOwner();
 
         Task resultTask = services.getTaskInfo(mockTask.getId());
 
@@ -293,7 +262,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         Assert.assertEquals(mockTask.getActualOwner(), resultTask.getActualOwner());
 
-        mock.assertIsSatisfied();
+        mockery.assertIsSatisfied();
     }
 
     @Test
@@ -301,118 +270,16 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Rollback
     public void testReleaseTask() throws HTException {
 
-        TaskMockery mock = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mock.getGoodTaskMock();
+        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mockery.getGoodTaskMock();
 
-        mock.assignOwner();
+        mockery.assignOwner();
 
         services.releaseTask(mockTask.getId(),mockTask.getActualOwner().getName());
 
         Assert.assertEquals(Status.READY,mockTask.getStatus());
 
-        mock.assertIsSatisfied();
+        mockery.assertIsSatisfied();
     }
 
-/*
- @Test
-    @Transactional
-    @Rollback
-    public void testTaskLifecycle() throws HumanTaskException {
-
-        //ApproveClaim has several potential owners, so it is not reserved
-        Task t = services.createTask("ApproveClaim", "ww", "<?xml version='1.0'?><root/>");
-
-        Assert.assertTrue(t.getStatus() == Task.Status.READY || t.getStatus() == Task.Status.CREATED || t.getStatus() == Task.Status.RESERVED);
-
-    //TODO the rest of default lifecycle
-    }
- *
- * /
-
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void testActualOwnersStates() throws HumanTaskException {
-//
-//        Task task1 = services.createTask("ApproveClaim", "kamil", "request");
-//        Task task2 = services.createTask("ApproveClaim", "witek", "request");
-//        
-//        LOG.info("Task status after create: " + task1.getStatus());
-//        
-//        Person person1 = assigneeDao.getPerson("kamil");
-//        Person person2 = assigneeDao.getPerson("witek");
-//
-//        // creating task - staus CREATED
-//
-//        task1 = services.startTask(task1, "kamil");
-//        task1 = services.stopTaskInProgress(task1);
-//        task1 = services.releaseTask(task1, "kamil");
-//
-//        task1 = services.startTask(task1, "witek");
-//        task1 = services.delegateTask(task1, "kamil");
-//        task1 = services.startTask(task1, "kamil");
-//        // t = services.forwardTask(t, p2);
-//
-//        task2 = services.startTask(task2, "kamil");
-//
-//        List<Task> tasks = new ArrayList<Task>();
-//        tasks = services.getMyTasks("kamil",TaskTypes.ALL,null,null,null,null,null,null);
-//        
-//
-//        // taking person from IAssigneeDao
-//
-//        LOG.info("Task status after set on ready: " + task1.getStatus());
-//
-//        // services.startTask(t, p);
-//        services.releaseTask(task1, "kamil");
-//        services.claimTask(task1, "kamil");
-//
-//        /*
-//         * t = services.startTask(t, p); t = services.delegateTask(t, p2);
-//         * 
-//         * List<Assignee> lista = new ArrayList<Assignee>(); lista.add(p2); t =
-//         * services.forwardTask(t, p, lista);
-//         */
-//
-//    }
-
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void testGetOutput() throws HumanTaskException, IllegalArgumentFault, IllegalOperationFault, InterruptedException {
-//
-//        Task task = services.createTask("ApproveClaim", "kamil", "request");
-//
-//        services.startTask(task, "kamil");
-//
-//        services.setTaskOutput(task, "output", "new output", "kamil");
-//
-//        services.getOutput(task, "kamil");
-//
-//        services.deleteOutput(task);
-//
-//    }
-
-//    //@Test
-//    @Transactional
-//    @Rollback
-//    public void testSuspendUntil() throws HumanTaskException, InterruptedException {
-//
-//        Task task1 = services.createTask("ApproveClaim", "kamil", "request");
-//        Task task2 = services.createTask("ApproveClaim", "kamil", "request");
-//
-//        services.suspendUntilPeriod(task1, 2000);
-//        services.suspendUntil(task2, new Date(2000));
-//
-//        synchronized (this) {
-//            this.wait(3000);
-//        }
-//
-//        task1 = taskDao.fetch(task1.getId());
-//        assertEquals(task1.getStatus(), Status.READY);
-//
-//        task2 = services.loadTask(task2.getId());
-//        assertEquals(task2.getStatus(), Status.READY);
-//
-//    }
 }

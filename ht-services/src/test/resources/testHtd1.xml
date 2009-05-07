@@ -21,13 +21,8 @@
     
     <htd:logicalPeopleGroups>
     
-    	<htd:logicalPeopleGroup name="employees">
+    	<htd:logicalPeopleGroup name="lpg1">
             <htd:documentation xml:lang="en-US">Employee group.</htd:documentation>
-            <htd:parameter name="region" type="xsd:string"/>
-        </htd:logicalPeopleGroup>
-        
-    	<htd:logicalPeopleGroup name="managers">
-            <htd:documentation xml:lang="en-US">Managers group.</htd:documentation>
             <htd:parameter name="region" type="xsd:string"/>
         </htd:logicalPeopleGroup>
 
@@ -35,7 +30,7 @@
     
     <htd:tasks>
     
-        <htd:task name="ApproveClaim1">
+        <htd:task name="Task1">
             
             <htd:documentation xml:lang="en-US">This task is used to handle claims that require manual approval. </htd:documentation>
             <htd:interface portType="tns:ClaimsHandlingPT" operation="approve" responsePortType="tns:ClaimsHandlingCallbackPT" responseOperation="approvalResponse"/>
@@ -44,7 +39,7 @@
             <htd:peopleAssignments>
             	
             	<htd:potentialOwners>
-                    <htd:from logicalPeopleGroup="employees">
+                    <htd:from logicalPeopleGroup="lpg1">
                         <htd:argument name="region"> htd:getInput("ClaimApprovalRequest")/region </htd:argument>
                     </htd:from>
                 </htd:potentialOwners>
@@ -57,21 +52,15 @@
                                 <htd:group>group2</htd:group>
                             </htd:groups>
                             <htd:users>
-                                <htd:group>user1</htd:group>
-                                <htd:group>user2</htd:group>
+                                <htd:user>user1</htd:user>
+                                <htd:user>user2</htd:user>
                             </htd:users>
                         </htd:organizationalEntity>
                     </htd:literal>
                 </htd:potentialOwners>
 
-                <htd:potentialOwners>
-                    <htd:from logicalPeopleGroup="managers">
-                        <htd:argument name="region"> htd:getInput("ClaimApprovalRequest")/region </htd:argument>
-                    </htd:from>
-                </htd:potentialOwners>
-                
                 <htd:businessAdministrators>
-                    <htd:from logicalPeopleGroup="managers">
+                    <htd:from logicalPeopleGroup="lpg1">
                         <htd:argument name="region"> htd:getInput("ClaimApprovalRequest")/region </htd:argument>
                     </htd:from>
                 </htd:businessAdministrators>
@@ -97,11 +86,9 @@
                         
                 </htd:presentationParameters>
                 
-                <htd:subject xml:lang="en-US"> Approve the insurance claim for €$euroAmount$ on
-                    behalf of $firstname$ $lastname$ </htd:subject>
+                <htd:subject xml:lang="en-US"> Approve the insurance claim for €$euroAmount$ on behalf of $firstname$ $lastname$ </htd:subject>
 
-                <htd:description xml:lang="en-US" contentType="text/plain"> Approve this claim
-                    following corporate guideline #4711.0815/7 ... </htd:description>
+                <htd:description xml:lang="en-US" contentType="text/plain"> Approve this claim following corporate guideline #4711.0815/7 ... </htd:description>
 
             </htd:presentationElements>
             

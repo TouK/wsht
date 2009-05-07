@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.jws.WebService;
 import org.apache.commons.logging.Log;
@@ -70,21 +71,13 @@ public class Services implements HumanTaskServicesInterface {
     }
 
     /**
-     * Work in progress - visible in interface.
-     */
-
-    /**
      * Creates {@link Task} instance based on a definition. See detailed contract in {@link HumanTaskServicesInterface#createTask(String, String, String)}
      *
-     * @param taskName
-     *            name of the task template from the definition file
-     * @param createdBy
-     *            user creating task
-     * @param requestXml
-     *            xml request used to invoke business method; can contain task-specific attributes, like last name, amount, etc.
-     *
+     * @param taskName   The name of the task template from the definition file.
+     * @param createdBy  The user creating task.
+     * @param requestXml The xml request used to invoke business method. Content of the request can be accessed by Task.
      * @return created Task
-     * @throws HTException Thrown in case of problems at task creation 
+     * @throws HTException In case of problems while creating task
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public Task createTask(String taskName, String createdBy, String requestXml) throws HTException {
@@ -137,22 +130,11 @@ public class Services implements HumanTaskServicesInterface {
             throw new HTIllegalOperationException(x.getMessage(),"getMyTasks",x);
         }
     }
-   
-    /**
-     * Later.
-     */
 
     /**
-     * Returns task owned by specified person.
-     *
-     * @param personName Name of tasks owner
-     * @return List of specified person tasks
+     * Work in progress - visible in interface.
      */
-    public List<Task> getMyTasks(String personName) {
-        Person person = assigneeDao.getPerson(personName);
-        return taskDao.getTasks(person);
-    }
-
+    
     /**
      * @see pl.touk.humantask.HumanTaskServicesInterface#claimTask(pl.touk.humantask.model.Task, java.lang.String) 
      */
@@ -161,8 +143,8 @@ public class Services implements HumanTaskServicesInterface {
 
         Person person = assigneeDao.getPerson(assigneeName);
         
-        if (null == person) {
-        	throw new HTIllegalAccessException("Not found", assigneeName);
+        if (person == null) {
+            throw new HTIllegalAccessException("Not found", assigneeName);
         }
 
         Task task = locateTask(taskId);
@@ -187,8 +169,24 @@ public class Services implements HumanTaskServicesInterface {
         taskDao.update(task);
     }
 
+
     /**
+     * Later.
+     */
+
+    /**
+     * Returns task owned by specified person.
      *
+     * @param personName Name of tasks owner
+     * @return List of specified person tasks
+     */
+    public List<Task> getMyTasks(String personName) {
+        Person person = assigneeDao.getPerson(personName);
+        return taskDao.getTasks(person);
+    }
+
+    /**
+     * TODO move to task
      * @see pl.touk.humantask.HumanTaskServicesInterface#startTask(pl.touk.humantask.model.Task, java.lang.String)
      */
     @Transactional(propagation = Propagation.REQUIRED)
@@ -196,27 +194,26 @@ public class Services implements HumanTaskServicesInterface {
 
         Person person = assigneeDao.getPerson(personName);
 
-        if (null == person) 
+        if (null == person) {
             throw new HTIllegalAccessException("Person not found: ", personName);
+        }
 
         Task task = locateTask(taskId);
-        
+
         if (!task.getPotentialOwners().contains(person)) {
-            log.error("This person is not permited to start the task");
-            throw new HTIllegalAccessException("This person is not permited to start the task",personName);
+            log.error("This person is not permited to start the task.");
+            throw new HTIllegalAccessException("This person is not permited to start the task.", personName);
         }
 
         if (task.getActualOwner() != null && (!task.getActualOwner().equals(person))) {
             throw new HTIllegalAccessException("This task is already claimed by:",task.getActualOwner().toString());
         }
 
-
         if (task.getStatus() == Status.READY) {
             task.setActualOwner(person);
         }
 
         task.setStatus(Status.IN_PROGRESS);
-
 
         taskDao.update(task);
     }
@@ -319,29 +316,29 @@ public class Services implements HumanTaskServicesInterface {
 //        taskDao.update(task);
 //        return task;
 //    }
-
-    /**
-     * Removes person from potential owners of specified task.
-     *
-     * @param task Task to process
-     * @param person Person to remove from task owners
-     */
-    public void removeAssigneeFromPotentialOwners(Long taskId, Assignee person) throws HTIllegalArgumentException {
-        int i = 0;
-        boolean removed = false;
-        Task task = locateTask(taskId);
-        List<Assignee> list = task.getPotentialOwners();
-        Assignee assignee;
-        while (!removed) {
-            assignee = list.get(i);
-
-            if (((Person) assignee).equals(person)) {
-                list.remove(i);
-                removed = true;
-            }
-            i++;
-        }
-    }
+//
+//    /**
+//     * Removes person from potential owners of specified task.
+//     *
+//     * @param task Task to process
+//     * @param person Person to remove from task owners
+//     */
+//    public void removeAssigneeFromPotentialOwners(Long taskId, Assignee person) throws HTIllegalArgumentException {
+//        int i = 0;
+//        boolean removed = false;
+//        Task task = locateTask(taskId);
+//        Set<Assignee> list = task.getPotentialOwners();
+//        Assignee assignee;
+//        while (!removed) {
+//            assignee = list.get(i);
+//
+//            if (((Person) assignee).equals(person)) {
+//                list.remove(i);
+//                removed = true;
+//            }
+//            i++;
+//        }
+//    }
 
     /**
      * @see pl.touk.humantask.HumanTaskServicesInterface#releaseTask(pl.touk.humantask.model.Task, java.lang.String)
@@ -795,7 +792,7 @@ public class Services implements HumanTaskServicesInterface {
     private void addPotentialOwner(Long taskId, Assignee assignee) throws HTIllegalArgumentException{
 
         final Task task = locateTask(taskId);
-        List<Assignee> owners = task.getPotentialOwners();
+        Set<Assignee> owners = task.getPotentialOwners();
         if (!owners.contains(assignee)) {
             owners.add(assignee);
         }
@@ -876,8 +873,9 @@ public class Services implements HumanTaskServicesInterface {
 
         Task task = taskDao.fetch(identifier);
 
-        if (null == task)
-            throw new HTIllegalArgumentException("Cannot find Task",Long.toString(identifier));
+        if (null == task) {
+            throw new HTIllegalArgumentException("Cannot find Task", Long.toString(identifier));
+        }
 
         return task;
     }

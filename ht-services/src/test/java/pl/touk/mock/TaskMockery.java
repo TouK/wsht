@@ -1,9 +1,7 @@
 package pl.touk.mock;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -15,9 +13,8 @@ import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Person;
-import pl.touk.humantask.model.Message;
-import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.model.Task;
+import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.spec.TaskDefinition;
 
 public class TaskMockery extends Mockery {
@@ -47,10 +44,7 @@ public class TaskMockery extends Mockery {
        
         final TaskDefinition taskDefinition = mock(TaskDefinition.class);
 
-        final Map<String, Message> mockMap = new HashMap<String, Message>();
-        mockMap.put("root", new Message("<?xml version='1.0'?><root/>"));
-        
-        final List<Assignee> assignees = new ArrayList<Assignee>();
+        final Set<Assignee> assignees = new HashSet<Assignee>();
         assignees.add(jacek);
 
         if (!onlyOnePotentialOwner) {
@@ -65,16 +59,16 @@ public class TaskMockery extends Mockery {
             try{
                 allowing(taskDefinition).getTaskName();
                 will(returnValue("taskLookupKey"));
-                one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, mockMap);
+                allowing(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, with(any(Task.class)));
                 will(returnValue(assignees));
-                one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, mockMap);
-                will(returnValue(new ArrayList()));
-                one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS, mockMap);
-                will(returnValue(new ArrayList()));
-                one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, mockMap);
-                will(returnValue(new ArrayList()));
-                one(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS, mockMap);
-                will(returnValue(new ArrayList()));
+                allowing(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, with(any(Task.class)));
+                will(returnValue(new HashSet()));
+                allowing(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS, with(any(Task.class)));
+                will(returnValue(new HashSet()));
+                allowing(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, with(any(Task.class)));
+                will(returnValue(new HashSet()));
+                allowing(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS, with(any(Task.class)));
+                will(returnValue(new HashSet()));
             } catch (Exception x){
             }
         }});
@@ -86,8 +80,8 @@ public class TaskMockery extends Mockery {
            
         }
 
-        List<Assignee> stakeholders = new ArrayList<Assignee>();
-        stakeholders.add((Assignee)jacek);
+        Set<Assignee> stakeholders = new HashSet<Assignee>();
+        stakeholders.add(jacek);
 
         task.setTaskStakeholders(stakeholders);
         
@@ -98,9 +92,7 @@ public class TaskMockery extends Mockery {
 
     public void assignOwner() throws HTException{
         task.setActualOwner(jacek);
-
-        task.setStatus(Status.IN_PROGRESS);
-        
+        task.setStatus(Status.IN_PROGRESS);        
     }
 
     public Person getImpossibleOwner() {

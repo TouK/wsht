@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.persistence.CascadeType;
@@ -175,24 +176,24 @@ public class Task extends Base {
 
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "TASK_POTENTIAL_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
-    private List<Assignee> potentialOwners;
+    private Set<Assignee> potentialOwners;
 
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "TASK_EXCLUDED_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
-    private List<Assignee> excludedOwners;
+    private Set<Assignee> excludedOwners;
 
     //THIS ONE
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "TASK_STAKEHOLDERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
-    private List<Assignee> taskStakeholders;
+    private Set<Assignee> taskStakeholders;
 
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "TASK_BUSINESS_AMINISTRATORS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
-    private List<Assignee> businessAdministrators;
+    private Set<Assignee> businessAdministrators;
 
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "TASK_NOTIFICATION_RECIPIENTS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
-    private List<Assignee> notificationRecipients;
+    private Set<Assignee> notificationRecipients;
 
     @OneToMany
     private List<Comment> comments;
@@ -236,11 +237,11 @@ public class Task extends Base {
         Message m = new Message(requestXml);
         this.getInput().put(m.getRootNodeName(), m);
         
-        this.potentialOwners        = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS,          this.getInput());
-        this.businessAdministrators = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS,   this.getInput());
-        this.excludedOwners         = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS,           this.getInput());
-        this.notificationRecipients = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS,   this.getInput());
-        this.taskStakeholders       = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS,         this.getInput());
+        this.potentialOwners        = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS,          this);
+        this.businessAdministrators = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS,   this);
+        this.excludedOwners         = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS,           this);
+        this.notificationRecipients = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS,   this);
+        this.taskStakeholders       = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS,         this);
 
         this.setCreatedBy(createdBy == null ? null : createdBy.getName());
         this.setActivationTime(new Date());
@@ -270,7 +271,7 @@ public class Task extends Base {
      * @param assignees    list of assignees that can contain persons and groups
      * @return             the only person in the list, otherwise null
      */
-    protected final Person nominateActualOwner(List<Assignee> assignees) {
+    protected final Person nominateActualOwner(Set<Assignee> assignees) {
         Person result = null;
         int count = 0;
         for (Assignee assignee : assignees) {
@@ -509,43 +510,43 @@ public class Task extends Base {
         return this.taskDefinitionKey;
     }
 
-    public void setPotentialOwners(List<Assignee> potentialOwners) {
+    public void setPotentialOwners(Set<Assignee> potentialOwners) {
         this.potentialOwners = potentialOwners;
     }
 
-    public List<Assignee> getPotentialOwners() {
+    public Set<Assignee> getPotentialOwners() {
         return this.potentialOwners;
     }
 
-    public void setExcludedOwners(List<Assignee> excludedOwners) {
+    public void setExcludedOwners(Set<Assignee> excludedOwners) {
         this.excludedOwners = excludedOwners;
     }
 
-    public List<Assignee> getExcludedOwners() {
+    public Set<Assignee> getExcludedOwners() {
         return this.excludedOwners;
     }
 
-    public void setTaskStakeholders(List<Assignee> taskStakeholders) {
+    public void setTaskStakeholders(Set<Assignee> taskStakeholders) {
         this.taskStakeholders = taskStakeholders;
     }
 
-    public List<Assignee> getTaskStakeholders() {
+    public Set<Assignee> getTaskStakeholders() {
         return taskStakeholders;
     }
 
-    public void setBusinessAdministrators(List<Assignee> businessAdministrators) {
+    public void setBusinessAdministrators(Set<Assignee> businessAdministrators) {
         this.businessAdministrators = businessAdministrators;
     }
 
-    public List<Assignee> getBusinessAdministrators() {
+    public Set<Assignee> getBusinessAdministrators() {
         return this.businessAdministrators;
     }
 
-    public void setNotificationRecipients(List<Assignee> notificationRecipients) {
+    public void setNotificationRecipients(Set<Assignee> notificationRecipients) {
         this.notificationRecipients = notificationRecipients;
     }
 
-    public List<Assignee> getNotificationRecipients() {
+    public Set<Assignee> getNotificationRecipients() {
         return notificationRecipients;
     }
 

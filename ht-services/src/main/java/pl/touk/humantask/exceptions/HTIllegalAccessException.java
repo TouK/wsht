@@ -5,7 +5,6 @@
 package pl.touk.humantask.exceptions;
 
 /**
- * 
  * By default, the identity of the person on behalf of which the operation is invoked is
  * passed to the task. When the person is not authorized to perform the operation the
  * illegalAccessFault and recipientNotAllowed is thrown in the case of tasks and

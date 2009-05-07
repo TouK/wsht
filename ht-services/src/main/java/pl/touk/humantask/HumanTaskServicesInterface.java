@@ -7,22 +7,14 @@ package pl.touk.humantask;
 
 import java.util.List;
 
-import javax.jws.WebMethod;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.jws.soap.SOAPBinding.ParameterStyle;
-import javax.jws.soap.SOAPBinding.Style;
-import javax.jws.soap.SOAPBinding.Use;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
+import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
-import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.TaskTypes;
+import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 
 /**
  * Human task engine services interface.
@@ -30,14 +22,12 @@ import pl.touk.humantask.model.Task.TaskTypes;
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
  */
-@WebService(name="HumanTaskService", targetNamespace="http://touk.pl/HumanTask")
-@SOAPBinding(style=Style.RPC, use=Use.LITERAL, parameterStyle=ParameterStyle.BARE)
 public interface HumanTaskServicesInterface {
 
     /**
-     * Creates {@link Task} instance basing on a definition. The definitions are provided by the services. They can come from a file, e.g. htd1.xml, a database
-     * or any other source. We assume that the task is activated upon creation provided that it has any potential owners. Upon creation the following sets of
-     * persons are evaluated:
+     * Creates {@link Task} instance based on a definition. The definitions are provided by {@link HumanInteractionsManagerInterface}. 
+     * We assume that the task is activated upon creation provided that it has any potential owners. Upon creation the following sets of
+     * assignees (people or unresolved group of people) are evaluated:
      * <ul>
      * <li>task initiators - {@link pl.touk.humantask.model.GenericHumanRole#TASK_INITIATOR}</li>
      * <li>task stakeholders - {@link pl.touk.humantask.model.GenericHumanRole#TASK_STAKEHOLDERS}</li>
@@ -55,21 +45,16 @@ public interface HumanTaskServicesInterface {
      * data might be empty in some cases.<br/> If the task initiators are not empty and createdBy is not empty, it is checked whether task initiators contain
      * createdBy. If not, it is not allowed to create the task. Depending on the situation, createdBy may be empty. At the end, the new task is stored.
      *
-     * @param taskName
-     *            name of the task template from the definition file
-     * @param createdBy
-     *            user creating task
-     * @param requestXml
-     *            xml request used to invoke business method; can contain task-specific attributes, like last name, amount, etc.
+     * @param taskName   The name of the task template from the definition file.
+     * @param createdBy  The user creating task.
+     * @param requestXml The xml request used to invoke business method. Content of the request can be accessed by Task.
      * @return created Task
      * @throws HTException In case of problems while creating task
      */
-    @WebMethod(action="http://touk.pl/HumanTask/createTask")
-    @WebResult(targetNamespace="http://example.org/mybookmarks", name="task", partName="Task")
     Task createTask(String taskName, String createdBy, String requestXml) throws HTException;
 
     /**
-     * Retrieve the task details. This operation is used to obtain the data required to display a task list, as well as the details for the individual tasks.
+     * Retrieves task's details. This operation is used to obtain the data required to display a tasks list, as well as the details for the individual tasks.
      *
      * @param personName
      *            If specified and no work queue has been specified then only personal tasks are returned, classified by genericHumanRole.

@@ -7,6 +7,8 @@ package pl.touk.humantask.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.EqualsBuilder;
 
 /**
@@ -28,10 +30,11 @@ public class Group extends Assignee {
 
     /**
      * Unresolved group of people constructor.
-     * @param name          group name
+     * @param name The group name.
      */
-    Group(String name) {
+    public Group(String name) {
         super();
+        Validate.notNull(name);
         this.setName(name);
     }
 

@@ -34,12 +34,12 @@ public class HumanInteractionsManagerImplUnitTest {
     @Before
     public void setUp() throws Exception {
 
-        this.taskManager = TestUtil.createHumanInteractionsManager("htd1.xml", "testHtd1.xml");
+        this.taskManager = TestUtil.createHumanInteractionsManager("testHtd1.xml");
     }
 
     @Test
     public void testGetTaskDefinitionByName() throws HTException {
-        TaskDefinition taskDefinition = taskManager.getTaskDefinition("ApproveClaim");
+        TaskDefinition taskDefinition = taskManager.getTaskDefinition("Task1");
         assertNotNull(taskDefinition);
     }
 

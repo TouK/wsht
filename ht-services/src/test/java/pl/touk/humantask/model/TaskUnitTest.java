@@ -12,8 +12,10 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
@@ -52,13 +54,13 @@ public class TaskUnitTest {
 
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
         
-        final List<Assignee> assignees = new ArrayList<Assignee>();
+        final Set<Assignee> assignees = new HashSet<Assignee>();
         assignees.add(new Person("mateusz"));
         
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
-            one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(assignees));
-            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(Collections.EMPTY_LIST));
+            one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
         }});
 
         Task task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?></x>");
@@ -83,7 +85,7 @@ public class TaskUnitTest {
         //mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message(null));
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
-            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(Collections.EMPTY_LIST));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
         }});
 
         Task task = new Task(taskDefinition, null, "</x>");
@@ -108,14 +110,14 @@ public class TaskUnitTest {
 //        final Map<String, Message> mockMap = new HashMap<String, Message>();
 //        mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message(null));
         
-        final List<Assignee> assignees = new ArrayList<Assignee>();
+        final Set<Assignee> assignees = new HashSet<Assignee>();
         assignees.add(new Person("mateusz"));
         assignees.add(new Person("witek"));
         
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
-            one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(assignees));
-            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(Collections.EMPTY_LIST));
+            one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
         }});
 
         Task task = new Task(taskDefinition, null, "</x>");
@@ -132,7 +134,8 @@ public class TaskUnitTest {
      */
     @Test
     public void testNominateActualOwner() {
-        List<Assignee> assignees = new ArrayList<Assignee>();
+        
+        Set<Assignee> assignees = new HashSet<Assignee>();
         Task instance = new Task();
         Person result = instance.nominateActualOwner(assignees);
         assertEquals(null, result);
@@ -161,7 +164,7 @@ public class TaskUnitTest {
 
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
-            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Map.class))); will(returnValue(Collections.EMPTY_LIST));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
         }});
         
         Task t = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><a><b>test</b></a>");
