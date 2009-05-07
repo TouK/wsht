@@ -12,16 +12,6 @@
 	<version>1.0.2-SNAPSHOT</version>
 	<name>TouK Human Task Services</name>
 	<build>
-        <!-- 
-        <resources>
-            <resource>
-                <directory>${build.dir}</directory>
-                <excludes>
-                    <exclude>.svn</exclude>
-                </excludes>
-            </resource>
-        </resources>
-         -->
 		<plugins>
 			<plugin>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -63,9 +53,6 @@
 					<componentProperties>
 						<configurationfile>/src/hibernate/hibernate.cfg.xml</configurationfile>
 						<outputfilename>ht_schema.sql</outputfilename>
-						<!--
-							<namingstrategy>mycompany.myapp.IRDNamingStrategy</namingstrategy>
-						-->
 						<drop>false</drop>
 						<create>true</create>
 						<export>false</export>
@@ -137,25 +124,6 @@
     </profiles>
 	<dependencies>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>jsr250-api</artifactId>
-            <version>1.0</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- 
-        <dependency>
-            <groupId>com.trg</groupId>
-            <artifactId>trg-dao</artifactId>
-            <version>0.4.2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hibernate</groupId>
-                    <artifactId>hibernate-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        -->
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.5.2</version>
@@ -171,20 +139,6 @@
 			<artifactId>ht-ws-classes</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-        
-        <!-- 
-        <dependency>
-            <groupId>pl.touk</groupId>
-            <artifactId>touk-security</artifactId>
-            <version>1.0.2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.security</groupId>
-                    <artifactId>spring-security-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        -->
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
@@ -195,13 +149,6 @@
 			<artifactId>commons-lang</artifactId>
 			<version>2.4</version>
 		</dependency>
-        <!-- 
-        <dependency>
-            <groupId>javax.jws</groupId>
-            <artifactId>jsr181-api</artifactId>
-            <version>1.0-MR1</version>
-        </dependency>        
-        -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxws_2.1_spec</artifactId>
@@ -228,13 +175,6 @@
 			<artifactId>jta</artifactId>
 			<version>1.0.1B</version>
 		</dependency>
-        <!-- 
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate</artifactId>
-			<version>3.2.6.ga</version>
-		</dependency>
-         -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
@@ -261,48 +201,18 @@
                 </exclusion>
             </exclusions>
 		</dependency>
+        <!-- 
 		<dependency>
 			<groupId>commons-jxpath</groupId>
 			<artifactId>commons-jxpath</artifactId>
 			<version>1.3</version>
 		</dependency>
-		<!--
-			<dependency> <groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-core</artifactId>
-			<version>${cxf.version}</version> </dependency> <dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-frontend-simple</artifactId>
-			<version>${cxf.version}</version> </dependency> <dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-frontend-jaxws</artifactId>
-			<version>${cxf.version}</version> </dependency> <dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-databinding-aegis</artifactId>
-			<version>${cxf.version}</version> </dependency> <dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-transports-local</artifactId>
-			<version>${cxf.version}</version> </dependency> <dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-transports-http</artifactId>
-			<version>${cxf.version}</version> </dependency> <dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-transports-http-jetty</artifactId>
-			<version>${cxf.version}</version> </dependency> <dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-transports-jms</artifactId>
-			<version>${cxf.version}</version> </dependency> <dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-management</artifactId>
-			<version>${cxf.version}</version> </dependency> <dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-common-utilities</artifactId>
-			<version>${cxf.version}</version> </dependency>
-		<dependency>
-			<groupId>opensymphony</groupId>
-			<artifactId>quartz</artifactId>
-			<version>1.5.2</version>
-		</dependency>
-		-->
+         -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.1</version>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
@@ -321,20 +231,16 @@
             <version>1.6.2</version>
             <scope>provided</scope>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>pl.touk</groupId>
-            <artifactId>touk-logging</artifactId>
-            <version>1.0.2</version>
-        </dependency>
-        -->
+
         <!-- Test -->
+        <!-- 
 		<dependency>
 			<groupId>org.mortbay.jetty</groupId>
 			<artifactId>jetty</artifactId>
 			<version>6.1.6</version>
 			<scope>test</scope>
 		</dependency>
+        -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -342,9 +248,10 @@
 			<scope>test</scope>
 		</dependency>
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.1</version>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
+            <version>1.0</version>
+            <scope>test</scope>
         </dependency>
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
@@ -388,9 +295,7 @@
             <version>2.9.1</version>
             <scope>test</scope>
         </dependency>
-        
         <!-- ~Test -->
-
         
 	</dependencies>
 </project>

@@ -9,15 +9,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
 
 import org.apache.commons.logging.Log;
@@ -26,7 +21,6 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
-import org.w3c.dom.Element;
 
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.spec.TaskDefinition;

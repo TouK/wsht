@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.jws.WebService;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -18,11 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
+import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
-import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Attachment;
 import pl.touk.humantask.model.GenericHumanRole;

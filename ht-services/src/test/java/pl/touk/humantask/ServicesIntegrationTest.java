@@ -1,7 +1,6 @@
 package pl.touk.humantask;
 
 import java.util.ArrayList;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,9 +10,7 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.junit.Test;
-
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -21,16 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
-
-import pl.touk.humantask.exceptions.HTIllegalAccessException;
-import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HTException;
-
+import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.model.Task.TaskTypes;
 import pl.touk.humantask.model.Task.Status;
-
+import pl.touk.humantask.model.Task.TaskTypes;
 import pl.touk.mock.TaskMockery;
 
 /**

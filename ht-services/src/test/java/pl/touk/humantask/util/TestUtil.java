@@ -5,17 +5,18 @@
 
 package pl.touk.humantask.util;
 
-import pl.touk.humantask.model.Assignee;
-import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
-import pl.touk.humantask.spec.HumanInteractionsManagerImpl;
-import pl.touk.humantask.spec.PeopleQuery;
-import pl.touk.humantask.exceptions.HTException;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ClassPathResource;
-
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+
+import pl.touk.humantask.exceptions.HTException;
+import pl.touk.humantask.model.Assignee;
+import pl.touk.humantask.spec.HumanInteractionsManagerImpl;
+import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
+import pl.touk.humantask.spec.PeopleQuery;
 
 /*
  * TODO: ADD SHORT DESCRIPTION 

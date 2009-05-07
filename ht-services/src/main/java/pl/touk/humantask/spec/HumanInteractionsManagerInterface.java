@@ -5,7 +5,6 @@
 
 package pl.touk.humantask.spec;
 
-import pl.touk.humantask.exceptions.HTException;
 
 /**
  * This interface introduces methods for task retrieving. We assume that task name is unique

@@ -32,9 +32,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import pl.touk.humantask.HumanTaskServicesInterface;
 import pl.touk.humantask.dao.TaskDao;
+import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
-import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.TaskType;

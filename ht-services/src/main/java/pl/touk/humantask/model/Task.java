@@ -52,8 +52,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HTException;
+import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 import pl.touk.humantask.spec.TaskDefinition;
 

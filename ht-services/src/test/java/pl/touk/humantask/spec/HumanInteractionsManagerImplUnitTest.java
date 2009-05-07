@@ -5,22 +5,14 @@
 
 package pl.touk.humantask.spec;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-
 import pl.touk.humantask.exceptions.HTConfigurationException;
 import pl.touk.humantask.exceptions.HTException;
-
 import pl.touk.humantask.util.TestUtil;
-
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * {@link HumanInteractionsManagerImpl} class unit tests.

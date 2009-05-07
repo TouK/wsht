@@ -5,7 +5,6 @@
 
 package pl.touk.humantask.model;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 
 import org.apache.commons.lang.builder.EqualsBuilder;

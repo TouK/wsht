@@ -8,24 +8,23 @@ package pl.touk.humantask.spec;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import junit.framework.Assert;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Test;
 import org.junit.Before;
+import org.junit.Test;
+
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Group;
-import pl.touk.humantask.model.Message;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.util.TestUtil;
-import junit.framework.Assert;
 
 /**
  * Test of {@link TaskDefinition} class.

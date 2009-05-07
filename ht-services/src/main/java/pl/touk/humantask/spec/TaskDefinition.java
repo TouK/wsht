@@ -34,7 +34,6 @@ import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Group;
-import pl.touk.humantask.model.Message;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.util.TemplateEngine;
