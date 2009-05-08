@@ -35,7 +35,7 @@ import pl.touk.mock.TaskMockery;
  * @author Piotr Jagielski
  * @author Mateusz Lipczyński
  */
-@ContextConfiguration(locations = {"classpath:/test.xml", "classpath:/applicationContext.xml"})
+@ContextConfiguration(locations = {"classpath:/test.xml"})
 public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     private final Log LOG = LogFactory.getLog(ServicesIntegrationTest.class);

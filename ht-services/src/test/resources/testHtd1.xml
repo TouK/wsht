@@ -61,7 +61,7 @@
 
                 <htd:businessAdministrators>
                     <htd:from logicalPeopleGroup="lpg1">
-                        <htd:argument name="region"> htd:getInput("ClaimApprovalRequest")/region </htd:argument>
+                        <htd:argument name="region"> htd:getInput("ClahimApprovalRequest")/region </htd:argument>
                     </htd:from>
                 </htd:businessAdministrators>
                 
