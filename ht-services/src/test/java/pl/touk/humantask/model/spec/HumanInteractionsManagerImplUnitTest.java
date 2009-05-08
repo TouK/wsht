@@ -1,17 +1,20 @@
 /*
- * Copyright (c) (2005 - )2009 TouK sp. z o.o. s.k.a.
+ * Copyright (c) 2009 TouK sp. z o.o. s.k.a.
  * All rights reserved
  */
 
-package pl.touk.humantask.spec;
+package pl.touk.humantask.model.spec;
 
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import pl.touk.humantask.HumanInteractionsManager;
+import pl.touk.humantask.HumanInteractionsManagerImpl;
 import pl.touk.humantask.exceptions.HTConfigurationException;
 import pl.touk.humantask.exceptions.HTException;
+import pl.touk.humantask.model.spec.TaskDefinition;
 import pl.touk.humantask.util.TestUtil;
 
 /**
@@ -21,7 +24,7 @@ import pl.touk.humantask.util.TestUtil;
  */
 public class HumanInteractionsManagerImplUnitTest {
 
-    private HumanInteractionsManagerInterface taskManager;
+    private HumanInteractionsManager taskManager;
 
     @Before
     public void setUp() throws Exception {

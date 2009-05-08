@@ -24,7 +24,7 @@
         <property name="configuration" value="classpath:peopleGroups.properties" />
     </bean>
 
-    <bean id="taskManager" class="pl.touk.humantask.spec.HumanInteractionsManagerImpl">
+    <bean id="taskManager" class="pl.touk.humantask.HumanInteractionsManagerImpl">
         <constructor-arg>
             <list>
                 <value>classpath:testHtd1.xml</value>

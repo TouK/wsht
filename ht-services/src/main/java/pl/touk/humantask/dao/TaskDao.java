@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import pl.touk.humantask.HumanTaskServicesInterface;
+import pl.touk.humantask.HumanTaskServices;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Person;
@@ -34,7 +34,7 @@ public interface TaskDao extends BasicDao<Task, Long> {
     List<Task> getTasks(Person owner);
 
     /**
-     * Returns tasks. See {@link HumanTaskServicesInterface#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
+     * Returns tasks. See {@link HumanTaskServices#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
      * for method contract.
      *
      * @param owner

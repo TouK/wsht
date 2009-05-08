@@ -3,7 +3,7 @@
  * All rights reserved
  */
 
-package pl.touk.humantask.spec;
+package pl.touk.humantask;
 
 import java.util.List;
 import java.util.Map;

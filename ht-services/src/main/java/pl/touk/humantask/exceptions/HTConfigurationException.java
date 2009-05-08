@@ -1,5 +1,5 @@
 /*
- * Copyright (c) (2005 - )2009 TouK sp. z o.o. s.k.a.
+ * Copyright (c) 2009 TouK sp. z o.o. s.k.a.
  * All rights reserved
  */
 

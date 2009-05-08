@@ -17,7 +17,6 @@ import org.springframework.core.io.Resource;
 
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Person;
-import pl.touk.humantask.spec.PeopleQuery;
 
 /**
  * Loads property file. Returns all people listed in property file together with

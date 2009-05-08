@@ -3,7 +3,7 @@
  * All rights reserved
  */
 
-package pl.touk.humantask.spec;
+package pl.touk.humantask.model.spec;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -18,12 +18,14 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 
+import pl.touk.humantask.HumanInteractionsManager;
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
+import pl.touk.humantask.model.spec.TaskDefinition;
 import pl.touk.humantask.util.TestUtil;
 
 /**
@@ -35,7 +37,7 @@ public class TaskDefinitionUnitTest {
 
     private final Log log = LogFactory.getLog(TaskDefinitionUnitTest.class);
 
-    private HumanInteractionsManagerInterface humanInteractionsManager;
+    private HumanInteractionsManager humanInteractionsManager;
 
     @Before
     public void setUpTestContext() throws HTException {

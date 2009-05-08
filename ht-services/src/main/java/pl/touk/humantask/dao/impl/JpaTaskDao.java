@@ -18,7 +18,7 @@ import javax.persistence.Query;
 
 import org.springframework.stereotype.Repository;
 
-import pl.touk.humantask.HumanTaskServicesInterface;
+import pl.touk.humantask.HumanTaskServices;
 import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
@@ -57,7 +57,7 @@ public class JpaTaskDao implements TaskDao {
     }
 
     /**
-     * Returns tasks. See {@link HumanTaskServicesInterface#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
+     * Returns tasks. See {@link HumanTaskServices#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
      * for method contract.
      */
     public List<Task> getTasks(Assignee owner, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Status> statuses,

@@ -3,11 +3,14 @@
  * All rights reserved
  */
 
-package pl.touk.humantask.spec;
+package pl.touk.humantask.model.spec;
 
 import java.util.List;
 
 import org.w3c.dom.Document;
+
+import pl.touk.humantask.HumanInteractionsManager;
+import pl.touk.humantask.PeopleQuery;
 
 /**
  * Provides access methods to Human Interactions document defined
@@ -32,11 +35,11 @@ public class HumanInteractions {
     }
 
     /**
-     * Constructor called by {@link HumanInteractionsManagerInterface implementation}.
+     * Constructor called by {@link HumanInteractionsManager implementation}.
      * @param document the human interactions DOM document
      * @param peopleQuery
      */
-    HumanInteractions(Document document, PeopleQuery peopleQuery) {
+    public HumanInteractions(Document document, PeopleQuery peopleQuery) {
         super();
         this.setDocument(document);
         this.peopleQuery = peopleQuery;

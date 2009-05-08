@@ -15,7 +15,7 @@ import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.Status;
-import pl.touk.humantask.spec.TaskDefinition;
+import pl.touk.humantask.model.spec.TaskDefinition;
 
 public class TaskMockery extends Mockery {
     

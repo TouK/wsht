@@ -23,7 +23,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 
 import pl.touk.humantask.exceptions.HTException;
-import pl.touk.humantask.spec.TaskDefinition;
+import pl.touk.humantask.model.spec.TaskDefinition;
 
 /**
  * {@link Task} class unit tests.

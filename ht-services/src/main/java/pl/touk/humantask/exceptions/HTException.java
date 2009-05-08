@@ -8,6 +8,7 @@ package pl.touk.humantask.exceptions;
  * Human Task checked exception.
  * 
  * @author Witek Wołejszo
+ * @author Warren Crossing
  */
 public class HTException extends Exception {
 

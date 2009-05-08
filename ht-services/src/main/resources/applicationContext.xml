@@ -49,7 +49,7 @@
         <property name="entityManagerFactory" ref="entityManagerFactory" />
     </bean>
    
-	<bean id="humanTaskServices" class="pl.touk.humantask.Services">
+	<bean id="humanTaskServices" class="pl.touk.humantask.HumanTaskServicesImpl">
 		<property name="taskDao" ref="taskDao" />
 		<property name="assigneeDao" ref="assigneeDao" />
         <property name="taskManager" ref="taskManager"/>

@@ -1,9 +1,9 @@
 /*
- * Copyright (c) (2005 - )2009 TouK sp. z o.o. s.k.a.
+ * Copyright (c) 2009 TouK sp. z o.o. s.k.a.
  * All rights reserved
  */
 
-package pl.touk.humantask.spec;
+package pl.touk.humantask;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +35,8 @@ import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Message;
+import pl.touk.humantask.model.spec.HumanInteractions;
+import pl.touk.humantask.model.spec.TaskDefinition;
 
 /* 
  * Human interactions manager.
@@ -43,7 +45,7 @@ import pl.touk.humantask.model.Message;
  * @author <a href="mailto:ww@touk.pl">Witek Wołejszo</a>
  */
 @Service
-public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInterface {
+public class HumanInteractionsManagerImpl implements HumanInteractionsManager {
 
     private final Log log = LogFactory.getLog(HumanInteractionsManagerImpl.class);
 
@@ -204,7 +206,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManagerInt
     }
 
     /**
-     * Just a very simple, stub pl.touk.humantask.spec.PeopleQuery implementation, which simply creates Assignee instances with a given name.
+     * Just a very simple, stub pl.touk.humantask.model.spec.PeopleQuery implementation, which simply creates Assignee instances with a given name.
      *
      * @param logicalPeopleGroupName the logical people group name
      * @param input                  the input message that created the task

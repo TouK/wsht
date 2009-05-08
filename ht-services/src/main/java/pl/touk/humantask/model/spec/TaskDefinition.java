@@ -2,7 +2,8 @@
  * Copyright (C) 2009 TouK sp. z o.o. s.k.a.
  * All rights reserved
  */
-package pl.touk.humantask.spec;
+
+package pl.touk.humantask.model.spec;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import pl.touk.humantask.PeopleQuery;
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;

@@ -5,7 +5,7 @@
 package pl.touk.humantask.exceptions;
 
 /**
- *  Invoking an operation that does not apply to the task type (e.g., invoking claim on anotification) results in an illegalOperationFault.
+ * Invoking an operation that does not apply to the task type (e.g., invoking claim on anotification) results in an illegalOperationFault.
  *
  * @author Warren Crossing
  */

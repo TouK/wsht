@@ -14,7 +14,6 @@ import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.TaskTypes;
-import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
 
 /**
  * Human task engine services interface.
@@ -22,10 +21,10 @@ import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
  */
-public interface HumanTaskServicesInterface {
+public interface HumanTaskServices {
 
     /**
-     * Creates {@link Task} instance based on a definition. The definitions are provided by {@link HumanInteractionsManagerInterface}. 
+     * Creates {@link Task} instance based on a definition. The definitions are provided by {@link HumanInteractionsManager}. 
      * We assume that the task is activated upon creation provided that it has any potential owners. Upon creation the following sets of
      * assignees (people or unresolved group of people) are evaluated:
      * <ul>

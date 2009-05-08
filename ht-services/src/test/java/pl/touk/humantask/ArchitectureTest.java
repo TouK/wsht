@@ -42,7 +42,7 @@ public class ArchitectureTest {
         model = jdepend.addPackage("pl.touk.humantask.model");
         dao = jdepend.addPackage("pl.touk.humantask.dao");
         daoImpl = jdepend.addPackage("pl.touk.humantask.dao.impl");
-        spec = jdepend.addPackage("pl.touk.humantask.spec");
+        spec = jdepend.addPackage("pl.touk.humantask.model.spec");
         ws = jdepend.addPackage("pl.touk.humantask.ws");
 
     }

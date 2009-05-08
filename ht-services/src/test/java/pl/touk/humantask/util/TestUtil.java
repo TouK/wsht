@@ -12,11 +12,11 @@ import java.util.Map;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import pl.touk.humantask.HumanInteractionsManager;
+import pl.touk.humantask.HumanInteractionsManagerImpl;
+import pl.touk.humantask.PeopleQuery;
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
-import pl.touk.humantask.spec.HumanInteractionsManagerImpl;
-import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
-import pl.touk.humantask.spec.PeopleQuery;
 
 /*
  * TODO: ADD SHORT DESCRIPTION 
@@ -27,13 +27,13 @@ import pl.touk.humantask.spec.PeopleQuery;
 public class TestUtil {
     
     /**
-     * Helper method for creating HumanInteractionsManagerInterface instance from a given fileset.
+     * Helper method for creating HumanInteractionsManager instance from a given fileset.
      *
      * @param htdFiles - files, which contain human interactions definitions.
      * @return
      * @throws HTException
      */
-    public static HumanInteractionsManagerInterface createHumanInteractionsManager(String... htdFiles) throws HTException {
+    public static HumanInteractionsManager createHumanInteractionsManager(String... htdFiles) throws HTException {
         
         List<Resource> resources = new ArrayList<Resource>();
         

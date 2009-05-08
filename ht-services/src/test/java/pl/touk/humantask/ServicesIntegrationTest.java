@@ -27,7 +27,7 @@ import pl.touk.humantask.model.Task.TaskTypes;
 import pl.touk.mock.TaskMockery;
 
 /**
- * {@link Services} integration tests.
+ * {@link HumanTaskServicesImpl} integration tests.
  *
  * @author Witek Wołejszo
  * @author Warren Crossing
@@ -41,7 +41,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     private final Log LOG = LogFactory.getLog(ServicesIntegrationTest.class);
 
     @Resource(name = "humanTaskServices")
-    HumanTaskServicesInterface services;
+    HumanTaskServices services;
 
     @Resource(name = "taskDao")
     TaskDao taskDao;

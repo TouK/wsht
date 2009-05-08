@@ -52,10 +52,10 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import pl.touk.humantask.HumanInteractionsManager;
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
-import pl.touk.humantask.spec.HumanInteractionsManagerInterface;
-import pl.touk.humantask.spec.TaskDefinition;
+import pl.touk.humantask.model.spec.TaskDefinition;
 
 /**
  * Holds task instance information.
@@ -78,10 +78,10 @@ public class Task extends Base {
      */
     @Transient
     @Resource
-    protected HumanInteractionsManagerInterface humanInteractionsManager;
+    protected HumanInteractionsManager humanInteractionsManager;
     
     /**
-     * Key {@link Task} definition is looked up in {@link HumanInteractionsManagerInterface} by.
+     * Key {@link Task} definition is looked up in {@link HumanInteractionsManager} by.
      */
     @Column(nullable = false)
     protected String taskDefinitionKey;
@@ -114,7 +114,7 @@ public class Task extends Base {
 
     /**
      * Task input message map. Maps message part to message. If
-     * document style Web Services are used to start Task, part name
+     * document style Web HumanTaskServicesImpl are used to start Task, part name
      * should be set to {@link Message.DEFAULT_PART_NAME_KEY}.
      */
     @OneToMany(cascade = CascadeType.PERSIST)
@@ -200,8 +200,6 @@ public class Task extends Base {
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.MERGE)
     private List<Attachment> attachments = new ArrayList<Attachment>();
-
-    // TODO deadlines
 
     /***************************************************************
      * Constructors                                                *
@@ -562,25 +560,25 @@ public class Task extends Base {
      * Business methods.                                           *
      ***************************************************************/
 
-    /**
-     * Resumes suspended task.
-     */
-    public void resume() {
-
-        if ((statusBeforeSuspend == Status.READY || statusBeforeSuspend == Status.IN_PROGRESS || statusBeforeSuspend == Status.RESERVED)
-                && this.status == Status.SUSPENDED) {
-            this.status = statusBeforeSuspend;
-        }
-        // TODO exception
-        /* else throw new HumanTaskException("status before suspend is invalid: "+statusBeforeSuspend.toString()); */
-    }
-
-    /**
-     * Reserves the task.
-     */
-    public void reserve() throws HTIllegalStateException {
-        this.setStatus(Status.RESERVED);
-    }
+//    /**
+//     * Resumes suspended task.
+//     */
+//    public void resume() {
+//
+//        if ((statusBeforeSuspend == Status.READY || statusBeforeSuspend == Status.IN_PROGRESS || statusBeforeSuspend == Status.RESERVED)
+//                && this.status == Status.SUSPENDED) {
+//            this.status = statusBeforeSuspend;
+//        }
+//        // TODO exception
+//        /* else throw new HumanTaskException("status before suspend is invalid: "+statusBeforeSuspend.toString()); */
+//    }
+//
+//    /**
+//     * Reserves the task.
+//     */
+//    public void reserve() throws HTIllegalStateException {
+//        this.setStatus(Status.RESERVED);
+//    }
 
     /**
      * Evaluates XPath expression in context of the Task. Expression can contain 

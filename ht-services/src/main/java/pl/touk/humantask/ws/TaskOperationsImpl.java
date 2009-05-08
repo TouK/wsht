@@ -30,7 +30,7 @@ import org.example.ws_ht.api.xsd.IllegalState;
 import org.example.ws_ht.api.xsd.TTime;
 import org.springframework.beans.factory.annotation.Configurable;
 
-import pl.touk.humantask.HumanTaskServicesInterface;
+import pl.touk.humantask.HumanTaskServices;
 import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
@@ -60,7 +60,7 @@ public class TaskOperationsImpl implements TaskOperations {
     /**
      * Implementation of WH-HT services.
      */
-    private HumanTaskServicesInterface services;
+    private HumanTaskServices services;
     /**
      * Security context used to retrieve implicit user information.
      */
@@ -412,11 +412,11 @@ public class TaskOperationsImpl implements TaskOperations {
         // TODO Auto-generated method stub
     }
 
-    public void setServices(HumanTaskServicesInterface services) {
+    public void setServices(HumanTaskServices services) {
         this.services = services;
     }
 
-    public HumanTaskServicesInterface getServices() {
+    public HumanTaskServices getServices() {
         return this.services;
     }
 
