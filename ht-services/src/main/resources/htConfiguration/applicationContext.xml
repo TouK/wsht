@@ -27,7 +27,7 @@
                 <property name="databasePlatform" value="org.hibernate.dialect.H2Dialect" />
             </bean>
         </property>
-        <property name="persistenceXmlLocation" value="htConfiguration/persistence.xml" />
+        <property name="persistenceXmlLocation" value="classpath:/htConfiguration/persistence.xml" />
         <property name="persistenceUnitName" value="TOUK-WSHT-PU"/>
         <!-- 
             <property name="loadTimeWeaver"> <bean class="org.springframework.instrument.classloading.SimpleLoadTimeWeaver"/> </property> 
