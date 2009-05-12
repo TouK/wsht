@@ -164,7 +164,7 @@ public class TaskOperationsImpl implements TaskOperations {
             Integer maxTasks) throws IllegalArgumentFault, IllegalStateFault {
         try {
             return translateTaskAPI(this.services.getMyTasks(this.securityContext.getLoggedInUser().getUsername(), TaskTypes.valueOf(taskType),
-                    GenericHumanRole.valueOf(genericHumanRole), workQueue, translateStatusAPI(status), whereClause, createdOnClause, maxTasks));
+                    GenericHumanRole.valueOf(genericHumanRole), workQueue, translateStatusAPI(status), whereClause, null, createdOnClause, maxTasks, 0));
         } catch (HTException xHT) {
             this.translateIllegalStateException(xHT);
             this.translateIllegalArgumentException(xHT);

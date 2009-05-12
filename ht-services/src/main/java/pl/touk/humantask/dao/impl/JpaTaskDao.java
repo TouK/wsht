@@ -43,25 +43,25 @@ public class JpaTaskDao implements TaskDao {
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
 
-    /**
-     * Returns all {@link Task}s currenty owned by specifed {@link Person}.
-     * 
-     * @param   owner the owner's name
-     * @return  list of {@link Task}s
-     */
-    public List<Task> getTasks(Person owner) {
-
-        Query query = entityManager.createQuery("SELECT t FROM Task t WHERE t.actualOwner = :owner");
-        query.setParameter("owner", owner);
-        return query.getResultList();
-    }
+//    /**
+//     * Returns all {@link Task}s currenty owned by specifed {@link Person}.
+//     * 
+//     * @param   owner the owner's name
+//     * @return  list of {@link Task}s
+//     */
+//    public List<Task> getTasks(Person owner) {
+//
+//        Query query = entityManager.createQuery("SELECT t FROM Task t WHERE t.actualOwner = :owner");
+//        query.setParameter("owner", owner);
+//        return query.getResultList();
+//    }
 
     /**
      * Returns tasks. See {@link HumanTaskServices#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
      * for method contract.
      */
     public List<Task> getTasks(Assignee owner, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Status> statuses,
-            String whereClause, String createdOnClause, Integer maxTasks) {
+            String whereClause, String orderByClause, String createdOnClause, Integer maxTasks, Integer offset) {
 
         Map<String, Object> namedParameters = new HashMap<String, Object>();
         
@@ -150,16 +150,33 @@ public class JpaTaskDao implements TaskDao {
             queryString = queryString.substring(0, queryString.length() - 6);
         }
         
-        queryBuilder = new StringBuilder(queryString);
-        queryBuilder.append(" ORDER BY t.activationTime ");
-        
+        if (orderByClause != null) {
+            
+            queryBuilder = new StringBuilder(queryString);
+            queryBuilder.append(" ORDER BY ");
+            queryBuilder.append(orderByClause);
+            queryBuilder.append(" ");
+            
+        } else {
+            
+            queryBuilder = new StringBuilder(queryString);
+            queryBuilder.append( " ORDER BY t.activationTime ");
+            
+        }
+
         queryString = queryBuilder.toString();
         
         Query query = entityManager.createQuery(queryString);
         
         if (maxTasks != null && maxTasks > 0) {
-            query.setFirstResult(0);
+            //query.setFirstResult(0);
             query.setMaxResults(maxTasks);
+        }
+        
+        if (offset != null) {
+            query.setFirstResult(offset);
+        } else {
+            query.setFirstResult(0);
         }
         
         for (Map.Entry<String, Object> parameter : namedParameters.entrySet()) {

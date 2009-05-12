@@ -55,29 +55,30 @@ public interface HumanTaskServices {
     /**
      * Retrieves task's details. This operation is used to obtain the data required to display a tasks list, as well as the details for the individual tasks.
      *
-     * @param personName
-     *            If specified and no work queue has been specified then only personal tasks are returned, classified by genericHumanRole.
-     * @param taskType
-     *            one of {@link pl.touk.humantask.model.Task.TaskTypes#ALL}, {@link pl.touk.humantask.model.Task.TaskTypes#NOTIFICATIONS}, {@link pl.touk.humantask.model.Task.TaskTypes#TASKS}.
-     * @param genericHumanRole
-     *            A classifier of names contained in the task.
-     * @param workQueue
-     *            If the work queue is specified then only tasks having a work queue and generic human role are returned.
-     * @param status
-     *            selects the tasks whose status is one of those specified in List, if not specified or is empty list, a status wildcard is assumed.
-     * @param whereClause
-     *            - an JPA where clause added to the query. These additional fields may be used:
-     *            (ID, TaskType, Name, Status, Priority, CreatedOn, ActivationTime, ExpirationTime
-     *            ,StartByExists, CompleteByExists, RenderMethExists, Escalated, PrimarySearchBy);
-     * @param createdOnClause
-     *            - an JPA where clause performed on an xsd:date.
-     * @param maxTasks
-     *            - the maximum number of results returned in the List after ordering by activationTime.
-     * @return List of Tasks which meet the criteria.
-     * @throws HTException In case of problems while getting tasks
+     * @param personName        The person assignee name. If specified and no work queue has been specified then only personal tasks are returned, classified by genericHumanRole.
+     * @param taskType          The Task type - one of {@link pl.touk.humantask.model.Task.TaskTypes#ALL}, {@link pl.touk.humantask.model.Task.TaskTypes#NOTIFICATIONS}, {@link pl.touk.humantask.model.Task.TaskTypes#TASKS}.
+     * @param genericHumanRole  TODO wcr ?The classifier of names contained in the task?
+     * @param workQueue         If the work queue is specified then only tasks having a work queue and generic human role are returned.
+     * @param status            Task statuses. Tasks which status is one of those specified in List, if not specified or is empty list, a status wildcard is assumed.
+     * @param whereClause       The JPA where clause added to the query. These fields may be used:
+     * <ul>
+     * <li>Task.*</li>
+     * <li>PresenationParameter.*</li>
+     * </ul>
+     * @param orderByClause     The JPA order by clause added to the query. These fields may be used:
+     * <ul>
+     * <li>Task.*</li>
+     * <li>PresenationParameter.*</li>
+     * </ul>
+     * @param createdOnClause   TODO WCR ?an JPA where clause performed on an xsd:date?
+     * @param maxTasks          The maximum number of results returned in the List after ordering by activationTime.
+     * @param offset            The number from which found tasks are returned. 
+     * @return                  List of Tasks which meet the criteria.
+     *
+     * @throws HTException In case of problems while getting tasks.
      */
     List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
-            String whereClause, String createdOnClause, Integer maxTasks) throws HTException;
+            String whereClause, String orderByClause, String createdOnClause, Integer maxTasks, Integer offset) throws HTException;
 
     /**
      * Claim responsibility for a task, i.e. set the task to status Reserved.

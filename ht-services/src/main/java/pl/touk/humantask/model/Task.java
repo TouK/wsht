@@ -92,12 +92,12 @@ public class Task extends Base {
     protected String taskDefinitionKey;
 
     //TODO static?
-    public enum TaskTypes {
+    public static enum TaskTypes {
         ALL, TASKS, NOTIFICATIONS;
     }
 
     //TODO static?
-    public enum TaskType {
+    public static enum TaskType {
         TASK, NOTIFICATION;
     }
     

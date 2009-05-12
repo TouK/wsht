@@ -99,7 +99,7 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
      * @see pl.touk.humantask.HumanTaskServices#getMyTasks(java.lang.String, pl.touk.humantask.model.Task.TaskTypes, pl.touk.humantask.model.GenericHumanRole, java.lang.String, java.util.List, java.lang.String, java.lang.String, java.lang.Integer) 
      */
     public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
-            String whereClause, String createdOnClause, Integer maxTasks) throws HTException {
+            String whereClause, String orderByClause, String createdOnClause, Integer maxTasks, Integer offset) throws HTException {
 
         if (null == personName && null == workQueue) {
             throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("parameter not specified","workQueue");
@@ -120,10 +120,10 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
         }
 
         try {
-            return taskDao.getTasks(person, taskType, genericHumanRole, workQueue, status, whereClause, createdOnClause, maxTasks);
+            return taskDao.getTasks(person, taskType, genericHumanRole, workQueue, status, whereClause, orderByClause, createdOnClause, maxTasks, offset);
 
         } catch (Exception x) {
-            throw new HTIllegalOperationException(x.getMessage(),"getMyTasks",x);
+            throw new HTIllegalOperationException(x.getMessage(), "getMyTasks", x);
         }
     }
 
@@ -170,16 +170,16 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
      * Later.
      */
 
-    /**
-     * Returns task owned by specified person.
-     *
-     * @param personName Name of tasks owner
-     * @return List of specified person tasks
-     */
-    public List<Task> getMyTasks(String personName) {
-        Person person = assigneeDao.getPerson(personName);
-        return taskDao.getTasks(person);
-    }
+//    /**
+//     * Returns task owned by specified person.
+//     *
+//     * @param personName Name of tasks owner
+//     * @return List of specified person tasks
+//     */
+//    public List<Task> getMyTasks(String personName) {
+//        Person person = assigneeDao.getPerson(personName);
+//        return taskDao.getTasks(person);
+//    }
 
     /**
      * TODO move to task

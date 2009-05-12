@@ -99,7 +99,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         List<Task> results = services.getMyTasks("Jacek", TaskTypes.ALL,
                 GenericHumanRole.TASK_STAKEHOLDERS, null,
-                Arrays.asList(Status.IN_PROGRESS, Status.OBSOLETE), null, null, 1);
+                Arrays.asList(Status.IN_PROGRESS, Status.OBSOLETE), null, null, null, 1, 0);
 
         Assert.assertEquals(1, results.size());
 
@@ -112,7 +112,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         //results = services.getMyTasks("Jacek", TaskTypes.ALL,
         //      GenericHumanRole.TASK_STAKEHOLDERS, "admin", new ArrayList(), null, null, 1);
         results = services.getMyTasks("Jacek", TaskTypes.ALL, 
-                GenericHumanRole.TASK_STAKEHOLDERS, null, new ArrayList<Status>(), null, null, 1);
+                GenericHumanRole.TASK_STAKEHOLDERS, null, new ArrayList<Status>(), null, null, null, 1, 0);
 
         Assert.assertEquals(1, results.size());
 

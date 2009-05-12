@@ -25,13 +25,13 @@ import pl.touk.humantask.model.Task.TaskTypes;
 @Repository
 public interface TaskDao extends BasicDao<Task, Long> {
 
-    /**
-     * Returns all {@link Task}s currenty owned by specifed {@link Person}.
-     *
-     * @param   owner the owner's name
-     * @return  list of {@link Task}s
-     */
-    List<Task> getTasks(Person owner);
+//    /**
+//     * Returns all {@link Task}s currenty owned by specifed {@link Person}.
+//     *
+//     * @param   owner the owner's name
+//     * @return  list of {@link Task}s
+//     */
+//    List<Task> getTasks(Person owner);
 
     /**
      * Returns tasks. See {@link HumanTaskServices#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
@@ -43,12 +43,14 @@ public interface TaskDao extends BasicDao<Task, Long> {
      * @param workQueue
      * @param status
      * @param whereClause
+     * @param orderByClause
      * @param createdOnClause
      * @param maxTasks
+     * @param offset
      * @return
      */
     List<Task> getTasks(Assignee owner, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status, String whereClause,
-            String createdOnClause, Integer maxTasks);
+            String orderByClause, String createdOnClause, Integer maxTasks, Integer offset);
 
     /**
      * Checks if given entity exists.
