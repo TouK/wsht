@@ -28,6 +28,7 @@
 					</execution>
 				</executions>
 			</plugin>
+            <!--
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>hibernate3-maven-plugin</artifactId>
@@ -60,6 +61,7 @@
 					</componentProperties>
 				</configuration>
 			</plugin>
+            -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
