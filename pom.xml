@@ -4,7 +4,7 @@
 	<groupId>pl.touk.wsht</groupId>
 	<artifactId>wsht</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.4-SNAPSHOT</version>
+	<version>1.0.4</version>
 	<name>TouK Human Task</name>
 	<parent>
 		<groupId>pl.touk</groupId>
@@ -50,4 +50,10 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
+  <scm>
+    <connection>scm:svn:https://touk.pl/svn/internal/touk/wsht/tags/wsht-1.0.4</connection>
+    <developerConnection>scm:svn:https://touk.pl/svn/internal/touk/wsht/tags/wsht-1.0.4</developerConnection>
+    <url>https://touk.pl/svn/internal/touk/wsht/tags/wsht-1.0.4</url>
+  </scm>
 </project>
