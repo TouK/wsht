@@ -21,6 +21,7 @@ public abstract class Assignee extends Base {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @Column(unique = true)
     protected String name;
 

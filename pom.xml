@@ -22,7 +22,7 @@
 		<module>ht-services</module>
 	</modules>
 	<properties>
-		<cxf.version>2.2</cxf.version>
+		<cxf.version>2.2.1</cxf.version>
 		<spring.version>2.5.6</spring.version>
 	</properties>
 	<issueManagement>

@@ -58,7 +58,7 @@ public class TaskMockery extends Mockery {
         checking(new Expectations() {{
             try{
                 allowing(taskDefinition).getTaskName();
-                will(returnValue("taskLookupKey"));
+                will(returnValue("Task1"));
                 allowing(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, with(any(Task.class)));
                 will(returnValue(assignees));
                 allowing(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, with(any(Task.class)));

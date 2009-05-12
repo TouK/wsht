@@ -11,6 +11,7 @@
         <class>pl.touk.humantask.model.Person</class>
         <class>pl.touk.humantask.model.Task</class>
         <class>pl.touk.humantask.model.Message</class>
+        <class>pl.touk.humantask.model.PresentationParameter</class>
         <exclude-unlisted-classes/>
     </persistence-unit>
 </persistence>

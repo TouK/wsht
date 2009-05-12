@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 import javax.persistence.CascadeType;
@@ -29,6 +30,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.PostLoad;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
@@ -48,11 +50,14 @@ import javax.xml.xpath.XPathFunctionResolver;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.annotation.Configurable;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import pl.touk.humantask.HumanInteractionsManager;
+import pl.touk.humantask.exceptions.HTConfigurationException;
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.model.spec.TaskDefinition;
@@ -67,7 +72,7 @@ import pl.touk.humantask.model.spec.TaskDefinition;
  */
 @Entity
 @Table(name = "TASK")
-@Configurable
+@Configurable(preConstruction=true)
 public class Task extends Base {
 
     @Transient
@@ -78,7 +83,7 @@ public class Task extends Base {
      */
     @Transient
     @Resource
-    protected HumanInteractionsManager humanInteractionsManager;
+    public HumanInteractionsManager humanInteractionsManager;
     
     /**
      * Key {@link Task} definition is looked up in {@link HumanInteractionsManager} by.
@@ -86,10 +91,12 @@ public class Task extends Base {
     @Column(nullable = false)
     protected String taskDefinitionKey;
 
+    //TODO static?
     public enum TaskTypes {
         ALL, TASKS, NOTIFICATIONS;
     }
 
+    //TODO static?
     public enum TaskType {
         TASK, NOTIFICATION;
     }
@@ -128,7 +135,6 @@ public class Task extends Base {
     @OneToMany(cascade = CascadeType.PERSIST)
     @MapKey(name = "partName")
     @JoinTable(name = "TASK_MSG_OUTPUT")
-    
     private Map<String, Message> output = new HashMap<String, Message>();
 
     @Enumerated(EnumType.STRING)
@@ -171,9 +177,6 @@ public class Task extends Base {
 
     private Boolean escalated;
 
-    // Human roles assigned to Task instance during creation
-    // TODO initiator???
-
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "TASK_POTENTIAL_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private Set<Assignee> potentialOwners;
@@ -182,7 +185,6 @@ public class Task extends Base {
     @JoinTable(name = "TASK_EXCLUDED_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private Set<Assignee> excludedOwners;
 
-    //THIS ONE
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "TASK_STAKEHOLDERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private Set<Assignee> taskStakeholders;
@@ -200,6 +202,15 @@ public class Task extends Base {
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.MERGE)
     private List<Attachment> attachments = new ArrayList<Attachment>();
+    
+    /**
+     * Task presentation parameters recalculated on input message change. 
+     * Maps presentation parameter name to its value. Can be used as a where clause parameter
+     * in task query operations.
+     */
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @MapKey(name = "name")
+    private Map<String, PresentationParameter> presentationParameters = new HashMap<String, PresentationParameter>();
 
     /***************************************************************
      * Constructors                                                *
@@ -229,11 +240,12 @@ public class Task extends Base {
             throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task definition must not be null.");
         }
 
-        //this.taskDefinition = taskDefinition;
         this.taskDefinitionKey = taskDefinition.getTaskName();
         
         Message m = new Message(requestXml);
         this.getInput().put(m.getRootNodeName(), m);
+
+        this.calculatePresentationParameters();
         
         this.potentialOwners        = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS,          this);
         this.businessAdministrators = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS,   this);
@@ -260,6 +272,12 @@ public class Task extends Base {
     @PostLoad
     public void postLoad() {
         log.info("Post load.");
+    }
+    
+    @PrePersist
+    public void prePersist() {
+        log.info("Pre persist.");
+        calculatePresentationParameters();
     }
 
     /**
@@ -305,6 +323,54 @@ public class Task extends Base {
     public String getDescription(String lang, String contentType) {
         return this.getTaskDefinition().getDescription(lang, contentType, this);
     }
+    
+//    /**
+//     * Returns presenation parameters values.
+//     * @return
+//     */
+//    public Map<String, Object> getPresentationParameters() {
+//        return this.getTaskDefinition().getTaskPresentationParameters(this);
+//    }
+    
+    /**
+     * Recalculates presentation parameter values. To be called after object creation or
+     * input message update.
+     * TODO rename to recalcuate
+     */
+    private void calculatePresentationParameters() {
+
+        log.info("Calculating presentation parameters");
+
+        Map<String, Object> pp = this.getTaskDefinition().getTaskPresentationParameters(this);
+
+        //replace all calculated
+        for (Entry<String, Object> entry : pp.entrySet()) {
+            
+            PresentationParameter p = this.presentationParameters.get(entry.getKey());
+            
+            if (p != null) {
+                
+                p.setValue(entry.getValue() == null ? null : entry.getValue().toString());
+            } else {
+                
+                p = new PresentationParameter();
+                p.setName(entry.getKey());
+                //TODO test
+                p.setValue(entry.getValue() == null ? null : entry.getValue().toString());
+                
+                this.presentationParameters.put(p.getName(), p);
+            }
+        }
+        
+        //remove obsolete from presentationParameters
+        Set<String> allKeys = this.presentationParameters.keySet();
+        for (String key : allKeys) {
+            if (!pp.containsKey(key)) {
+                allKeys.remove(key);
+            }
+        }
+    }
+
 
     /***************************************************************
      * Getters & Setters *
@@ -496,6 +562,11 @@ public class Task extends Base {
     // }
     //
     public TaskDefinition getTaskDefinition() {
+        
+        if (humanInteractionsManager == null) {
+            throw new HTConfigurationException("Human interactions manager not available.", null);
+        }
+        
         return this.humanInteractionsManager.getTaskDefinition(this.getTaskDefinitionKey());
     }
 

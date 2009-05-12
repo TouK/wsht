@@ -21,16 +21,22 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.spec.TaskDefinition;
 
 /**
+ * TODO integration -> mock interaction manager 
  * {@link Task} class unit tests.
  *
  * @author Witek Wołejszo
  * @author Mateusz Lipczyński
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "classpath:/test.xml")
 public class TaskUnitTest {
 
     private final Log log = LogFactory.getLog(TaskUnitTest.class);
@@ -52,7 +58,7 @@ public class TaskUnitTest {
         assignees.add(new Person("mateusz"));
         
         mockery.checking(new Expectations() {{
-            one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
+            one(taskDefinition).getTaskName(); will(returnValue("Task1"));
             one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
         }});
@@ -78,7 +84,7 @@ public class TaskUnitTest {
         //final Map<String, Message> mockMap = new HashMap<String, Message>();
         //mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message(null));
         mockery.checking(new Expectations() {{
-            one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
+            one(taskDefinition).getTaskName(); will(returnValue("Task1"));
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
         }});
 
@@ -109,7 +115,7 @@ public class TaskUnitTest {
         assignees.add(new Person("witek"));
         
         mockery.checking(new Expectations() {{
-            one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
+            one(taskDefinition).getTaskName(); will(returnValue("Task1"));
             one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
         }});
@@ -157,7 +163,7 @@ public class TaskUnitTest {
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
 
         mockery.checking(new Expectations() {{
-            one(taskDefinition).getTaskName(); will(returnValue("taskLookupKey"));
+            one(taskDefinition).getTaskName(); will(returnValue("Task1"));
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
         }});
         

@@ -66,11 +66,11 @@ public interface HumanTaskServices {
      * @param status
      *            selects the tasks whose status is one of those specified in List, if not specified or is empty list, a status wildcard is assumed.
      * @param whereClause
-     *            - an [Hibernate] SQL Expression added to the criteria These additional fields may be used
-     *            (ID,TaskType,Name,Status,Priority,CreatedOn,ActivationTime,ExpirationTime
-     *            ,StartByExists,CompleteByExists,RenderMethExists,Escalated,PrimarySearchBy);
+     *            - an JPA where clause added to the query. These additional fields may be used:
+     *            (ID, TaskType, Name, Status, Priority, CreatedOn, ActivationTime, ExpirationTime
+     *            ,StartByExists, CompleteByExists, RenderMethExists, Escalated, PrimarySearchBy);
      * @param createdOnClause
-     *            - an [Hibernate] SQL Expression performed on an xsd:date.
+     *            - an JPA where clause performed on an xsd:date.
      * @param maxTasks
      *            - the maximum number of results returned in the List after ordering by activationTime.
      * @return List of Tasks which meet the criteria.

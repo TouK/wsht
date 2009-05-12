@@ -8,14 +8,23 @@
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
 
+<!-- 
     <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
-    
+ -->
+     
     <!-- Model classes must be compile time weaved -->
     <context:component-scan base-package="pl.touk.humantask.model" />      
 
     <context:spring-configured/>
+    <context:annotation-config/>
+    
+    <!-- 
+    <bean class="pl.touk.humantask.model.Task" scope="prototype" abstract="true">
+        <property name="humanInteractionsManager" ref="taskManager"/>
+    </bean>
+    -->
     
     <bean id="htEntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="dataSource" ref="htDataSource" />
@@ -43,5 +52,6 @@
     
     <bean class="pl.touk.humantask.ws.TaskOperationsImpl" scope="prototype">
         <property name="taskDao" ref="taskDao"/>
-    </bean>    
+    </bean>
+
 </beans>

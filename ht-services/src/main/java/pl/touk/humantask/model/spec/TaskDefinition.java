@@ -130,7 +130,7 @@ public class TaskDefinition {
      * @param task The task presentation parameters values are evaluated for.
      * @return
      */
-    protected Map<String, Object> getTaskPresentationParameters(Task task) {
+    public Map<String, Object> getTaskPresentationParameters(Task task) {
         
         Map<String, Object> result = new HashMap<String, Object>();
         

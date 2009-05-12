@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
 @Table(name = "MESSAGE")
 public class Message extends Base {
     
-    public static final String  DEFAULT_PART_NAME_KEY = "WSHT_DEFAULT_PART_NAME_KEY";
+    //public static final String  DEFAULT_PART_NAME_KEY = "WSHT_DEFAULT_PART_NAME_KEY";
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
