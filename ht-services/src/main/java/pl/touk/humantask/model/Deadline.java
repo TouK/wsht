@@ -16,7 +16,7 @@ import javax.persistence.Id;
  * @author Witek Wołejszo
  * 
  */
-@Entity
+@Entity(name = "DEADLINE")
 public class Deadline extends Base {
 
     @Id

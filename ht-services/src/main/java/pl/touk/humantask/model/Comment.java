@@ -16,23 +16,23 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 /**
- * Task comment.
+ * Task content.
  *
  * @author Witek Wołejszo
  * @author Mateusz Lipczyński
  */
-@Entity(name = "COMMENT_")
+@Entity(name = "TASK_COMMENT")
 public class Comment extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-	@Column(name = "DATE_")
+	@Column(name = "COMMENT_DATE")
     private Date date;
 
     @Column(length = 4096)
-    private String comment;
+    private String content;
 
     @ManyToOne
     @JoinColumn(name = "TASK_ID")
@@ -47,11 +47,11 @@ public class Comment extends Base {
     }
 
     public void setComment(String comment) {
-        this.comment = comment;
+        this.content = comment;
     }
 
     public String getComment() {
-        return comment;
+        return content;
     }
 
     public Task getTask() {

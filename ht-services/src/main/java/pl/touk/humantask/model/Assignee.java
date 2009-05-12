@@ -15,7 +15,7 @@ import javax.persistence.Id;
  * Task Assignee - member of generic human role.
  * @author Witek Wołejszo
  */
-@Entity
+@Entity(name = "ASSIGNEE")
 public abstract class Assignee extends Base {
 
     @Id

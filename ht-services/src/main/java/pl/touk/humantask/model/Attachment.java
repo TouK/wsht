@@ -16,7 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 
-@Entity
+@Entity(name = "ATTACHMENT")
 public class Attachment extends Base {
 
     @Id
