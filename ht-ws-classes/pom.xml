@@ -4,17 +4,17 @@
 	<parent>
 		<groupId>pl.touk.wsht</groupId>
 		<artifactId>wsht</artifactId>
-		<version>1.0.3</version>
+		<version>1.0.5-SNAPSHOT</version>
 	</parent>
 	<artifactId>ht-ws-classes</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.3</version>
+	<version>1.0.5-SNAPSHOT</version>
 	<name>TouK Human Task API Classes</name>
 	<dependencies>
 		<dependency>
 			<groupId>pl.touk.wsht</groupId>
 			<artifactId>ht-wsdl</artifactId>
-			<version>1.0.3</version>
+			<version>1.0.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
