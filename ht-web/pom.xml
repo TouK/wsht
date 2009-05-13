@@ -19,12 +19,12 @@
         <dependency>
             <groupId>pl.touk.wsht</groupId>
             <artifactId>ht-wsdl</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>pl.touk.wsht</groupId>
             <artifactId>ht-services</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -91,6 +91,24 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
             <version>${spring.version}</version>
             <scope>runtime</scope>
@@ -145,14 +163,13 @@
                         <artifactId>spring-aspects</artifactId>
                         <version>${spring.version}</version>
                     </dependency>
-
                 </dependencies>
                 <executions>
                     <execution>
                         <id>process-classes</id>
                         <phase>process-classes</phase>
                         <configuration>
-                            <className>pl.touk.humantask.HumanTaskServicesInterface</className>
+                            <className>pl.touk.humantask.HumanTaskServices</className>
                             <frontEnd>jaxws</frontEnd>
                             <wrapperBean>true</wrapperBean>
                             <soap12>true</soap12>
