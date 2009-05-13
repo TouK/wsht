@@ -7,6 +7,7 @@ package pl.touk.humantask;
 
 import java.util.List;
 
+import javax.jws.WebService;
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
@@ -21,6 +22,7 @@ import pl.touk.humantask.model.Task.TaskTypes;
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
  */
+@WebService(name="HumanTaskService", targetNamespace = "http://touk.pl/HumanTask")
 public interface HumanTaskServices {
 
     /**

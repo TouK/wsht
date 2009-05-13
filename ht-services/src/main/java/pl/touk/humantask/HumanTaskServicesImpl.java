@@ -41,7 +41,7 @@ import pl.touk.humantask.model.spec.TaskDefinition;
  * @author Witek Wołejszo
  * @author Mateusz Lipczyński
  */
-@WebService(endpointInterface = "ToukHumanTaskService", serviceName = "TaskService", portName = "TaskPort", targetNamespace = "http://touk.pl/HumanTask")
+@WebService(endpointInterface = "pl.touk.humantask.HumanTaskServices", serviceName = "TaskService", portName = "TaskPort", targetNamespace = "http://touk.pl/HumanTask")
 public class HumanTaskServicesImpl implements HumanTaskServices {
 
     private final Log log = LogFactory.getLog(HumanTaskServicesImpl.class);
