@@ -8,7 +8,8 @@
     <context-param>
       <param-name>contextConfigLocation</param-name>
       <param-value>
-        classpath:/cxf-server.xml
+        classpath:/cxf-server.xml,
+        classpath:/applicationContext.xml
       </param-value>
     </context-param>
 
@@ -17,7 +18,18 @@
         org.springframework.web.context.ContextLoaderListener
       </listener-class>
     </listener>
-
+    <filter>
+        <filter-name>jpaFilter</filter-name>
+        <filter-class>org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter</filter-class>
+        <init-param>
+            <param-name>entityManagerFactoryBeanName</param-name>
+            <param-value>htEntityManagerFactory</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>jpaFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
     <servlet>
         <servlet-name>HTTP Request Interceptor</servlet-name>
         <display-name>HTTP Request Interceptor</display-name>
@@ -32,10 +44,9 @@
           <param-value>cxf</param-value>
         </init-param>
         <load-on-startup>999</load-on-startup>
-  </servlet>
-
-  <servlet-mapping>
+      </servlet>
+      <servlet-mapping>
         <servlet-name>HTTP Request Interceptor</servlet-name>
         <url-pattern>/*</url-pattern>
-  </servlet-mapping>
+      </servlet-mapping>
 </web-app>

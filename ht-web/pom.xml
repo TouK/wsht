@@ -11,7 +11,7 @@
     <version>1.0.1-SNAPSHOT</version>
     <name>TouK Human Task Web Service</name>
     <properties>
-        <cxf.version>2.1</cxf.version>
+        <cxf.version>2.2.1</cxf.version>
         <spring.version>2.5.6</spring.version>
     </properties>
 
@@ -19,12 +19,12 @@
         <dependency>
             <groupId>pl.touk.wsht</groupId>
             <artifactId>ht-wsdl</artifactId>
-            <version>1.0.5-SNAPSHOT</version>
+            <version>1.0.7-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>pl.touk.wsht</groupId>
             <artifactId>ht-services</artifactId>
-            <version>1.0.5-SNAPSHOT</version>
+            <version>1.0.7-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
