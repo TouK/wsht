@@ -56,6 +56,7 @@ public final class PropertyBasedPeopleQuery implements PeopleQuery {
             }
         } catch (IOException e) {
             // Access error should not affect evaluation TODO: ref to specs
+            e.printStackTrace(System.err);
             try {
                 
                 log.error("Error reading: " + configuration.getURL());

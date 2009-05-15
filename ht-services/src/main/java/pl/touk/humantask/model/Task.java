@@ -147,7 +147,7 @@ public class Task extends Base {
     /**
      * People assigned to different generic human roles.
      */
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Assignee actualOwner;
 
     /**

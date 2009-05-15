@@ -12,6 +12,7 @@ import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
+//TODO use jaxb bidings to move theses into packages
 import org.example.ws_ht.TOrganizationalEntity;
 import org.example.ws_ht.api.TAttachment;
 import org.example.ws_ht.api.TAttachmentInfo;

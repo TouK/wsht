@@ -150,7 +150,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Task mockTask = mockery.getGoodTaskMock();
 
         Throwable t = null;
-        
+
         try {
             services.claimTask(mockTask.getId(), mockery.getImpossibleOwner().getName());
             Assert.fail();
@@ -175,6 +175,35 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Task mockTask = mockery.getGoodTaskMock();
 
         services.startTask(mockTask.getId(), mockery.getImpossibleOwner().getName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    /***
+     *  This test should not claim the task becuase the owner was incorrect
+     */
+    public void testDelegateNotOwner() throws HTException {
+
+        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
+        Task mockTask = mockery.getGoodTaskMock();
+
+        Throwable t = null;
+
+        try {
+            services.delegateTask(mockTask.getId(), mockery.getImpossibleOwner().getName());
+            Assert.fail();
+        }catch(HTIllegalAccessException xRNA){
+            //success
+            t = xRNA;
+        }
+
+        Assert.assertNotNull("claim Task did not throw on impossible owner",t);
+
+        //FIXME:
+        //Assert.assertEquals(Task.Status.RESERVED, mockTask.getStatus());
+
+        mockery.assertIsSatisfied();
     }
     
 //    @Test

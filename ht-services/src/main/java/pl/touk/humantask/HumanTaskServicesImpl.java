@@ -5,12 +5,7 @@
 package pl.touk.humantask;
 
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
-
-import javax.jws.WebService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,12 +20,10 @@ import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.model.Assignee;
-import pl.touk.humantask.model.Attachment;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.Status;
-import pl.touk.humantask.model.Task.TaskType;
 import pl.touk.humantask.model.Task.TaskTypes;
 import pl.touk.humantask.model.spec.TaskDefinition;
 
@@ -41,7 +34,6 @@ import pl.touk.humantask.model.spec.TaskDefinition;
  * @author Witek Wołejszo
  * @author Mateusz Lipczyński
  */
-@WebService(endpointInterface = "pl.touk.humantask.HumanTaskServices", serviceName = "TaskService", portName = "TaskPort", targetNamespace = "http://touk.pl/HumanTask")
 public class HumanTaskServicesImpl implements HumanTaskServices {
 
     private final Log log = LogFactory.getLog(HumanTaskServicesImpl.class);
@@ -85,7 +77,7 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
         Person createdByPerson = assigneeDao.getPerson(createdBy);
         if (createdByPerson == null) {
             createdByPerson = new Person(createdBy);
-            assigneeDao.create(createdByPerson);
+            //assigneeDao.create(createdByPerson);
         }
 
         Task newTask = new Task(taskDefinition, createdByPerson, requestXml);
@@ -257,26 +249,37 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
 //        return task;
 //    }
 //
-//    /**
-//     * Delegates task to other person.
-//     *
-//     * @param task
-//     * @param assigneeName
-//     * @throws HumanTaskException
-//     */
-//    public Task delegateTask(Long taskId, String assigneeName) throws HumanTaskException {
-//
-//        Person person = assigneeDao.getPerson(assigneeName);
-//
-//        task.setStatus(Status.RESERVED);
-//        this.addPotentialOwner(task, person);
-//        task.setActualOwner(person);
-//
-//        taskDao.update(task);
-//
-//        return task;
-//    }
-//
+
+    /**
+     * Delegates task to other person.
+     *
+     * @param task
+     * @param assigneeName
+     * @throws HumanTaskException
+     */
+    public void delegateTask(Long taskId, String assigneeName) throws HTIllegalArgumentException,HTIllegalAccessException, HTIllegalStateException {
+
+        final Person person = assigneeDao.getPerson(assigneeName);
+
+        if (person == null) {
+            throw new HTIllegalAccessException("Person not found: ", assigneeName);
+        }
+
+        final Task task = locateTask(taskId);
+
+        if (task.getActualOwner() == null) {
+            throw new HTIllegalAccessException("Task without actual owner cannot be released.");
+        }
+
+        //task.getTaskDefinition().addPotentialOwner(task, person);
+        
+        task.setActualOwner(person);
+        
+        task.setStatus(Status.RESERVED);
+
+        taskDao.update(task);
+    }
+
 //    @Transactional(propagation = Propagation.REQUIRED)
 //    // TODO How to distinguish groups and people? now works on people only
 //    public Task forwardTask(Long taskId, String assigneeName) throws HumanTaskException {
