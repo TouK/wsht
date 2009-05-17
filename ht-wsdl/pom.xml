@@ -4,10 +4,10 @@
     <parent>
         <groupId>pl.touk.wsht</groupId>
         <artifactId>wsht</artifactId>
-        <version>1.0.7-SNAPSHOT</version>
+        <version>1.0.7</version>
     </parent>
     <artifactId>ht-wsdl</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.7</version>
     <name>TouK Human Task API WSDL</name>
 </project>
