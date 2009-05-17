@@ -48,15 +48,15 @@ import javax.xml.xpath.XPathFunctionException;
 import javax.xml.xpath.XPathFunctionResolver;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.annotation.Configurable;
-
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import pl.touk.humantask.HumanInteractionsManager;
+import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.exceptions.HTConfigurationException;
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
@@ -86,21 +86,22 @@ public class Task extends Base {
     public HumanInteractionsManager humanInteractionsManager;
     
     /**
+     * Human interactions manager injected by IoC container.
+     */
+    @Transient
+    @Resource
+    public AssigneeDao assigneeDao;
+    
+    /**
      * Key {@link Task} definition is looked up in {@link HumanInteractionsManager} by.
      */
     @Column(nullable = false)
     protected String taskDefinitionKey;
 
-    //TODO static?
     public static enum TaskTypes {
         ALL, TASKS, NOTIFICATIONS;
     }
 
-    //TODO static?
-    public static enum TaskType {
-        TASK, NOTIFICATION;
-    }
-    
     public static enum Status {
 
         CREATED, READY, RESERVED, IN_PROGRESS, SUSPENDED, COMPLETED, FAILED, ERROR, EXITED, OBSOLETE;
@@ -124,7 +125,7 @@ public class Task extends Base {
      * document style Web HumanTaskServicesImpl are used to start Task, part name
      * should be set to {@link Message.DEFAULT_PART_NAME_KEY}.
      */
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @MapKey(name = "partName")
     @JoinTable(name = "TASK_MSG_INPUT")
     private Map<String, Message> input = new HashMap<String, Message>();
@@ -132,7 +133,7 @@ public class Task extends Base {
     /**
      * Task output message map. Maps message part to message.
      */
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @MapKey(name = "partName")
     @JoinTable(name = "TASK_MSG_OUTPUT")
     private Map<String, Message> output = new HashMap<String, Message>();
@@ -147,8 +148,8 @@ public class Task extends Base {
     /**
      * People assigned to different generic human roles.
      */
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    private Assignee actualOwner;
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    private Person actualOwner;
 
     /**
      * This element is used to specify the priority of the task. It is an optional element which value is an integer expression. If not present, the priority of
@@ -177,30 +178,30 @@ public class Task extends Base {
 
     private Boolean escalated;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "TASK_POTENTIAL_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private Set<Assignee> potentialOwners;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "TASK_EXCLUDED_OWNERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private Set<Assignee> excludedOwners;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "TASK_STAKEHOLDERS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private Set<Assignee> taskStakeholders;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "TASK_BUSINESS_AMINISTRATORS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private Set<Assignee> businessAdministrators;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "TASK_NOTIFICATION_RECIPIENTS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private Set<Assignee> notificationRecipients;
 
     @OneToMany
     private List<Comment> comments;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "task", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<Attachment> attachments = new ArrayList<Attachment>();
     
     /**
@@ -208,7 +209,7 @@ public class Task extends Base {
      * Maps presentation parameter name to its value. Can be used as a where clause parameter
      * in task query operations.
      */
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, mappedBy = "task")
     @MapKey(name = "name")
     private Map<String, PresentationParameter> presentationParameters = new HashMap<String, PresentationParameter>();
 
@@ -234,7 +235,7 @@ public class Task extends Base {
      * @param requestXml      input data as XML string
      * @throws HTException
      */
-    public Task(TaskDefinition taskDefinition, Person createdBy, String requestXml) throws HTException {
+    public Task(TaskDefinition taskDefinition, String createdBy, String requestXml) throws HTException {
 
         if (taskDefinition == null) {
             throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task definition must not be null.");
@@ -247,21 +248,25 @@ public class Task extends Base {
 
         this.calculatePresentationParameters();
         
-        this.potentialOwners        = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS,          this);
-        this.businessAdministrators = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS,   this);
-        this.excludedOwners         = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS,           this);
-        this.notificationRecipients = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS,   this);
-        this.taskStakeholders       = taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS,         this);
+        //retrieveExistingAssignees check if group or people with the same name exist
+        //and retrieves existing entities
+        this.potentialOwners        = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS,          this));
+        this.businessAdministrators = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS,   this));
+        this.excludedOwners         = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS,           this));
+        this.notificationRecipients = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS,   this));
+        
+        //TODO how they are evaluated?
+        this.taskStakeholders       = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS,         this));
 
-        this.setCreatedBy(createdBy == null ? null : createdBy.getName());
-        this.setActivationTime(new Date());
+        this.createdBy = createdBy;
+        this.activationTime = new Date();
         this.status = Status.CREATED;
        
         Person nominatedPerson = this.nominateActualOwner(this.potentialOwners);
         if (nominatedPerson != null) {
-            this.setActualOwner(nominatedPerson);
+            this.actualOwner = nominatedPerson;
             this.setStatus(Status.RESERVED);
-        } else if (!potentialOwners.isEmpty()) {
+        } else if (!this.potentialOwners.isEmpty()) {
             this.setStatus(Status.READY);
         }
     }
@@ -354,6 +359,7 @@ public class Task extends Base {
             } else {
                 
                 p = new PresentationParameter();
+                p.setTask(this);
                 p.setName(entry.getKey());
                 //TODO test
                 p.setValue(entry.getValue() == null ? null : entry.getValue().toString());
@@ -495,11 +501,15 @@ public class Task extends Base {
         return this.actualOwner;
     }
 
+    //TODO hide!
+    @Deprecated
     public void releaseActualOwner() {
         this.actualOwner = null;
     }
 
-    public void setActualOwner(Assignee actualOwner) {
+    //TODO hide!
+    @Deprecated
+    public void setActualOwner(Person actualOwner) {
         this.actualOwner = actualOwner;
     }
 
@@ -515,40 +525,20 @@ public class Task extends Base {
         return this.createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public Date getActivationTime() {
         return this.activationTime;
-    }
-
-    public void setActivationTime(Date activationTime) {
-        this.activationTime = activationTime;
     }
 
     public Date getExpirationTime() {
         return (this.expirationTime == null) ? null : (Date) this.expirationTime.clone();
     }
 
-    public void setExpirationTime(Date expirationTime) {
-        this.expirationTime = (expirationTime == null) ? null : (Date) expirationTime.clone();
-    }
-
     public boolean isSkippable() {
         return skippable;
     }
 
-    public void setSkippable(boolean skippable) {
-        this.skippable = skippable;
-    }
-
     public boolean isEscalated() {
         return escalated;
-    }
-
-    public void setEscalated(boolean escalated) {
-        this.escalated = escalated;
     }
 
     // /**
@@ -579,40 +569,20 @@ public class Task extends Base {
         return this.taskDefinitionKey;
     }
 
-    public void setPotentialOwners(Set<Assignee> potentialOwners) {
-        this.potentialOwners = potentialOwners;
-    }
-
     public Set<Assignee> getPotentialOwners() {
         return this.potentialOwners;
-    }
-
-    public void setExcludedOwners(Set<Assignee> excludedOwners) {
-        this.excludedOwners = excludedOwners;
     }
 
     public Set<Assignee> getExcludedOwners() {
         return this.excludedOwners;
     }
 
-    public void setTaskStakeholders(Set<Assignee> taskStakeholders) {
-        this.taskStakeholders = taskStakeholders;
-    }
-
     public Set<Assignee> getTaskStakeholders() {
         return taskStakeholders;
     }
 
-    public void setBusinessAdministrators(Set<Assignee> businessAdministrators) {
-        this.businessAdministrators = businessAdministrators;
-    }
-
     public Set<Assignee> getBusinessAdministrators() {
         return this.businessAdministrators;
-    }
-
-    public void setNotificationRecipients(Set<Assignee> notificationRecipients) {
-        this.notificationRecipients = notificationRecipients;
     }
 
     public Set<Assignee> getNotificationRecipients() {
@@ -621,10 +591,6 @@ public class Task extends Base {
 
     public Date getCreatedOn() {
         return this.createdOn == null ? null : (Date)this.createdOn.clone();
-    }
-
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn == null ? null : (Date)createdOn.clone();
     }
 
     /***************************************************************
@@ -683,12 +649,14 @@ public class Task extends Base {
                 if (functionName.equals(new QName("http://www.example.org/WS-HT", "getInput", "htd"))) {
 
                     return new GetInputXPathFunction();
-                    
-                } else {
-                    
-                    return null;
                 }
+                
+                if (functionName.equals(new QName("http://www.example.org/WS-HT", "getOutput", "htd"))) {
 
+                    return new GetOutputXPathFunction();
+                } 
+                    
+                return null;
             }
 
         });
@@ -704,10 +672,10 @@ public class Task extends Base {
                
         } catch (XPathExpressionException e) {
             
-            log.error("Error evaluating XPath.", e);
+            log.error("Error evaluating XPath: " + xPathString, e);
         } catch (ParserConfigurationException e) {
             
-            log.error("Error evaluating XPath.", e);
+            log.error("Error evaluating XPath:  " + xPathString, e);
         }
         
         return o;    
@@ -760,9 +728,61 @@ public class Task extends Base {
         }
 
     }
+    
+    /**
+     * Implements getOutput {@link XPathFunction} - get the data for the part of the task's output message.
+     * @author Witek Wołejszo
+     */
+    private class GetOutputXPathFunction implements XPathFunction {
+        
+        private final Log log = LogFactory.getLog(GetOutputXPathFunction.class);
+
+        /**
+         * <p>Evaluate the function with the specified arguments.</p>
+         * @see XPathFunction#evaluate(List)
+         * @param args The arguments, <code>null</code> is a valid value.
+         * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
+         * @throws XPathFunctionException If <code>args</code> cannot be evaluated with this <code>XPath</code> function.
+         */
+        public Object evaluate(List args) throws XPathFunctionException {
+            
+            log.debug("Evaluating: " + args);
+            
+            String partName = (String) args.get(0);
+            
+            Message message = getOutput().get(partName);
+            Document document = null;
+            
+            if (message == null) {
+                throw new XPathFunctionException("Task's output does not contain partName: " + args.get(0));
+            }
+
+            try {
+                
+                document = message.getDomDocument();
+                
+            } catch (ParserConfigurationException e) {
+
+                throw new XPathFunctionException(e);
+            } catch (SAXException e) {
+                
+                throw new XPathFunctionException(e);
+            } catch (IOException e) {
+                
+                throw new XPathFunctionException(e);
+            }
+            
+            return document == null ? null : document.getElementsByTagName(partName);
+        }
+
+    }
 
     public Map<String, Message> getInput() {
-        return input;
+        return this.input;
+    }
+    
+    public Map<String, Message> getOutput() {
+        return this.output;
     }
     
     /***************************************************************
@@ -793,6 +813,11 @@ public class Task extends Base {
         }
         Task rhs = (Task) obj;
         return new EqualsBuilder().append(this.id, rhs.id).isEquals();
+    }
+    
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("id", this.id).append("name", this.getTaskDefinition().getTaskName()).append("actualOwner", this.getActualOwner()).toString();
     }
 
 }

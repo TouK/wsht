@@ -5,6 +5,9 @@
 
 package pl.touk.humantask.dao.impl;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
@@ -12,10 +15,13 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Repository;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.model.Assignee;
+import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Person;
 
 /**
@@ -26,6 +32,8 @@ import pl.touk.humantask.model.Person;
  */
 @Repository
 public class JpaAssigneeDao implements AssigneeDao {
+    
+    private final Log log = LogFactory.getLog(AssigneeDao.class);
 
     @PersistenceContext(name = "TOUK-WSHT-PU")
     protected EntityManager entityManager;
@@ -34,10 +42,7 @@ public class JpaAssigneeDao implements AssigneeDao {
     private EntityManagerFactory entityManagerFactory;
     
     /**
-     * Returns {@link Person} by name.
-     * 
-     * @param name the name of a person.
-     * @return the {@link Person} with specified name or null if no {@link Person} can be found
+     * {@inheritDoc}
      */
     public Person getPerson(String name) {
 
@@ -54,33 +59,80 @@ public class JpaAssigneeDao implements AssigneeDao {
     }
 
     /**
-     * Retrieves domain object from persistent store.
-     * @param id Identifier of requested domain object
-     * @return fetched object
+     * {@inheritDoc}
      */
     public Assignee fetch(Long id) {
         return entityManager.find(Assignee.class, id);
     }
     
     /**
-     * Saves domain object in persistent store. 
-     * @param entity Domain object to save
+     * {@inheritDoc}
      */
     public void update(Assignee entity) {
         entityManager.merge(entity);
     }
     
     /**
-     * Creates domain object in persistent store. 
-     * @param entity Domain object to create
+     * {@inheritDoc}
      */
     public void create(Assignee entity) {
         entityManager.persist(entity);
     }
-    
-    public EntityManagerFactory getEntityManagerFactory() {
-        return entityManagerFactory;
+
+    /**
+     * {@inheritDoc}
+     */
+    public Group getGroup(String name) {
+        
+        Query query = entityManager.createQuery("SELECT g FROM Group g WHERE g.name = :name");
+        query.setParameter("name", name);
+        
+        try {
+            
+            return (Group) query.getSingleResult();
+        } catch (NoResultException e) {
+            
+            return null;
+        }
     }
+
+    /**
+     * {@inheritDoc}
+     * TODO should work when ids are set
+     */
+    public Set<Assignee> saveNotExistingAssignees(Set<Assignee> assignees) {
+        
+        Set<Assignee> result = new HashSet<Assignee>();
+        
+        for (Assignee a : assignees) {
+
+            if (a instanceof Person) {
+
+                Person p = this.getPerson(a.getName());
+                if (p == null) {
+                    this.create(a);
+                    p = (Person) a;
+                }
+                result.add(p);
+               
+            } else if (a instanceof Group) {
+                
+                Group g = this.getGroup(a.getName());
+                if (g == null) {
+                    this.create(a);
+                    g = (Group) a;
+                }
+                result.add(g);      
+            }
+        }
+        
+        log.debug("retrieveExistingAssignees " + assignees.size() + " -> " + result.size() );
+        return result;
+    }
+    
+//    public EntityManagerFactory getEntityManagerFactory() {
+//        return this.entityManagerFactory;
+//    }
 
     public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;

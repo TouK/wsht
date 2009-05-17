@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * Holds start or completion deadline information.
@@ -16,7 +17,8 @@ import javax.persistence.Id;
  * @author Witek Wołejszo
  * 
  */
-@Entity(name = "DEADLINE")
+@Entity
+@Table(name = "DEADLINE")
 public class Deadline extends Base {
 
     @Id

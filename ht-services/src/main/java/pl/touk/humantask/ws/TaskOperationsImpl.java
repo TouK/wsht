@@ -38,7 +38,6 @@ import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.model.Task.TaskType;
 import pl.touk.humantask.model.Task.TaskTypes;
 
 /**
@@ -62,6 +61,7 @@ public class TaskOperationsImpl implements TaskOperations {
      * Implementation of WH-HT services.
      */
     private HumanTaskServices services;
+
     /**
      * Security context used to retrieve implicit user information.
      */
@@ -217,17 +217,18 @@ public class TaskOperationsImpl implements TaskOperations {
             throw new HTIllegalArgumentException("Task identifier must be a number.", "Id: " + identifier);
         }
     }
+
     /**
      * Translates a single task to TTask.
      *
-     * @param task  input task object
-     * @return      output task object
+     * @param task  The input task object.
+     * @return      The Human Task WebService API task object.
      */
     private TTask translateOneTaskAPI(Task task) {
         TTask ttask = new TTask();
 
         ttask.setId(Long.toString(task.getId()));
-        ttask.setTaskType(TaskType.TASK.toString());
+        ttask.setTaskType("TASK");
         /*
         ttask.setName(task.getName());
          */
@@ -243,7 +244,7 @@ public class TaskOperationsImpl implements TaskOperations {
         ttask.setNotificationRecipients(task.getNotificationRecipients());
          */
         //ttask.setCreatedOn(task.getCreatedOn());
-        ttask.setCreatedBy(task.getCreatedBy());
+        ttask.setCreatedBy(task.getCreatedBy().toString());
         ttask.setActivationTime(task.getActivationTime());
         ttask.setExpirationTime(task.getExpirationTime());
         ttask.setIsSkipable(task.isSkippable());
@@ -429,11 +430,4 @@ public class TaskOperationsImpl implements TaskOperations {
         return this.securityContext;
     }
 
-    protected TaskDao getTaskDao() {
-        return this.taskDao;
-    }
-
-    public void setTaskDao(TaskDao taskDao) {
-        this.taskDao = taskDao;
-    }
 }

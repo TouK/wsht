@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 /**
  * Task content.
@@ -21,7 +22,8 @@ import javax.persistence.ManyToOne;
  * @author Witek Wołejszo
  * @author Mateusz Lipczyński
  */
-@Entity(name = "TASK_COMMENT")
+@Entity
+@Table(name = "TASK_COMMENT")
 public class Comment extends Base {
 
     @Id

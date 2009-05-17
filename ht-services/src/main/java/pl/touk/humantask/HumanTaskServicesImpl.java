@@ -59,13 +59,7 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
     }
 
     /**
-     * Creates {@link Task} instance based on a definition. See detailed contract in {@link HumanTaskServices#createTask(String, String, String)}
-     *
-     * @param taskName   The name of the task template from the definition file.
-     * @param createdBy  The user creating task.
-     * @param requestXml The xml request used to invoke business method. Content of the request can be accessed by Task.
-     * @return created Task
-     * @throws HTException In case of problems while creating task
+     * {@inheritDoc}
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public Task createTask(String taskName, String createdBy, String requestXml) throws HTException {
@@ -74,45 +68,38 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
 
         TaskDefinition taskDefinition = this.taskManager.getTaskDefinition(taskName);
 
-        Person createdByPerson = assigneeDao.getPerson(createdBy);
-        if (createdByPerson == null) {
-            createdByPerson = new Person(createdBy);
-            //assigneeDao.create(createdByPerson);
-        }
-
-        Task newTask = new Task(taskDefinition, createdByPerson, requestXml);
+        Task newTask = new Task(taskDefinition, createdBy, requestXml);
         taskDao.create(newTask);
         return newTask;
-
     }
 
     /**
-     *
-     * @see pl.touk.humantask.HumanTaskServices#getMyTasks(java.lang.String, pl.touk.humantask.model.Task.TaskTypes, pl.touk.humantask.model.GenericHumanRole, java.lang.String, java.util.List, java.lang.String, java.lang.String, java.lang.Integer) 
+     * {@inheritDoc}
      */
-    public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
+    public List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> statuses,
             String whereClause, String orderByClause, String createdOnClause, Integer maxTasks, Integer offset) throws HTException {
 
-        if (null == personName && null == workQueue) {
+        if (personName == null && workQueue == null) {
             throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("parameter not specified","workQueue");
         }
 
         Person person = null;
 
-        if (null == workQueue) {
+        if (workQueue == null) {
             person = assigneeDao.getPerson(personName);
         }
 
-        if (null == person && null == workQueue) {
+        if (person == null && workQueue == null) {
             throw new HTIllegalAccessException("Not a valid name, no such Assignee found: " + personName);
         }
 
-        if (null == taskType) {
+        if (taskType == null) {
             throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("parameter not specified","task type");
         }
 
         try {
-            return taskDao.getTasks(person, taskType, genericHumanRole, workQueue, status, whereClause, orderByClause, createdOnClause, maxTasks, offset);
+
+            return taskDao.getTasks(person, taskType, genericHumanRole, workQueue, statuses, whereClause, orderByClause, createdOnClause, maxTasks, offset);
 
         } catch (Exception x) {
             throw new HTIllegalOperationException(x.getMessage(), "getMyTasks", x);
@@ -124,7 +111,7 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
      */
     
     /**
-     * @see pl.touk.humantask.HumanTaskServices#claimTask(pl.touk.humantask.model.Task, java.lang.String) 
+     * {@inheritDoc} 
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public void claimTask(Long taskId, String assigneeName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {

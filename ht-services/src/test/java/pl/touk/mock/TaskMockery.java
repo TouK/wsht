@@ -6,6 +6,7 @@ import java.util.Set;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Assert;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
@@ -14,7 +15,6 @@ import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.model.spec.TaskDefinition;
 
 public class TaskMockery extends Mockery {
@@ -28,14 +28,9 @@ public class TaskMockery extends Mockery {
     Person witek = new Person("Witek");
     Person admin = new Person("admin");
 
-
-    public TaskMockery(TaskDao taskDao,AssigneeDao assigneeDao) {
+    public TaskMockery(TaskDao taskDao, AssigneeDao assigneeDao) {
         this.assigneeDao = assigneeDao;
         this.taskDao = taskDao;
-    }
-    
-    public Task getGoodTaskMock() {
-        return getGoodTaskMock(false);
     }
 
     public Task getGoodTaskMock(boolean onlyOnePotentialOwner) {
@@ -46,14 +41,18 @@ public class TaskMockery extends Mockery {
 
         final Set<Assignee> assignees = new HashSet<Assignee>();
         assignees.add(jacek);
+        
+        final Set<Assignee> stakeholders = new HashSet<Assignee>();
+        stakeholders.add(jacek);
 
         if (!onlyOnePotentialOwner) {
             assignees.add(witek);
+            stakeholders.add(witek);
         }
 
-        assigneeDao.create(jacek);
-        assigneeDao.create(witek);
-        assigneeDao.create(admin);
+        this.assigneeDao.create(jacek);
+        this.assigneeDao.create(witek);
+        this.assigneeDao.create(admin);
 
         checking(new Expectations() {{
             try{
@@ -68,31 +67,32 @@ public class TaskMockery extends Mockery {
                 allowing(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, with(any(Task.class)));
                 will(returnValue(new HashSet()));
                 allowing(taskDefinition).evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS, with(any(Task.class)));
-                will(returnValue(new HashSet()));
-            } catch (Exception x){
+                will(returnValue(stakeholders));
+            } catch (Exception e){
+                
+                e.printStackTrace();
+                
             }
         }});
 
-        
         try {
-            task = new Task(taskDefinition, jacek, "<?xml version='1.0'?><root/>");
+            
+            task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust><amount>1</amount></ClaimApprovalRequest>");
+
+            if (onlyOnePotentialOwner) {
+                Assert.assertTrue(task.getActualOwner().equals(jacek));
+            } else {
+                Assert.assertNull(task.getActualOwner());
+            }
+            
         } catch (HTException ex) {
            
+            ex.printStackTrace();
         }
 
-        Set<Assignee> stakeholders = new HashSet<Assignee>();
-        stakeholders.add(jacek);
-
-        task.setTaskStakeholders(stakeholders);
-        
         taskDao.create(task);
       
         return task;
-    }
-
-    public void assignOwner() throws HTException{
-        task.setActualOwner(jacek);
-        task.setStatus(Status.IN_PROGRESS);        
     }
 
     public Person getImpossibleOwner() {

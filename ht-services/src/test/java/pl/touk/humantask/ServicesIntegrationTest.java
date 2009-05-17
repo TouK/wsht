@@ -1,7 +1,6 @@
 package pl.touk.humantask;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -11,20 +10,19 @@ import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.HTIllegalAccessException;
+import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.model.GenericHumanRole;
+import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.model.Task.TaskTypes;
-import pl.touk.mock.TaskMockery;
 
 /**
  * {@link HumanTaskServicesImpl} integration tests.
@@ -38,7 +36,7 @@ import pl.touk.mock.TaskMockery;
 @ContextConfiguration(locations = {"classpath:/test.xml"})
 public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
 
-    private final Log LOG = LogFactory.getLog(ServicesIntegrationTest.class);
+    private final Log log = LogFactory.getLog(ServicesIntegrationTest.class);
 
     @Resource(name = "humanTaskServices")
     HumanTaskServices services;
@@ -49,162 +47,178 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     @Resource(name = "assigneeDao")
     AssigneeDao assigneeDao;
 
+    /**
+     * Creates task with one potential owner.
+     * @return
+     * @throws HTException
+     */
+    public Task createTask_OnePotentialOwner() throws HTException {
+        Task task = services.createTask("Task1", null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust><amount>1</amount></ClaimApprovalRequest>");
+        return task;
+    }
+    
     @Test
-    @Transactional
-    @Rollback
     public void testCreateTask() throws HTException {
 
-        Task task = services.createTask("Task1", "ww2", "</request>");
+        Task task = createTask_OnePotentialOwner();
+        Assert.assertNotNull(task);
+        
         String taskDefinitionName = task.getTaskDefinition().getTaskName();
-
-        LOG.info("Task name: " + taskDefinitionName);
         Assert.assertEquals("Task1", taskDefinitionName);
     }
 
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void testGetMyTasks() throws HumanTaskException {
-//
-//        Task t1 = services.createTask("ApproveClaim", "user", "request1");
-//        Task t2 = services.createTask("ApproveClaim", "user", "request2");
-//
-//        //TODO replace with JPA
-//        //sessionFactory.getCurrentSession().flush();
-//        //sessionFactory.getCurrentSession().clear();
-//        //taskDao.getJpaTemplate().flush();
-//        
-//        //List<Task> tasks = services.getMyTasks("user");
-//
-//        
-//        for (Task task : tasks) {
-//            LOG.info("Task: " + task);
-//        }
-//        
-//        assertEquals(2, tasks.size());
-//
-//    }
     /**
-     * TODO wcr - fails, what we test here? please describe in javadoc
+     * Checks my tasks for newly created task where i'm the only owner. Expects
+     * one task (reserved) on a list.
+     * @throws HTException
      */
     @Test
-    @Transactional
-    @Rollback
-    public void testGetMyTasksNoCreate() throws HTException {
+    public void testGetMyTasks_ByOwner() throws HTException {
 
-        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mockery.getGoodTaskMock();
+        Task t = createTask_OnePotentialOwner();
 
-        mockery.assignOwner();
-
-        List<Task> results = services.getMyTasks("Jacek", TaskTypes.ALL,
-                GenericHumanRole.TASK_STAKEHOLDERS, null,
-                Arrays.asList(Status.IN_PROGRESS, Status.OBSOLETE), null, null, null, 1, 0);
+        List<Task> results = services.getMyTasks("user1", TaskTypes.ALL,
+                GenericHumanRole.ACTUAL_OWNER, null,
+                new ArrayList<Status>(), null, null, null, null, 0);
 
         Assert.assertEquals(1, results.size());
 
         Task taskToCheck = results.get(0);
 
-        Assert.assertEquals(mockTask.getActualOwner(), taskToCheck.getActualOwner());
+        Assert.assertEquals(t.getActualOwner(), taskToCheck.getActualOwner());
+        Assert.assertEquals(Task.Status.RESERVED, taskToCheck.getStatus());
+    }
+    
+    /**
+     * Checks my tasks for newly created task if i'm potential owner. Expects "user1"
+     * on potential owners list.
+     * @throws HTException
+     */
+    @Test
+    public void testGetMyTasks_ByPotentialOwner() throws HTException {
 
-        //check with no statuses specified
-        //TODO
-        //results = services.getMyTasks("Jacek", TaskTypes.ALL,
-        //      GenericHumanRole.TASK_STAKEHOLDERS, "admin", new ArrayList(), null, null, 1);
-        results = services.getMyTasks("Jacek", TaskTypes.ALL, 
-                GenericHumanRole.TASK_STAKEHOLDERS, null, new ArrayList<Status>(), null, null, null, 1, 0);
+        log.info("testGetMyTasks_ByPotentialOwner");
+        
+        Task t = createTask_OnePotentialOwner();
+
+        List<Task> results = services.getMyTasks("user1", TaskTypes.ALL,
+                GenericHumanRole.POTENTIAL_OWNERS, null,
+                new ArrayList<Status>(), null, null, null, null, 0);
 
         Assert.assertEquals(1, results.size());
 
-        //TODO check with notifications
-        //results = services.getMyTasks("Jacek", TaskTypes.NOTIFICATIONS,
-        //      GenericHumanRole.TASK_STAKEHOLDERS, "admin", new ArrayList(), null, null, 1);
-
-        //Assert.assertEquals(0, results.size());
-
-        mockery.assertIsSatisfied();
+        Task taskToCheck = results.get(0);
+        Person p = assigneeDao.getPerson("user1");
+        Assert.assertNotNull(p);
+        
+        log.info(taskToCheck.getPotentialOwners());
+        Assert.assertEquals(taskToCheck.getActualOwner(), p);
+        Assert.assertEquals(taskToCheck.getPotentialOwners().size(), 1);
+        
+        log.info("Potential owner: " + taskToCheck.getPotentialOwners().iterator().next());
+        log.info("Potential owner: " + p);
+        
+        Assert.assertEquals(p, taskToCheck.getPotentialOwners().iterator().next());
+        
+        //TODO why it fails??? jnb???
+        //Assert.assertTrue(taskToCheck.getPotentialOwners().contains(p));
+        
+        log.info("~testGetMyTasks_ByPotentialOwner");
     }
-
-//    @Test(expected=HTIllegalStateException.class)
-//    @Transactional
-//    @Rollback
-//    public void testClaimByOwner() throws HTException {
-//
-//        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
-//        Task mockTask = mockery.getGoodTaskMock();
-//
-//        services.claimTask(mockTask.getId(), mockery.getPossibleOwner().getName());
-//
-//        services.claimTask(mockTask.getId(), mockTask.getActualOwner().getName());
-//    }
+    
+    //TODO test maxTasks
 
     @Test
-    @Transactional
-    @Rollback
-    /***
-     *  This test should not claim the task becuase the owner was incorrect
+    public void testGetTaskInfo() throws HTException {
+
+        Task t = createTask_OnePotentialOwner();
+
+        Task resultTask = services.getTaskInfo(t.getId());
+
+        Assert.assertNotNull(resultTask);
+        Assert.assertEquals(t.getActualOwner(), resultTask.getActualOwner());
+    }
+
+    @Test(expected = HTIllegalStateException.class)
+    public void testClaimByOwner() throws HTException {
+
+        Task t = createTask_OnePotentialOwner();
+
+        //t.getActualOwner() is already set and cannot claim task once more 
+        services.claimTask(t.getId(), t.getActualOwner().getName());
+    }
+
+    /**
+     *  This test should not claim the task because the potential owner is incorrect.
      */
+    @Test(expected = HTIllegalAccessException.class)
     public void testClaimNotOwner() throws HTException {
 
-        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mockery.getGoodTaskMock();
+        Task t = createTask_OnePotentialOwner();
+        
+        Assert.assertNotNull(t.getActualOwner());
 
-        Throwable t = null;
-
-        try {
-            services.claimTask(mockTask.getId(), mockery.getImpossibleOwner().getName());
-            Assert.fail();
-        }catch(HTIllegalAccessException xRNA){
-            //success
-            t = xRNA;
-        }
-
-        Assert.assertNotNull("claim Task did not throw on impossible owner",t);
-
-        Assert.assertEquals(Task.Status.READY, mockTask.getStatus());
-
-        mockery.assertIsSatisfied();
+        //release task
+        this.services.releaseTask(t.getId(), t.getActualOwner().getName());
+        
+        Task t2 = this.services.getTaskInfo(t.getId());
+        Assert.assertEquals(Task.Status.READY, t2.getStatus());
+        
+        //claim by incorrect person
+        services.claimTask(t2.getId(), "ImpossibleOwner");
     }
 
-    @Test(expected=HTIllegalAccessException.class)
-    @Transactional
-    @Rollback
-    public void testStartImpossibleOwner() throws HTException {
-
-        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mockery.getGoodTaskMock();
-
-        services.startTask(mockTask.getId(), mockery.getImpossibleOwner().getName());
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    /***
-     *  This test should not claim the task becuase the owner was incorrect
+    /**
+     * Makes sure that someone that is not actual owner cannot start the Task. 
      */
-    public void testDelegateNotOwner() throws HTException {
+    @Test(expected=HTIllegalAccessException.class)
+    public void testStartNotOwner() throws HTException {
 
-        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mockery.getGoodTaskMock();
+        Task t = createTask_OnePotentialOwner();
+        
+        Assert.assertNotSame(t.getActualOwner(), "ImpossibleOwner");
 
-        Throwable t = null;
-
-        try {
-            services.delegateTask(mockTask.getId(), mockery.getImpossibleOwner().getName());
-            Assert.fail();
-        }catch(HTIllegalAccessException xRNA){
-            //success
-            t = xRNA;
-        }
-
-        Assert.assertNotNull("claim Task did not throw on impossible owner",t);
-
-        //FIXME:
-        //Assert.assertEquals(Task.Status.RESERVED, mockTask.getStatus());
-
-        mockery.assertIsSatisfied();
+        services.startTask(t.getId(), "ImpossibleOwner");
     }
+    
+    @Test
+    public void testReleaseTask() throws HTException {
+
+        Task t = createTask_OnePotentialOwner();
+
+        services.releaseTask(t.getId(), t.getActualOwner().getName());
+
+        Assert.assertEquals(Status.READY, t.getStatus());
+    }
+
+
+    
+//    /***
+//     *  This test should not claim the task becuase the owner was incorrect
+//     */
+//    @Test
+//    public void testDelegateNotOwner() throws HTException {
+//
+//        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
+//        Task mockTask = mockery.getGoodTaskMock(true);
+//
+//        Throwable t = null;
+//
+//        try {
+//            services.delegateTask(mockTask.getId(), mockery.getImpossibleOwner().getName());
+//            Assert.fail();
+//        }catch(HTIllegalAccessException xRNA){
+//            //success
+//            t = xRNA;
+//        }
+//
+//        Assert.assertNotNull("claim Task did not throw on impossible owner",t);
+//
+//        //FIXME:
+//        //Assert.assertEquals(Task.Status.RESERVED, mockTask.getStatus());
+//
+//        mockery.assertIsSatisfied();
+//    }
     
 //    @Test
 //    @Transactional
@@ -267,41 +281,5 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 //
 //        Assert.assertEquals(Task.Status.READY, mockTask.getStatus());
 //    }
-
-    @Test
-    @Transactional
-    @Rollback
-    public void testGetTaskInfo() throws HTException {
-
-        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mockery.getGoodTaskMock();
-
-        mockery.assignOwner();
-
-        Task resultTask = services.getTaskInfo(mockTask.getId());
-
-        Assert.assertNotNull(resultTask);
-
-        Assert.assertEquals(mockTask.getActualOwner(), resultTask.getActualOwner());
-
-        mockery.assertIsSatisfied();
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    public void testReleaseTask() throws HTException {
-
-        TaskMockery mockery = new TaskMockery(taskDao, assigneeDao);
-        Task mockTask = mockery.getGoodTaskMock();
-
-        mockery.assignOwner();
-
-        services.releaseTask(mockTask.getId(),mockTask.getActualOwner().getName());
-
-        Assert.assertEquals(Status.READY,mockTask.getStatus());
-
-        mockery.assertIsSatisfied();
-    }
 
 }

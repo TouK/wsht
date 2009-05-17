@@ -7,7 +7,6 @@ package pl.touk.humantask.model;
 
 import javax.persistence.MappedSuperclass;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -19,11 +18,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @MappedSuperclass
 public abstract class Base {
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).toString();
-    }
 
     @Override
     public abstract int hashCode();

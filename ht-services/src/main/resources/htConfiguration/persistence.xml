@@ -15,11 +15,3 @@
         <exclude-unlisted-classes/>
     </persistence-unit>
 </persistence>
-
-
-
-
-
-
-
-

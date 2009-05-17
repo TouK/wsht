@@ -21,9 +21,6 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.spec.TaskDefinition;
@@ -35,8 +32,6 @@ import pl.touk.humantask.model.spec.TaskDefinition;
  * @author Witek Wołejszo
  * @author Mateusz Lipczyński
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:/test.xml")
 public class TaskUnitTest {
 
     private final Log log = LogFactory.getLog(TaskUnitTest.class);
@@ -63,7 +58,7 @@ public class TaskUnitTest {
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
         }});
 
-        Task task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?></x>");
+        Task task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
         assertEquals(Task.Status.RESERVED, task.getStatus());
 
         mockery.assertIsSatisfied();
@@ -88,7 +83,7 @@ public class TaskUnitTest {
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
         }});
 
-        Task task = new Task(taskDefinition, null, "</x>");
+        Task task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
         assertEquals(Task.Status.CREATED, task.getStatus());
 
         mockery.assertIsSatisfied();
@@ -120,7 +115,7 @@ public class TaskUnitTest {
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
         }});
 
-        Task task = new Task(taskDefinition, null, "</x>");
+        Task task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
         assertEquals(Task.Status.READY, task.getStatus());
 
         mockery.assertIsSatisfied();
@@ -167,14 +162,12 @@ public class TaskUnitTest {
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
         }});
         
-        Task t = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><a><b>test</b></a>");
-        Object o = t.evaluateXPath("htd:getInput('a')/b", XPathConstants.STRING);
-        
-        //log.info(e.getTextContent());
-        
+        Task t = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
+        Object o = t.evaluateXPath("htd:getInput('ClaimApprovalRequest')/cust/firstname", XPathConstants.STRING);
+
         assertNotNull(o);
         assertTrue(o instanceof String);
-        assertEquals("test", o.toString());
+        assertEquals("witek", o.toString());
     }
 
 }

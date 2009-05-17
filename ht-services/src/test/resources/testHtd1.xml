@@ -39,12 +39,16 @@
             <htd:peopleAssignments>
             	
             	<htd:potentialOwners>
-                    <htd:from logicalPeopleGroup="lpg1">
-                        <htd:argument name="region"> htd:getInput("ClaimApprovalRequest")/region </htd:argument>
-                    </htd:from>
-                </htd:potentialOwners>
+                    <htd:literal>
+                        <htd:organizationalEntity>
+                            <htd:users>
+                                <htd:user>user1</htd:user>
+                            </htd:users>
+                        </htd:organizationalEntity>
+                    </htd:literal>
+                </htd:potentialOwners>>
                 
-                <htd:potentialOwners>
+                <htd:businessAdministrators>
                     <htd:literal>
                         <htd:organizationalEntity>
                             <htd:groups>
@@ -57,7 +61,7 @@
                             </htd:users>
                         </htd:organizationalEntity>
                     </htd:literal>
-                </htd:potentialOwners>
+                </htd:businessAdministrators>
 
                 <htd:businessAdministrators>
                     <htd:from logicalPeopleGroup="lpg1">

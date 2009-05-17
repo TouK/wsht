@@ -16,13 +16,14 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Repository;
 
 import pl.touk.humantask.HumanTaskServices;
 import pl.touk.humantask.dao.TaskDao;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
-import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.model.Task.TaskTypes;
@@ -36,25 +37,14 @@ import pl.touk.humantask.model.Task.TaskTypes;
  */
 @Repository
 public class JpaTaskDao implements TaskDao {
+    
+    private final Log log = LogFactory.getLog(JpaTaskDao.class);
 
     @PersistenceContext(name = "TOUK-WSHT-PU")
     protected EntityManager entityManager;
 
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
-
-//    /**
-//     * Returns all {@link Task}s currenty owned by specifed {@link Person}.
-//     * 
-//     * @param   owner the owner's name
-//     * @return  list of {@link Task}s
-//     */
-//    public List<Task> getTasks(Person owner) {
-//
-//        Query query = entityManager.createQuery("SELECT t FROM Task t WHERE t.actualOwner = :owner");
-//        query.setParameter("owner", owner);
-//        return query.getResultList();
-//    }
 
     /**
      * Returns tasks. See {@link HumanTaskServices#getMyTasks(String, TaskTypes, GenericHumanRole, String, List, String, String, Integer)}
@@ -164,7 +154,13 @@ public class JpaTaskDao implements TaskDao {
             
         }
 
+        //TODO extract query building
         queryString = queryBuilder.toString();
+        
+        if (log.isDebugEnabled()) {
+            log.debug("query: " + queryString);
+            log.debug("parameters: " + namedParameters);
+        }
         
         Query query = entityManager.createQuery(queryString);
         
@@ -183,7 +179,11 @@ public class JpaTaskDao implements TaskDao {
             query.setParameter(parameter.getKey(), parameter.getValue());
         }
         
-        return query.getResultList();
+        List result = query.getResultList();
+        
+        log.debug("returning: " + result.size());
+        
+        return result;
     }
 
     

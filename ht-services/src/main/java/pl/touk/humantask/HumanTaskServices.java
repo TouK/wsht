@@ -59,7 +59,7 @@ public interface HumanTaskServices {
      * @param taskType          The Task type - one of {@link pl.touk.humantask.model.Task.TaskTypes#ALL}, {@link pl.touk.humantask.model.Task.TaskTypes#NOTIFICATIONS}, {@link pl.touk.humantask.model.Task.TaskTypes#TASKS}.
      * @param genericHumanRole  TODO wcr ?The classifier of names contained in the task?
      * @param workQueue         If the work queue is specified then only tasks having a work queue and generic human role are returned.
-     * @param status            Task statuses. Tasks which status is one of those specified in List, if not specified or is empty list, a status wildcard is assumed.
+     * @param statuses          Task statuses. Tasks which status is one of those specified in List, if not specified or is empty list, a status wildcard is assumed.
      * @param whereClause       The JPA where clause added to the query. These fields may be used:
      * <ul>
      * <li>Task.*</li>
@@ -77,7 +77,7 @@ public interface HumanTaskServices {
      *
      * @throws HTException In case of problems while getting tasks.
      */
-    List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> status,
+    List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> statuses,
             String whereClause, String orderByClause, String createdOnClause, Integer maxTasks, Integer offset) throws HTException;
 
     /**
@@ -112,7 +112,7 @@ public interface HumanTaskServices {
     void startTask(Long taskId,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 
     /**
-     * Releases the task, i.e. set the task back to status Ready.  .
+     * Releases the task, i.e. set the task back to status Ready.
      *
      * @param task
      *          The task to release.

@@ -10,7 +10,7 @@
         <mapping class="pl.touk.humantask.model.Assignee"/>
         <mapping class="pl.touk.humantask.model.Person"/>
         <mapping class="pl.touk.humantask.model.Group"/>
-		<mapping class="pl.touk.humantask.model.Attachment"/>
+        <mapping class="pl.touk.humantask.model.Attachment"/>
         <mapping class="pl.touk.humantask.model.Comment"/>
         <mapping class="pl.touk.humantask.model.Task"/>
         <mapping class="pl.touk.humantask.model.Message"/>

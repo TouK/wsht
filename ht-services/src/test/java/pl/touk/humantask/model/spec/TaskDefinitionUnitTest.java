@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 TouK sp. z o.o. s.k.a.
+ * Copyright (C) 2009 TouK sp. z o.o. s.k.a.
  * All rights reserved
  */
 
@@ -54,7 +54,7 @@ public class TaskDefinitionUnitTest {
     }
 
     /**
-     * Test people query returns zero.
+     * Test people query implementation returns zero.
      * @throws HTException
      */
     @Test
@@ -63,17 +63,17 @@ public class TaskDefinitionUnitTest {
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
         
         Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, null);
-        Assert.assertEquals(4, assigneeList.size());
+        Assert.assertEquals(1, assigneeList.size());
         
         Set<Assignee> bussinessAdministrators = td.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, null);
-        Assert.assertEquals(0, bussinessAdministrators.size());
+        Assert.assertEquals(4, bussinessAdministrators.size());
     }
     
     @Test
     public void testEvaluateHumanRoleAssigneesUnresolvedGroupOfPeople() throws HTException {
         
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
-        Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, null);
+        Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, null);
         
         Assert.assertTrue(assigneeList.contains(new Group("group1")));
         Assert.assertTrue(assigneeList.contains(new Group("group2")));
@@ -83,10 +83,10 @@ public class TaskDefinitionUnitTest {
     public void testEvaluateHumanRoleAssigneesPeople() throws HTException {
         
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
-        Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, null);
+        Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, null);
         
         Assert.assertTrue(assigneeList.contains(new Person("user1")));
-        Assert.assertTrue(assigneeList.contains(new Person("user1")));
+        Assert.assertTrue(assigneeList.contains(new Person("user2")));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class TaskDefinitionUnitTest {
         
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
 
-        Task task = new Task(td, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>jan</firstname><lastname>kowalski</lastname></cust></ClaimApprovalRequest>");
+        Task task = new Task(td, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>jan</firstname><lastname>kowalski</lastname></cust><euroAmount>1</euroAmount></ClaimApprovalRequest>");
         
         Map<String, Object> result = td.getTaskPresentationParameters(task);
         

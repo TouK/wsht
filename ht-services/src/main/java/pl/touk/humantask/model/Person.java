@@ -5,28 +5,59 @@
 
 package pl.touk.humantask.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
+@Table(name = "ASSIGNEE_PERSON")
 public class Person extends Assignee {
 
+    @Column(unique = true, nullable = false)
+    private String name;
+
+    /**
+     * Person constructor.
+     */
     public Person() {
         super();
     }
 
+    /**
+     * Person constructor.
+     * @param name The person name.
+     */
     public Person(String name) {
+        super();
+        Validate.notNull(name);
+        this.setName(name);
+    }
+
+    public void setName(String name) {
         this.name = name;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     /**
-     * Returns the person hashcode.
+     * Returns the person hash code.
      * @return person hash code
      */
     @Override
     public int hashCode() {
-        return ((name == null) ? 0 : name.hashCode());
+        
+        if (this.id == null) {
+            return new HashCodeBuilder(19, 21).append(this.name).toHashCode();
+        }
+        
+        return new HashCodeBuilder(19, 21).append(this.id).toHashCode();
     }
 
     /**
@@ -36,14 +67,19 @@ public class Person extends Assignee {
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Person == false) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
-        Person rhs = (Person) obj;
-        return new EqualsBuilder().append(name, rhs.name).isEquals();
+        
+        if (this.id == null) {
+            final String[] excludeFields = { "id" };
+            return EqualsBuilder.reflectionEquals(this, obj, excludeFields);
+        } 
+        
+        final String[] excludeFields = { "name" };
+        return EqualsBuilder.reflectionEquals(this, obj, excludeFields);
+    }
+    
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("id", this.id).append("name", this.name).toString();
     }
 
 }
