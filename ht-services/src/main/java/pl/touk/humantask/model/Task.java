@@ -162,16 +162,16 @@ public class Task extends Base {
      */
     private String createdBy;
 
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(javax.persistence.TemporalType.TIME)
     private Date createdOn;
 
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(javax.persistence.TemporalType.TIME)
     private Date activationTime;
 
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(javax.persistence.TemporalType.TIME)
     private Date expirationTime;
 
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(javax.persistence.TemporalType.TIME)
     private Date suspensionTime;
 
     private Boolean skippable;
@@ -246,7 +246,7 @@ public class Task extends Base {
         Message m = new Message(requestXml);
         this.getInput().put(m.getRootNodeName(), m);
 
-        this.calculatePresentationParameters();
+        this.recalculatePresentationParameters();
         
         //retrieveExistingAssignees check if group or people with the same name exist
         //and retrieves existing entities
@@ -259,7 +259,9 @@ public class Task extends Base {
         this.taskStakeholders       = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS,         this));
 
         this.createdBy = createdBy;
+        this.createdOn = new Date();
         this.activationTime = new Date();
+        this.escalated = false;
         this.status = Status.CREATED;
        
         Person nominatedPerson = this.nominateActualOwner(this.potentialOwners);
@@ -269,6 +271,8 @@ public class Task extends Base {
         } else if (!this.potentialOwners.isEmpty()) {
             this.setStatus(Status.READY);
         }
+        
+        recalculatePresentationParameters();
     }
 
     /**
@@ -282,7 +286,7 @@ public class Task extends Base {
     @PrePersist
     public void prePersist() {
         log.info("Pre persist.");
-        calculatePresentationParameters();
+        //recalculatePresentationParameters();
     }
 
     /**
@@ -340,11 +344,10 @@ public class Task extends Base {
     /**
      * Recalculates presentation parameter values. To be called after object creation or
      * input message update.
-     * TODO rename to recalcuate
      */
-    private void calculatePresentationParameters() {
+    private void recalculatePresentationParameters() {
 
-        log.info("Calculating presentation parameters");
+        log.info("Recalculating presentation parameters.");
 
         Map<String, Object> pp = this.getTaskDefinition().getTaskPresentationParameters(this);
 
@@ -355,15 +358,16 @@ public class Task extends Base {
             
             if (p != null) {
                 
-                p.setValue(entry.getValue() == null ? null : entry.getValue().toString());
+                p.setValue(entry.getValue() == null ? null : entry.getValue());
+
             } else {
                 
                 p = new PresentationParameter();
                 p.setTask(this);
                 p.setName(entry.getKey());
                 //TODO test
-                p.setValue(entry.getValue() == null ? null : entry.getValue().toString());
-                
+                p.setValue(entry.getValue() == null ? null : entry.getValue());
+
                 this.presentationParameters.put(p.getName(), p);
             }
         }
@@ -597,6 +601,17 @@ public class Task extends Base {
      * Business methods.                                           *
      ***************************************************************/
 
+    /**
+     * Returns presentation parameter values.
+     * @return the presentation parameter values
+     */
+    public Map<String, Object> getPresentationParameterValues() {
+        Map<String, Object> result = new HashMap<String, Object>();
+        for (Map.Entry<String, PresentationParameter> pp : this.presentationParameters.entrySet()) {
+            result.put(pp.getKey(), pp.getValue().getValue());
+        }
+        return result;
+    }
 //    /**
 //     * Resumes suspended task.
 //     */

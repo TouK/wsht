@@ -21,9 +21,7 @@ import pl.touk.humantask.model.Person;
 /**
  * Loads property file. Returns all people listed in property file together with
  * users specified literally.
- * 
- * TODO cannot depend on dao
- * 
+ *
  * @author Witek Wołejszo
  * @author Mateusz Lipczyński
  */
@@ -47,6 +45,7 @@ public final class PropertyBasedPeopleQuery implements PeopleQuery {
         Properties p = new Properties();
         
         try {
+            
             p.load(configuration.getInputStream());
             String value = (String) p.get(logicalPeopleGroupName);
             // parse
@@ -54,16 +53,19 @@ public final class PropertyBasedPeopleQuery implements PeopleQuery {
             for (String name : peopleInGroup) {
                 result.add(new Person(name));
             }
+            
         } catch (IOException e) {
-            // Access error should not affect evaluation TODO: ref to specs
-            e.printStackTrace(System.err);
+            
+            //Access error should not affect evaluation TODO: ref to specs
             try {
                 
                 log.error("Error reading: " + configuration.getURL());
+            
             } catch (IOException e1) {
+                
             } finally {
                 
-                log.error("Error reading file.");
+                log.error("Error reading file.", e);
             }
         }
         return result;

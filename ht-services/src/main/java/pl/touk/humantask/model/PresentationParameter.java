@@ -36,7 +36,7 @@ public class PresentationParameter extends Base {
 
     private String stringValue;
     
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIME)
     private Date dateValue;
     
     private BigDecimal numericValue;
@@ -56,6 +56,22 @@ public class PresentationParameter extends Base {
 
     public String getName() {
         return name;
+    }
+    
+    /**
+     * @param stringValue the stringValue to set
+     */
+    public void setValue(Object value) {
+        
+        if (value instanceof String) {
+            this.setValue((String)value);
+        } else if (value instanceof BigDecimal) {
+            this.setValue((BigDecimal)value);
+        } else if (value instanceof Boolean) {
+            this.setValue((Boolean)value);
+        } else if (value instanceof Date) {
+            this.setValue((Date)value);
+        }        
     }
     
     /**

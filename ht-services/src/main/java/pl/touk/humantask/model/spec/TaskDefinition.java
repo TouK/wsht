@@ -15,6 +15,7 @@ import java.util.Set;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -112,7 +113,8 @@ public class TaskDefinition {
             
             //retrieve presentation parameters
             
-            Map<String, Object> presentationParameters = this.getTaskPresentationParameters(task);            
+            //Map<String, Object> presentationParameters = this.getTaskPresentationParameters(task);            
+            Map<String, Object> presentationParameters = task.getPresentationParameterValues();
             
             return new TemplateEngine().merge(descriptionTamplate, presentationParameters);
 
@@ -137,8 +139,14 @@ public class TaskDefinition {
         List<TPresentationParameter> presentationParameters = tTask.getPresentationElements().getPresentationParameters().getPresentationParameter();
         
         for(TPresentationParameter presentationParameter : presentationParameters) {
+            
+            //TODO get correct type
             log.info("Evaluating: " + presentationParameter.getContent().get(0).toString().trim());
-            Object o = task.evaluateXPath(presentationParameter.getContent().get(0).toString().trim(), XPathConstants.STRING);
+            log.info("Type: " + presentationParameter.getType());
+            
+            QName parameterType = XPathConstants.STRING;
+            Object o = task.evaluateXPath(presentationParameter.getContent().get(0).toString().trim(), parameterType);
+            
             result.put(presentationParameter.getName(), o);
         }
         
@@ -253,9 +261,9 @@ public class TaskDefinition {
             String subjectTemplate = node.getTextContent();
             
             //retrieve presentation parameters
-            
-            Map<String, Object> presentationParameters = this.getTaskPresentationParameters(task);            
-            
+            //Map<String, Object> presentationParameters = this.getTaskPresentationParameters(task);            
+            Map<String, Object> presentationParameters = task.getPresentationParameterValues();
+                
             return new TemplateEngine().merge(subjectTemplate, presentationParameters);
             
         } catch (XPathExpressionException e) {
@@ -266,7 +274,7 @@ public class TaskDefinition {
     }
 
     /**
-     * TODO ww
+     * TODO ww - javadoc
      */
     public static class HtdNamespaceContext implements NamespaceContext {
 
