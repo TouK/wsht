@@ -125,14 +125,9 @@ public class JpaAssigneeDao implements AssigneeDao {
                 result.add(g);      
             }
         }
-        
-        log.debug("retrieveExistingAssignees " + assignees.size() + " -> " + result.size() );
+
         return result;
     }
-    
-//    public EntityManagerFactory getEntityManagerFactory() {
-//        return this.entityManagerFactory;
-//    }
 
     public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;

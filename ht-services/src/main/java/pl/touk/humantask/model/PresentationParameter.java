@@ -39,7 +39,11 @@ public class PresentationParameter extends Base {
     @Temporal(TemporalType.TIME)
     private Date dateValue;
     
-    private BigDecimal numericValue;
+    private BigDecimal bigDecimalValue;
+    
+    private Double doubleValue;
+    
+    private Integer integerValue;
     
     private Boolean booleanValue;
     
@@ -64,13 +68,29 @@ public class PresentationParameter extends Base {
     public void setValue(Object value) {
         
         if (value instanceof String) {
+            
             this.setValue((String)value);
+            
         } else if (value instanceof BigDecimal) {
+
             this.setValue((BigDecimal)value);
+
+        } else if (value instanceof Double) {
+
+            this.setValue((Double)value);
+
+        } else if (value instanceof Integer) {
+
+            this.setValue((Integer)value);
+
         } else if (value instanceof Boolean) {
+            
             this.setValue((Boolean)value);
+            
         } else if (value instanceof Date) {
+            
             this.setValue((Date)value);
+            
         }        
     }
     
@@ -93,9 +113,9 @@ public class PresentationParameter extends Base {
     /**
      * @param numericValue the numericValue to set
      */
-    public void setValue(BigDecimal numericValue) {
+    public void setValue(BigDecimal bigDecimalValue) {
         cleanValues();
-        this.numericValue = numericValue;
+        this.bigDecimalValue = bigDecimalValue;
     }
     
     /**
@@ -107,10 +127,27 @@ public class PresentationParameter extends Base {
     }
     
     /**
+     * @param doubleValue the doubleValue to set
+     */
+    public void setValue(Double doubleValue) {
+        cleanValues();
+        this.doubleValue = doubleValue;
+    }
+    
+    /**
+     * @param integerValue the integerValue to set
+     */
+    public void setValue(Integer integerValue) {
+        cleanValues();
+        this.integerValue = integerValue;
+    }
+    
+    /**
      * Returns value of proper type.
      * @return value
      */
     public Object getValue() {
+
         if (this.stringValue != null) {
         
             return this.stringValue;
@@ -119,9 +156,17 @@ public class PresentationParameter extends Base {
 
             return this.dateValue;
         
-        } else if (this.numericValue != null) {
+        } else if (this.bigDecimalValue != null) {
             
-            return this.numericValue;
+            return this.bigDecimalValue;
+            
+        } else if (this.doubleValue != null) {
+            
+            return this.doubleValue;
+            
+        } else if (this.integerValue != null) {
+            
+            return this.integerValue;
             
         } else if (this.booleanValue != null) {
             
@@ -145,7 +190,9 @@ public class PresentationParameter extends Base {
         
         this.stringValue = null;
         this.dateValue = null;
-        this.numericValue = null;
+        this.bigDecimalValue = null;
+        this.doubleValue = null;
+        this.integerValue = null;
         this.booleanValue = null;        
     }
     

@@ -40,6 +40,7 @@ import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.util.TemplateEngine;
+import pl.touk.humantask.util.XmlUtils;
 
 /**
  * Holds information about task version runnable in TouK Human Task engine. Task
@@ -55,12 +56,12 @@ import pl.touk.humantask.util.TemplateEngine;
 public class TaskDefinition {
 
     private final Log log = LogFactory.getLog(TaskDefinition.class);
-    
+
     /**
      * Human Interactions specification containing this {@link TaskDefinition}.
      */
     private HumanInteractions humanInteractions;
-    
+
     private TTask tTask;
 
     private boolean instantiable;
@@ -124,7 +125,7 @@ public class TaskDefinition {
 
         }
 
-        return null;
+        return "error";
     }
 
     /**
@@ -135,21 +136,25 @@ public class TaskDefinition {
     public Map<String, Object> getTaskPresentationParameters(Task task) {
         
         Map<String, Object> result = new HashMap<String, Object>();
-        
+
         List<TPresentationParameter> presentationParameters = tTask.getPresentationElements().getPresentationParameters().getPresentationParameter();
-        
+
         for(TPresentationParameter presentationParameter : presentationParameters) {
-            
-            //TODO get correct type
-            log.info("Evaluating: " + presentationParameter.getContent().get(0).toString().trim());
+
+            log.info("Evaluating: " + presentationParameter.getName());
+            log.info("XPath: " + presentationParameter.getContent().get(0).toString().trim());
             log.info("Type: " + presentationParameter.getType());
+            log.info("Return: " + new XmlUtils().getReturnType(presentationParameter.getType()));
+
+            //TODO do not instantiate each time
+            QName returnType = new XmlUtils().getReturnType(presentationParameter.getType());
+            Object o = task.evaluateXPath(presentationParameter.getContent().get(0).toString().trim(), returnType);
+
+            log.info("Evaluated to: " + o + " of: " + o.getClass());
             
-            QName parameterType = XPathConstants.STRING;
-            Object o = task.evaluateXPath(presentationParameter.getContent().get(0).toString().trim(), parameterType);
-            
-            result.put(presentationParameter.getName(), o);
+            result.put(presentationParameter.getName().trim(), o);
         }
-        
+
         return result;
     }
 
@@ -262,15 +267,15 @@ public class TaskDefinition {
             
             //retrieve presentation parameters
             //Map<String, Object> presentationParameters = this.getTaskPresentationParameters(task);            
-            Map<String, Object> presentationParameters = task.getPresentationParameterValues();
+            Map<String, Object> presentationParameterValues = task.getPresentationParameterValues();
                 
-            return new TemplateEngine().merge(subjectTemplate, presentationParameters);
+            return new TemplateEngine().merge(subjectTemplate, presentationParameterValues);
             
         } catch (XPathExpressionException e) {
             log.error("Error evaluating XPath.", e);
         }
         
-        return null;
+        return "error";
     }
 
     /**

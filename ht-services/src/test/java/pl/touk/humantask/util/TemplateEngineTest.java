@@ -18,7 +18,7 @@ import org.junit.Test;
 public class TemplateEngineTest {
 
     @Test
-    public void mergeTest() {
+    public void mergeTest1() {
         
         TemplateEngine te = new TemplateEngine();
         String r1 = te.merge("Raz dwa trzy.", null);
@@ -41,6 +41,20 @@ public class TemplateEngineTest {
     }
     
     @Test
+    public void mergeTest2() {
+        
+        TemplateEngine te = new TemplateEngine();
+        
+        Map<String, Object> pp = new HashMap<String, Object>();
+        pp.put("euroAmount", Double.valueOf(1));
+        pp.put("firstname", "jan");
+        pp.put("lastname", "kowalski");
+        
+        String r1 = te.merge("Approve the insurance claim for €$euroAmount$ on behalf of $firstname$ $lastname$", pp);
+        Assert.assertEquals("Approve the insurance claim for €1.0 on behalf of jan kowalski", r1);
+    }
+    
+    @Test
     public void mergeTestNoPresentationValue() {
         
         TemplateEngine te = new TemplateEngine();
@@ -48,7 +62,7 @@ public class TemplateEngineTest {
         Map<String, Object> pp = new HashMap<String, Object>();
         String r1 = te.merge("$Raz$ dwa $trzy$.", pp);
         
-        Assert.assertEquals("$Raz$ dwa $trzy$.", r1);
+        Assert.assertEquals("error:Raz dwa error:trzy.", r1);
     }
     
 }

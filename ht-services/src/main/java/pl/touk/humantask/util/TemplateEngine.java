@@ -23,12 +23,13 @@ public class TemplateEngine {
     /**
      * Replaces occurrences of "$key$" in a template string with values provided in presentationParameters. 
      * @param template The template String.
-     * @param presentationParameters Presentation parameters.
+     * @param presentationParameterValues Presentation parameters.
      * @return The template string with filled in values.
      */
-    public String merge(String template, Map<String, Object> presentationParameters) {
+    public String merge(String template, Map<String, Object> presentationParameterValues) {
     
-        log.info("merge");
+        log.info("merge: " + template);
+        log.info("merge: " + presentationParameterValues);
         
         Pattern p = Pattern.compile("\\$[A-Za-z]*\\$");
         Matcher m = p.matcher(template);
@@ -36,16 +37,17 @@ public class TemplateEngine {
         while (m.find() == true) {
             
             String key = m.group().replace("$", "");
-            String substitution = (String) ((presentationParameters == null) ? null : presentationParameters.get(key));
+            Object substitution = ((presentationParameterValues == null) ? null : presentationParameterValues.get(key));
+            String substitutionString = (substitution == null) ? "error:" + key : substitution.toString();
             
-            if (substitution == null) {
+            if (substitutionString == null) {
                 
                 log.warn("Cannot find presentation parameter: " + key);
                 
             } else {
                 
-                log.debug("Replacing: " + m.group() + " with: " + substitution);
-                template = m.replaceFirst(substitution);
+                log.debug("Replacing: " + m.group() + " with: " + substitutionString);
+                template = m.replaceFirst(substitutionString);
                 m = p.matcher(template);
             }
         }

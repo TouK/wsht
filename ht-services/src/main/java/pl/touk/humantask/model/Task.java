@@ -63,7 +63,7 @@ import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.model.spec.TaskDefinition;
 
 /**
- * Holds task instance information.
+ * Holds task instance information. Provides task business operations.
  *
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
@@ -227,9 +227,6 @@ public class Task extends Base {
     /**
      * Task constructor.
      *
-     * TODO actualOwner or evaluatedPeopleGroups or people group definitions?
-     * TODO ws xml request in constructor?
-     *
      * @param taskDefinition  task definition as an object
      * @param createdBy       person who created the task, can be null
      * @param requestXml      input data as XML string
@@ -254,8 +251,7 @@ public class Task extends Base {
         this.businessAdministrators = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS,   this));
         this.excludedOwners         = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS,           this));
         this.notificationRecipients = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS,   this));
-        
-        //TODO how they are evaluated?
+        //TODO Compliant implementations MUST ensure that at least one person isassociated with this role at runtime
         this.taskStakeholders       = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS,         this));
 
         this.createdBy = createdBy;
@@ -634,10 +630,11 @@ public class Task extends Base {
 
     /**
      * Evaluates XPath expression in context of the Task. Expression can contain 
-     * XPath Exension functions as defined by WS-HumanTask v1. Following
+     * XPath Extension functions as defined by WS-HumanTask v1. Following
      * XPath functions are implemented:
      * <ul>
      * <li> {@link GetInputXPathFunction} </li>
+     * <li> {@link GetOutputXPathFunction} </li>
      * </ul>
      * @param xPathString The XPath 1.0 expression.
      * @param returnType The desired return type. See {@link XPathConstants}.

@@ -38,6 +38,8 @@ public class TaskDefinitionUnitTest {
     private final Log log = LogFactory.getLog(TaskDefinitionUnitTest.class);
 
     private HumanInteractionsManager humanInteractionsManager;
+    
+    private static final String REQUEST = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>jan</firstname><lastname>kowalski</lastname></cust><amount>1</amount></ClaimApprovalRequest>";
 
     @Before
     public void setUpTestContext() throws HTException {
@@ -48,7 +50,7 @@ public class TaskDefinitionUnitTest {
     @Test
     public void testGetDescriptionPlain() throws HTException {       
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
-        Task task = new Task(td, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>jan</firstname><lastname>kowalski</lastname></cust></ClaimApprovalRequest>");
+        Task task = new Task(td, null, REQUEST);
         String description = td.getDescription("en-US", "text/plain", task);
         assertEquals("Approve this claim following corporate guideline #4711.0815/7 ...", description.trim());
     }
@@ -99,9 +101,10 @@ public class TaskDefinitionUnitTest {
     @Test
     public void testGetSubject() throws HTException {
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
-        Task task = new Task(td, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>jan</firstname><lastname>kowalski</lastname></cust><amount>3,14</amount></ClaimApprovalRequest>");
-        String expResult = "Approve the insurance claim for €3,14 on";
+        Task task = new Task(td, null, REQUEST);
+        String expResult = "Approve the insurance claim for €1.0 on";
         String result = td.getSubject("en-US", task);
+        log.debug("result: " + result);
         assertTrue(result.contains(expResult));
     }
 
@@ -125,7 +128,7 @@ public class TaskDefinitionUnitTest {
         
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
 
-        Task task = new Task(td, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>jan</firstname><lastname>kowalski</lastname></cust><euroAmount>1</euroAmount></ClaimApprovalRequest>");
+        Task task = new Task(td, null, REQUEST);
         
         Map<String, Object> result = td.getTaskPresentationParameters(task);
         
