@@ -102,7 +102,7 @@ public class TaskDefinitionUnitTest {
     public void testGetSubject() throws HTException {
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
         Task task = new Task(td, null, REQUEST);
-        String expResult = "Approve the insurance claim for €1.0 on";
+        String expResult = "Approve the insurance claim for PLN 1.0";
         String result = td.getSubject("en-US", task);
         log.debug("result: " + result);
         assertTrue(result.contains(expResult));
