@@ -107,7 +107,7 @@ public class Task extends Base {
     }
 
     public static enum Status {
-
+    //TODO: ww sprawdzic ERROR, EXITED, OBSOLETE w specyfikacji
         CREATED, READY, RESERVED, IN_PROGRESS, SUSPENDED, COMPLETED, FAILED, ERROR, EXITED, OBSOLETE;
 
         public String value() {
