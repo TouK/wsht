@@ -201,8 +201,8 @@ public class TaskOperationsImpl implements TaskOperations {
     }
 
     private void translateRecipientNotAllowedException(HTException xHT) throws RecipientNotAllowed {
-        if (xHT instanceof pl.touk.humantask.exceptions.RecipientNotAllowedException) {
-            throw new RecipientNotAllowed(xHT.getMessage(), ((pl.touk.humantask.exceptions.RecipientNotAllowedException) xHT).getExceptionInfo(), xHT);
+        if (xHT instanceof pl.touk.humantask.exceptions.HTRecipientNotAllowedException) {
+            throw new RecipientNotAllowed(xHT.getMessage(), ((pl.touk.humantask.exceptions.HTRecipientNotAllowedException) xHT).getExceptionInfo(), xHT);
         }
     }
 

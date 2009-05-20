@@ -12,7 +12,7 @@ package pl.touk.humantask.exceptions;
  * 
  * @author Warren Crossing 
  */
-public class RecipientNotAllowedException extends HTException {
+public class HTRecipientNotAllowedException extends HTException {
     
     private static final long serialVersionUID = 1L;
     
@@ -22,46 +22,46 @@ public class RecipientNotAllowedException extends HTException {
     private String recipientNotAllowed;
 
     /**
-     * Creates empty RecipientNotAllowedException.
+     * Creates empty HTRecipientNotAllowedException.
      */
-    public RecipientNotAllowedException() {
+    public HTRecipientNotAllowedException() {
         super();
     }
     
     /**
-     * Creates RecipientNotAllowedException and sets exception message.
+     * Creates HTRecipientNotAllowedException and sets exception message.
      * @param message Exception message to set
      */
-    public RecipientNotAllowedException(String message) {
+    public HTRecipientNotAllowedException(String message) {
         super(message);
     }
     
     /**
-     * Creates RecipientNotAllowedException and sets exception message and cause.
+     * Creates HTRecipientNotAllowedException and sets exception message and cause.
      * @param message Exception message to set
      * @param cause Throwable that caused current exception
      */
-    public RecipientNotAllowedException(String message, Throwable cause) {
+    public HTRecipientNotAllowedException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * Creates RecipientNotAllowedException and sets exception message and information about person rejected.
+     * Creates HTRecipientNotAllowedException and sets exception message and information about person rejected.
      * @param message Exception message to set
      * @param recipientNotAllowed Name of person that was not authorized to perform operation
      */
-    public RecipientNotAllowedException(String message, String recipientNotAllowed) {
+    public HTRecipientNotAllowedException(String message, String recipientNotAllowed) {
         super(message);
         this.recipientNotAllowed = recipientNotAllowed;
     }
 
     /**
-     * Creates RecipientNotAllowedException and sets exception message, information about person rejected and exception cause.
+     * Creates HTRecipientNotAllowedException and sets exception message, information about person rejected and exception cause.
      * @param message Exception message to set
      * @param recipientNotAllowed Name of person that was not authorized to perform operation
      * @param cause Throwable that caused current exception
      */
-    public RecipientNotAllowedException(String message, String recipientNotAllowed, Throwable cause) {
+    public HTRecipientNotAllowedException(String message, String recipientNotAllowed, Throwable cause) {
         super(message, cause);
         this.recipientNotAllowed = recipientNotAllowed;
     }

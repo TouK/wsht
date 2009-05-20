@@ -15,6 +15,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Task content.
@@ -25,12 +33,16 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "TASK_COMMENT")
 public class Comment extends Base {
+    
+    @Transient
+    private final Log log = LogFactory.getLog(Comment.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
 	@Column(name = "COMMENT_DATE")
+	@Temporal(TemporalType.TIME)
     private Date date;
 
     @Column(length = 4096)
@@ -39,38 +51,79 @@ public class Comment extends Base {
     @ManyToOne
     @JoinColumn(name = "TASK_ID")
     private Task task;
+    
+    /***************************************************************
+     * Constructor                                                 *
+     ***************************************************************/
+
+    /**
+     * Creates {@link Comment}.
+     */    
+    public Comment() {
+        super();
+    }
+    
+    /**
+     * Creates {@link Comment}.
+     */
+    public Comment(String content) {
+        //TODO remove before going to production
+        log.debug(content);
+        this.content = content;
+        this.date = new Date();
+    }
+    
+    /***************************************************************
+     * Getters & setters                                           *
+     ***************************************************************/
 
     public void setDate(Date date) {
         this.date = date;
     }
 
     public Date getDate() {
-        return date;
+        return this.date;
     }
 
-    public void setComment(String comment) {
-        this.content = comment;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public String getComment() {
-        return content;
+    public String getContent() {
+        return this.content;
     }
 
     public Task getTask() {
-        return task;
+        return this.task;
     }
 
     public void setTask(Task task) {
         this.task = task;
     }
 
+    /***************************************************************
+     * Infrastructure methods.                                     *
+     ***************************************************************/
+
     @Override
     public boolean equals(Object obj) {
-        throw new UnsupportedOperationException("Not yet implemented.");
+        if (obj instanceof Comment == false) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+        Comment rhs = (Comment) obj;
+        return new EqualsBuilder().append(this.id, rhs.id).isEquals();
     }
 
     @Override
     public int hashCode() {
-        throw new UnsupportedOperationException("Not yet implemented.");
+        return (id == null ? 0 : id.hashCode());
+    }
+    
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("id", this.id).append("date", this.date).append("comment", this.content).toString();
     }
 }

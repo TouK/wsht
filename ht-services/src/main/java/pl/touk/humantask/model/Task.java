@@ -7,6 +7,7 @@ package pl.touk.humantask.model;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -56,10 +57,13 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import pl.touk.humantask.HumanInteractionsManager;
+import pl.touk.humantask.HumanTaskServices;
 import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.exceptions.HTConfigurationException;
 import pl.touk.humantask.exceptions.HTException;
+import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
+import pl.touk.humantask.exceptions.HTRecipientNotAllowedException;
 import pl.touk.humantask.model.spec.TaskDefinition;
 
 /**
@@ -114,6 +118,13 @@ public class Task extends Base {
             return valueOf(v);
         }
 
+    }
+    
+    /**
+     * Task operations. Enumeration used to trigger comments.
+     */
+    private static enum Operations {
+        CREATE, STATUS, NOMINATE, CLAIM, START, DELEGATE, RELEASE; 
     }
 
     @Id
@@ -198,8 +209,8 @@ public class Task extends Base {
     @JoinTable(name = "TASK_NOTIFICATION_RECIPIENTS", joinColumns = @JoinColumn(name = "TASK"), inverseJoinColumns = @JoinColumn(name = "ASSIGNEE"))
     private Set<Assignee> notificationRecipients;
 
-    @OneToMany
-    private List<Comment> comments;
+    @OneToMany(mappedBy = "task", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    private List<Comment> comments = new ArrayList<Comment>();
 
     @OneToMany(mappedBy = "task", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<Attachment> attachments = new ArrayList<Attachment>();
@@ -269,6 +280,8 @@ public class Task extends Base {
         }
         
         recalculatePresentationParameters();
+        
+        this.addOperationComment(Operations.CREATE);
     }
 
     /**
@@ -301,9 +314,11 @@ public class Task extends Base {
                     break;
                 }
                 result = (Person)assignee;
-
             }
         }
+        
+        this.addOperationComment(Operations.NOMINATE, result);
+        
         return (count == 1) ? result : null;
     }
 
@@ -315,7 +330,6 @@ public class Task extends Base {
      */
     public String getSubject(String lang) {
         return this.getTaskDefinition().getSubject(lang, this);
-        //return this.taskDefinition.getSubject(lang, this.input);
     }
 
     /**
@@ -328,15 +342,7 @@ public class Task extends Base {
     public String getDescription(String lang, String contentType) {
         return this.getTaskDefinition().getDescription(lang, contentType, this);
     }
-    
-//    /**
-//     * Returns presenation parameters values.
-//     * @return
-//     */
-//    public Map<String, Object> getPresentationParameters() {
-//        return this.getTaskDefinition().getTaskPresentationParameters(this);
-//    }
-    
+
     /**
      * Recalculates presentation parameter values. To be called after object creation or
      * input message update.
@@ -377,23 +383,20 @@ public class Task extends Base {
         }
     }
 
+    /**
+     * Adds an attachment to the task.
+     *
+     * @param attachment    a new attachment to add
+     */
+    public void addAttachment(Attachment attachment) {
+        this.attachments.add(attachment);
+        //TODO addComment
+    }
 
     /***************************************************************
-     * Getters & Setters *
+     * Task operations                                             *
      ***************************************************************/
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
+    
     /**
      * Sets Task status. Not to be called directly, see: @. TODO must not be used from services.
      * TODO change to private
@@ -454,15 +457,16 @@ public class Task extends Base {
                 log.info("Changing Task status : " + this + " status from: " + getStatus() + " to: " + status);
 
                 if (status.equals(Status.SUSPENDED)) {
-                    statusBeforeSuspend = this.status;
+                    this.statusBeforeSuspend = this.status;
                 }
 
+                this.addOperationComment(Operations.STATUS, status);
                 this.status = status;
 
             } else {
 
-                log.error("Changing Task status: " + this + " status from: " + getStatus() + " to: " + status + " is not allowed.");
-                throw new pl.touk.humantask.exceptions.HTIllegalStateException("Changing Task's: " + this + " status from: " + getStatus() + " to: " + status
+                log.error("Changing Task status: " + this + " status from: " + this.status + " to: " + status + " is not allowed.");
+                throw new pl.touk.humantask.exceptions.HTIllegalStateException("Changing Task's: " + this + " status from: " + this.status + " to: " + status
                         + " is not allowed, or task is SUSPENDED", status);
 
             }
@@ -470,28 +474,204 @@ public class Task extends Base {
         } else {
 
             log.info("Changing Task status: " + this + " status from: NULL to: " + status);
+            this.addOperationComment(Operations.STATUS, status);
             this.status = status;
+        }
+    }
+    
+    /**
+     * Claims task. Task in READY status can be claimed by
+     * people from potential owners group not listed in excluded owners.
+     * 
+     * @param person                    The Person that claims the task.
+     * @throws HTIllegalStateException  Thrown when task is in illegal state for claim i.e. not READY. 
+     * @throws HTIllegalAccessException Thrown when task is in illegal state for claim i.e. not READY or person cannot
+     *                                  become actual owner i.e. not potential owner or excluded.
+     */
+    public void claim(Person person) throws HTIllegalStateException, HTIllegalAccessException {
 
+        //actual owner set
+        if (this.getActualOwner() != null) {
+            throw new HTIllegalStateException("Task not claimable. Actual owner set: " + this.getActualOwner(), this.getStatus());
+        }
+        
+        //TODO test
+        //not ready
+        if (!this.getStatus().equals(Task.Status.READY)) {
+            throw new HTIllegalStateException("Task not claimable. Not READY.", this.getStatus());
+        }
+        
+        //TODO test
+        // check if the task can be claimed by person
+        if (!this.getPotentialOwners().contains(person)) {
+            throw new HTIllegalAccessException("Not a potential owner.", person.getName());
+        }
+        
+        //TODO test
+        // check if the person is excluded from potential owners
+        if ((this.getExcludedOwners() != null && this.getExcludedOwners().contains(person))) {
+            throw new HTIllegalAccessException("Person is excluded from potential owners.", person.getName());
         }
 
+        this.actualOwner = person;
+        this.addOperationComment(Operations.CLAIM, person);
+        this.setStatus(Task.Status.RESERVED);
+    }
+    
+    /**
+     * Releases the Task.
+     * @param person                        The person that is releasing the Task.
+     * @throws HTIllegalAccessException     The person is not authorised to perform release operation.
+     * @throws HTIllegalStateException      Task cannot be released.
+     * @see HumanTaskServices.releaseTask
+     */
+    public void release(Person person) throws HTIllegalAccessException, HTIllegalStateException {
+
+        //TODO test
+        if (this.actualOwner == null) {
+            throw new HTIllegalAccessException("Task without actual owner cannot be released.");
+        }
+
+        //TODO test
+        if (!this.actualOwner.equals(person) && !this.getBusinessAdministrators().contains(person)) {
+            throw new HTIllegalAccessException("Calling person is neither the task's actual owner not business administrator");
+        }
+
+        this.actualOwner = null;
+        this.addOperationComment(Operations.RELEASE, person);
+        this.setStatus(Status.READY);
+    }
+    
+    /**
+     * Starts task.
+     * @see HumanTaskServices#startTask(Long, String)
+     * @param person
+     * @throws HTIllegalStateException 
+     * @throws HTIllegalAccessException 
+     */
+    public void start(Person person) throws HTIllegalStateException, HTIllegalAccessException {
+        
+        //only potential owner can start the task
+        if (!this.getPotentialOwners().contains(person)) {
+            throw new HTIllegalAccessException("This person is not permited to start the task.", person.toString());
+        }
+
+        //ready
+        if (this.getStatus().equals(Status.READY)) {
+            
+            //TODO can ready contain actual owner??? validate
+            this.claim(person);
+            this.addOperationComment(Operations.START, person);
+            this.setStatus(Status.IN_PROGRESS);
+            
+        } else if (this.getStatus().equals(Status.RESERVED)) {
+            
+            org.apache.commons.lang.Validate.notNull(this.getActualOwner());
+            if (this.getActualOwner().equals(person)) {
+                
+                this.addOperationComment(Operations.START, person);
+                this.setStatus(Status.IN_PROGRESS);
+                
+            } else {
+                
+                throw new HTIllegalAccessException("This person is not permited to start the task. Task is RESERVED.", person.toString());
+                
+            }
+        
+        } else {
+            
+            throw new HTIllegalStateException("Only READY or RESERVED tasks can be started.", this.getStatus());
+            
+        }
+    }
+    
+    /**
+     * Delegates the task.
+     * @see HumanTaskServices#delegateTask(Long, String, String)
+     * @param person
+     * @param delegatee
+     * @throws HTIllegalAccessException 
+     * @throws HTIllegalStateException 
+     * @throws HTRecipientNotAllowedException 
+     */
+    public void delegate(Person person, Person delegatee) throws HTIllegalAccessException, HTIllegalStateException, HTRecipientNotAllowedException {
+        
+        if (!(this.potentialOwners.contains(person) || this.businessAdministrators.contains(person) || this.actualOwner.equals(person))) {
+            throw new HTIllegalAccessException("Person delegating the task is not a: potential owner, bussiness administrator, actual owner.");
+        }
+        
+        if (!this.getPotentialOwners().contains(delegatee)) {
+            throw new HTRecipientNotAllowedException("Task can be delegated only to potential owners.");
+        }
+        
+        if (!Arrays.asList(Status.READY, Status.RESERVED, Status.IN_PROGRESS).contains(this.status)) {
+            throw new HTIllegalStateException("Only READY, RESERVED, IN_PROGRESS tasks can ne delegated.", this.status);
+        }
+        
+        this.addOperationComment(Operations.DELEGATE, person);
+        this.actualOwner = person;
+        
+        if (!this.status.equals(Status.RESERVED)) {
+            this.setStatus(Status.RESERVED);
+        }
+    }
+    
+//  /**
+//  * Resumes suspended task.
+//  */
+// public void resume() {
+//
+//     if ((statusBeforeSuspend == Status.READY || statusBeforeSuspend == Status.IN_PROGRESS || statusBeforeSuspend == Status.RESERVED)
+//             && this.status == Status.SUSPENDED) {
+//         this.status = statusBeforeSuspend;
+//     }
+//     // TODO exception
+//     /* else throw new HumanTaskException("status before suspend is invalid: "+statusBeforeSuspend.toString()); */
+// }
+//
+// /**
+//  * Reserves the task.
+//  */
+// public void reserve() throws HTIllegalStateException {
+//     this.setStatus(Status.RESERVED);
+// }    
+    
+    /**
+     * Returns task definition of this task.
+     * @return
+     */
+    public TaskDefinition getTaskDefinition() {
+        
+        if (humanInteractionsManager == null) {
+            throw new HTConfigurationException("Human interactions manager not available.", null);
+        }
+        
+        return this.humanInteractionsManager.getTaskDefinition(this.getTaskDefinitionKey());
     }
 
-    /**
-     * Adds an attachment to the task.
-     *
-     * @param attachment    a new attachment to add
-     */
-    public void addAttachment(Attachment attachment) {
-        this.attachments.add(attachment);
+    /***************************************************************
+     * Getters & Setters *
+     ***************************************************************/
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     public List<Attachment> getAttachments() {
         return this.attachments;
     }
 
-    public void setSuspentionTime(Date date) {
-        this.suspensionTime = (date == null) ? null : (Date) date.clone();
-    }
+//    public void setSuspentionTime(Date date) {
+//        this.suspensionTime = (date == null) ? null : (Date) date.clone();
+//    }
 
     public Date getSuspentionTime() {
         return (this.suspensionTime == null) ? null : (Date) this.suspensionTime.clone();
@@ -499,18 +679,6 @@ public class Task extends Base {
 
     public Assignee getActualOwner() {
         return this.actualOwner;
-    }
-
-    //TODO hide!
-    @Deprecated
-    public void releaseActualOwner() {
-        this.actualOwner = null;
-    }
-
-    //TODO hide!
-    @Deprecated
-    public void setActualOwner(Person actualOwner) {
-        this.actualOwner = actualOwner;
     }
 
     public Integer getPriority() {
@@ -534,36 +702,12 @@ public class Task extends Base {
     }
 
     public boolean isSkippable() {
-        return skippable;
+        return this.skippable;
     }
 
     public boolean isEscalated() {
-        return escalated;
+        return this.escalated;
     }
-
-    // /**
-    // * Sets task definition and TaskDefinitionKey used to retrieve task definition when {@link Task} is instantiated from persistent store.
-    // *
-    // * @param taskDefinition
-    // */
-    // public void setTaskDefinition(TaskDefinition taskDefinition) {
-    // this.taskDefinition = taskDefinition;
-    // this.setTaskDefinitionKey(taskDefinition.getKey());
-    // }
-    //
-    public TaskDefinition getTaskDefinition() {
-        
-        if (humanInteractionsManager == null) {
-            throw new HTConfigurationException("Human interactions manager not available.", null);
-        }
-        
-        return this.humanInteractionsManager.getTaskDefinition(this.getTaskDefinitionKey());
-    }
-
-    //
-    // public void setTaskDefinitionKey(String taskDefinitionKey) {
-    // this.taskDefinitionKey = taskDefinitionKey;
-    // }
 
     public String getTaskDefinitionKey() {
         return this.taskDefinitionKey;
@@ -578,7 +722,7 @@ public class Task extends Base {
     }
 
     public Set<Assignee> getTaskStakeholders() {
-        return taskStakeholders;
+        return this.taskStakeholders;
     }
 
     public Set<Assignee> getBusinessAdministrators() {
@@ -586,17 +730,83 @@ public class Task extends Base {
     }
 
     public Set<Assignee> getNotificationRecipients() {
-        return notificationRecipients;
+        return this.notificationRecipients;
     }
 
     public Date getCreatedOn() {
         return this.createdOn == null ? null : (Date)this.createdOn.clone();
     }
 
+    public Map<String, Message> getInput() {
+        return this.input;
+    }
+    
+    public Map<String, Message> getOutput() {
+        return this.output;
+    }
+    
     /***************************************************************
-     * Business methods.                                           *
+     * Infrastructure methods.                                     *
      ***************************************************************/
 
+    /**
+     * Adds a comment related to operation taking place.
+     * @param operation     performed operation
+     * @param people        people involved, starting with person invoking the operation
+     */
+    public void addOperationComment(Operations operation, Person ... people) {
+       
+        String content = null;
+        
+        switch (operation) {
+        case CREATE:
+            content = "Created.";
+            break;
+        case START:
+            content = "Started by " + people[0];
+            break;
+        case CLAIM:            
+            content = "Claimed by " + people[0];
+            break;
+        case DELEGATE:            
+            content = "Delegated by " + people[0] + " to " + people[1];
+            break;
+        case NOMINATE:            
+            content = "Nominated to " + people[0];
+            break;
+        case RELEASE:            
+            content = "Released by " + people[0];
+            break;
+        default:
+            break;
+        }
+        
+        if (content != null) {
+            this.comments.add(new Comment(content));
+        }
+    }
+    
+    /**
+     * Adds a comment related to operation taking place.
+     * @param operation     performed operation
+     * @param people        people involved, starting with person invoking the operation
+     */
+    public void addOperationComment(Operations operation, Status status) {
+       
+        String content = null;
+        
+        switch (operation) {
+        case STATUS:
+            content = "Status changed to " + status;
+        default:
+            break;
+        }
+        
+        if (content != null) {
+            this.comments.add(new Comment(content));
+        }
+    }
+    
     /**
      * Returns presentation parameter values.
      * @return the presentation parameter values
@@ -608,25 +818,7 @@ public class Task extends Base {
         }
         return result;
     }
-//    /**
-//     * Resumes suspended task.
-//     */
-//    public void resume() {
-//
-//        if ((statusBeforeSuspend == Status.READY || statusBeforeSuspend == Status.IN_PROGRESS || statusBeforeSuspend == Status.RESERVED)
-//                && this.status == Status.SUSPENDED) {
-//            this.status = statusBeforeSuspend;
-//        }
-//        // TODO exception
-//        /* else throw new HumanTaskException("status before suspend is invalid: "+statusBeforeSuspend.toString()); */
-//    }
-//
-//    /**
-//     * Reserves the task.
-//     */
-//    public void reserve() throws HTIllegalStateException {
-//        this.setStatus(Status.RESERVED);
-//    }
+
 
     /**
      * Evaluates XPath expression in context of the Task. Expression can contain 
@@ -788,14 +980,6 @@ public class Task extends Base {
         }
 
     }
-
-    public Map<String, Message> getInput() {
-        return this.input;
-    }
-    
-    public Map<String, Message> getOutput() {
-        return this.output;
-    }
     
     /***************************************************************
      * Infrastructure methods.                                     *
@@ -807,7 +991,7 @@ public class Task extends Base {
      */
     @Override
     public int hashCode() {
-        return (id == null ? 0 : id.hashCode());
+        return (this.id == null ? 0 : this.id.hashCode());
     }
 
     /**

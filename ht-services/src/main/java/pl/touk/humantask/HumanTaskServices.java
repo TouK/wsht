@@ -11,8 +11,10 @@ import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.HTIllegalAccessException;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
+import pl.touk.humantask.exceptions.HTRecipientNotAllowedException;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
+import pl.touk.humantask.model.Task.Status;
 import pl.touk.humantask.model.Task.TaskTypes;
 
 /**
@@ -20,6 +22,7 @@ import pl.touk.humantask.model.Task.TaskTypes;
  *
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
+ * @since 1.0.1
  */
 public interface HumanTaskServices {
 
@@ -74,67 +77,94 @@ public interface HumanTaskServices {
      * @param maxTasks          The maximum number of results returned in the List after ordering by activationTime.
      * @param offset            The number from which found tasks are returned. 
      * @return                  List of Tasks which meet the criteria.
-     *
      * @throws HTException In case of problems while getting tasks.
+     * @since 1.0.1
      */
     List<Task> getMyTasks(String personName, TaskTypes taskType, GenericHumanRole genericHumanRole, String workQueue, List<Task.Status> statuses,
             String whereClause, String orderByClause, String createdOnClause, Integer maxTasks, Integer offset) throws HTException;
 
     /**
-     * Claim responsibility for a task, i.e. set the task to status Reserved.
+     * Claim responsibility for a task, i.e. set the unassigned task to status Reserved.
      *
-     * @param  task
-     *          The task to claim
-     * @param  personName
-     *          The person will become the new actual owner.
+     * @param  taskId       The task to claim.
+     * @param  personName   The person that will become the new actual owner.
      *
      * @throws HTIllegalAccessException In case that given person is not authorized to perform operation
      * @throws HTIllegalArgumentException In case that given argument is incorrect
      * @throws HTIllegalStateException In case that current task state doesn't allow for the operation to perform
+     * @since 1.0.7
      */
-    void claimTask(Long taskId,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+    void claimTask(Long taskId, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 
 
     /**
      * Start the execution of the task, i.e. set the task to status InProgress.
      *
-     * @param task
-     *          The task to start
-     * @param personName
-     *          The person who will become the actual owner if the task is in the
-                {@link pl.touk.humantask.model.Task.Status#READY} state
+     * @param taskId        The task to start.
+     * @param personName    The person who starts the task.
      *
-     * @throws HTIllegalAccessException In case that given person is not authorized to perform operation
-     *              or when then
-     * @throws HTIllegalArgumentException In case that given argument is incorrect
-     * @throws HTIllegalStateException In case that current task state doesn't allow for the operation to perform
+     * </p>
+     * Authorization: must be either {@link pl.touk.humantask.model.GenericHumanRole#ACTUAL_OWNER} or {@link pl.touk.humantask.model.GenericHumanRole#POTENTIAL_OWNERS} and {@link Status#READY}
+     * </p>
+     * @throws HTIllegalAccessException     In case that given person is not authorised to perform operation
+     * @throws HTIllegalArgumentException   In case that given argument is incorrect
+     * @throws HTIllegalStateException      In case that current task state doesn't allow for the operation to perform
+     * @since 1.0.7
      */
-    void startTask(Long taskId,String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+    void startTask(Long taskId, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 
     /**
      * Releases the task, i.e. set the task back to status Ready.
-     *
-     * @param task
-     *          The task to release.
-     * @param personName
-     *          The person who is releasing the task. Must be either {@link pl.touk.humantask.model.GenericHumanRole#ACTUAL_OWNER} or {@link pl.touk.humantask.model.GenericHumanRole#BUSINESS_ADMINISTRATORS}
+     * <p>
+     * 4.7.2 Releasing a Human Task
+     * The current actual owner of a human task may release a task to again make it 
+     * available for all potential owners. A task can be released from active states that have
+     * an actual owner (Reserved, InProgress), transitioning it into the Ready state.
+     * </p>
+     * Authorization: must be either {@link pl.touk.humantask.model.GenericHumanRole#ACTUAL_OWNER} or {@link pl.touk.humantask.model.GenericHumanRole#BUSINESS_ADMINISTRATORS}
+     * </p>
+     * @param task          The task to release.
+     * @param personName    The person who is releasing the task.
      *
      * @throws HTIllegalAccessException In case that given person is not authorized to perform operation
      * @throws HTIllegalArgumentException In case that given argument is incorrect
      * @throws HTIllegalStateException In case that current task state doesn't allow for the operation to perform
+     * @since 1.0.8
      */
     void releaseTask(Long taskId, final String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 
     /**
-     * Gets task object by task identifier.
+     * Gets {@link Task}.
      *
-     * @param taskId
-     *          The task identifier.
-     * @return
-     *          If the identifier has a correspoding task, the function returns this task object.
+     * @param taskId    The task identifier.
+     * @return          If the identifier has a correspoding task, the function returns this task object.
      * @throws HTIllegalArgumentException In case where the task of the specified taskId doesn't exist.
+     * @since 1.0.1
      */
     Task getTaskInfo(Long taskId) throws HTIllegalArgumentException;
 
-    void delegateTask(Long taskId, String assigneeName) throws HTIllegalArgumentException,HTIllegalAccessException, HTIllegalStateException;
+    /**
+     * Delegates {@link Task}. 
+     * 4.7.4
+     * Task’s potential owners, actual owner or business administrator can delegate a task 
+     * to another user, making that user the actual owner of the task, and also adding her 
+     * to the list of potential owners in case she is not, yet.
+     * </p>
+     * {@link Status#READY} tasks can be delegated than they are RESERVED. (Ambiguous in spec. IN_PROGRESS on diagram.) </br>  
+     * {@link Status#RESERVED} tasks can be delegated and they remain RESERVED. </br>
+     * {@link Status#IN_PROGRESS} tasks can be delegated than they are RESERVED. </br>
+     * </p>
+     * Current implementation supports
+     * delegating to {@link GenericHumanRole#POTENTIAL_OWNERS} and ignores task definition.
+     * </p>
+     * @param taskId        The task to delegate.
+     * @param personName    The person delegating the task.
+     * @param delegateeName The delegatee - current owner to be set.
+     * @throws HTIllegalAccessException
+     * @throws HTIllegalStateException
+     * @throws HTIllegalArgumentException
+     * @throws HTRecipientNotAllowedException
+     * @since 1.0.8
+     */
+    void delegateTask(Long taskId, String personName, String delegateeName) throws HTIllegalArgumentException, HTIllegalAccessException, HTIllegalStateException, HTRecipientNotAllowedException;
 }
