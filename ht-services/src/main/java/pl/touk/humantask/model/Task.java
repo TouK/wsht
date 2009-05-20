@@ -48,6 +48,7 @@ import javax.xml.xpath.XPathFunction;
 import javax.xml.xpath.XPathFunctionException;
 import javax.xml.xpath.XPathFunctionResolver;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -245,9 +246,7 @@ public class Task extends Base {
      */
     public Task(TaskDefinition taskDefinition, String createdBy, String requestXml) throws HTException {
 
-        if (taskDefinition == null) {
-            throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task definition must not be null.");
-        }
+        Validate.notNull(taskDefinition);
 
         this.taskDefinitionKey = taskDefinition.getTaskName();
         
@@ -306,6 +305,9 @@ public class Task extends Base {
      * @return             the only person in the list, otherwise null
      */
     protected final Person nominateActualOwner(Set<Assignee> assignees) {
+
+        Validate.notNull(assignees);
+
         Person result = null;
         int count = 0;
         for (Assignee assignee : assignees) {
@@ -329,6 +331,7 @@ public class Task extends Base {
      * @return subject
      */
     public String getSubject(String lang) {
+        Validate.notNull(lang);
         return this.getTaskDefinition().getSubject(lang, this);
     }
 
@@ -340,6 +343,8 @@ public class Task extends Base {
      * @return description
      */
     public String getDescription(String lang, String contentType) {
+        Validate.notNull(lang);
+        Validate.notNull(contentType);
         return this.getTaskDefinition().getDescription(lang, contentType, this);
     }
 
@@ -389,6 +394,7 @@ public class Task extends Base {
      * @param attachment    a new attachment to add
      */
     public void addAttachment(Attachment attachment) {
+        Validate.notNull(attachment);
         this.attachments.add(attachment);
         //TODO addComment
     }
@@ -405,6 +411,8 @@ public class Task extends Base {
      * @throws HTException
      */
     public void setStatus(Status status) throws HTIllegalStateException {
+        
+        Validate.notNull(status);
 
         boolean isOk = false;
 
@@ -489,19 +497,20 @@ public class Task extends Base {
      *                                  become actual owner i.e. not potential owner or excluded.
      */
     public void claim(Person person) throws HTIllegalStateException, HTIllegalAccessException {
+        
+        Validate.notNull(person);
+        Validate.notNull(person.getId());
 
         //actual owner set
         if (this.getActualOwner() != null) {
             throw new HTIllegalStateException("Task not claimable. Actual owner set: " + this.getActualOwner(), this.getStatus());
         }
         
-        //TODO test
         //not ready
         if (!this.getStatus().equals(Task.Status.READY)) {
             throw new HTIllegalStateException("Task not claimable. Not READY.", this.getStatus());
         }
         
-        //TODO test
         // check if the task can be claimed by person
         if (!this.getPotentialOwners().contains(person)) {
             throw new HTIllegalAccessException("Not a potential owner.", person.getName());
@@ -526,6 +535,9 @@ public class Task extends Base {
      * @see HumanTaskServices.releaseTask
      */
     public void release(Person person) throws HTIllegalAccessException, HTIllegalStateException {
+        
+        Validate.notNull(person);
+        Validate.notNull(person.getId());
 
         //TODO test
         if (this.actualOwner == null) {
@@ -550,6 +562,9 @@ public class Task extends Base {
      * @throws HTIllegalAccessException 
      */
     public void start(Person person) throws HTIllegalStateException, HTIllegalAccessException {
+        
+        Validate.notNull(person);
+        Validate.notNull(person.getId());
         
         //only potential owner can start the task
         if (!this.getPotentialOwners().contains(person)) {
@@ -596,7 +611,12 @@ public class Task extends Base {
      */
     public void delegate(Person person, Person delegatee) throws HTIllegalAccessException, HTIllegalStateException, HTRecipientNotAllowedException {
         
-        if (!(this.potentialOwners.contains(person) || this.businessAdministrators.contains(person) || this.actualOwner.equals(person))) {
+        Validate.notNull(person);
+        Validate.notNull(person.getId());
+        Validate.notNull(delegatee);
+        Validate.notNull(delegatee.getId());
+        
+        if (!(this.potentialOwners.contains(person) || this.businessAdministrators.contains(person) || person.equals(this.actualOwner))) {
             throw new HTIllegalAccessException("Person delegating the task is not a: potential owner, bussiness administrator, actual owner.");
         }
         
@@ -608,8 +628,8 @@ public class Task extends Base {
             throw new HTIllegalStateException("Only READY, RESERVED, IN_PROGRESS tasks can ne delegated.", this.status);
         }
         
-        this.addOperationComment(Operations.DELEGATE, person);
-        this.actualOwner = person;
+        this.addOperationComment(Operations.DELEGATE, person, delegatee);
+        this.actualOwner = delegatee;
         
         if (!this.status.equals(Status.RESERVED)) {
             this.setStatus(Status.RESERVED);
@@ -642,7 +662,7 @@ public class Task extends Base {
      */
     public TaskDefinition getTaskDefinition() {
         
-        if (humanInteractionsManager == null) {
+        if (this.humanInteractionsManager == null) {
             throw new HTConfigurationException("Human interactions manager not available.", null);
         }
         
@@ -658,20 +678,16 @@ public class Task extends Base {
     }
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public Status getStatus() {
-        return status;
+        return this.status;
     }
 
     public List<Attachment> getAttachments() {
         return this.attachments;
     }
-
-//    public void setSuspentionTime(Date date) {
-//        this.suspensionTime = (date == null) ? null : (Date) date.clone();
-//    }
 
     public Date getSuspentionTime() {
         return (this.suspensionTime == null) ? null : (Date) this.suspensionTime.clone();
@@ -755,6 +771,8 @@ public class Task extends Base {
      * @param people        people involved, starting with person invoking the operation
      */
     public void addOperationComment(Operations operation, Person ... people) {
+        
+        Validate.notNull(operation);
        
         String content = null;
         
@@ -792,6 +810,8 @@ public class Task extends Base {
      * @param people        people involved, starting with person invoking the operation
      */
     public void addOperationComment(Operations operation, Status status) {
+        
+        Validate.notNull(operation);
        
         String content = null;
         
@@ -833,6 +853,9 @@ public class Task extends Base {
      * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
      */
     public Object evaluateXPath(String xPathString, QName returnType) {
+        
+        Validate.notNull(xPathString);
+        Validate.notNull(returnType);
         
         log.debug("Evaluating: " + xPathString);
         

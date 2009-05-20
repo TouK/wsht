@@ -96,7 +96,6 @@ public interface HumanTaskServices {
      */
     void claimTask(Long taskId, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
 
-
     /**
      * Start the execution of the task, i.e. set the task to status InProgress.
      *

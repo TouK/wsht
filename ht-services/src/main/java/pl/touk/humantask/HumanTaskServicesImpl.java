@@ -6,6 +6,7 @@ package pl.touk.humantask;
 
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -54,6 +55,7 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
     private HumanInteractionsManager taskManager;
 
     public void setTaskManager(HumanInteractionsManager taskManager) {
+        Validate.notNull(taskManager);
         this.taskManager = taskManager;
     }
 
@@ -63,6 +65,9 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
     @Transactional(propagation = Propagation.REQUIRED)
     public Task createTask(String taskName, String createdBy, String requestXml) throws HTException {
 
+        Validate.notNull(taskName);
+        Validate.notNull(requestXml);
+        
         log.info("Creating task: " + taskName + " , createdBy: " + createdBy);
 
         TaskDefinition taskDefinition = this.taskManager.getTaskDefinition(taskName);
@@ -110,12 +115,15 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
      * {@inheritDoc} 
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public void claimTask(Long taskId, String assigneeName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
+    public void claimTask(Long taskId, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
 
-        Person person = this.assigneeDao.getPerson(assigneeName);
+        Validate.notNull(taskId);
+        Validate.notNull(personName);
+        
+        Person person = this.assigneeDao.getPerson(personName);
         
         if (person == null) {
-            throw new HTIllegalAccessException("Not found", assigneeName);
+            throw new HTIllegalAccessException("Not found", personName);
         }
 
         Task task = locateTask(taskId);
@@ -130,6 +138,9 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public void startTask(Long taskId, String personName) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
+
+        Validate.notNull(taskId);
+        Validate.notNull(personName);
 
         Person person = this.assigneeDao.getPerson(personName);
 
@@ -149,6 +160,9 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
      */
     public void releaseTask(Long taskId, final String personName) throws HTIllegalArgumentException,HTIllegalAccessException, HTIllegalStateException {
 
+        Validate.notNull(taskId);
+        Validate.notNull(personName);
+
         final Person person = this.assigneeDao.getPerson(personName);
 
         if (person == null) {
@@ -167,6 +181,10 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
      */
     public void delegateTask(Long taskId, String personName, String delegateeName) throws HTIllegalAccessException, HTIllegalStateException, HTIllegalArgumentException, HTRecipientNotAllowedException {
 
+        Validate.notNull(taskId);
+        Validate.notNull(personName);
+        Validate.notNull(delegateeName);
+        
         final Person person = this.assigneeDao.getPerson(personName);
         final Person delegatee = this.assigneeDao.getPerson(delegateeName);
         
@@ -738,6 +756,7 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
      * @param taskDao TaskDao to set
      */
     public void setTaskDao(TaskDao taskDao) {
+        Validate.notNull(taskDao);
         this.taskDao = taskDao;
     }
 
@@ -746,6 +765,7 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
      * @param assigneeDao AssigneeDao to set
      */
     public void setAssigneeDao(AssigneeDao assigneeDao) {
+        Validate.notNull(assigneeDao);
         this.assigneeDao = assigneeDao;
     }
 
@@ -761,12 +781,14 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
     }
 
     //TODO: move to task
-    private Task locateTask(Long identifier) throws HTIllegalArgumentException {
+    private Task locateTask(Long taskId) throws HTIllegalArgumentException {
+        
+        Validate.notNull(taskId);
 
-        Task task = taskDao.fetch(identifier);
+        Task task = taskDao.fetch(taskId);
 
         if (null == task) {
-            throw new HTIllegalArgumentException("Cannot find Task", Long.toString(identifier));
+            throw new HTIllegalArgumentException("Cannot find Task", Long.toString(taskId));
         }
 
         return task;

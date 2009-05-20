@@ -30,6 +30,9 @@
     
     <htd:tasks>
     
+        <!-- Please change properties other than potential owners i both Task1 and Task2 -->
+        
+        <!-- One potential owners -->
         <htd:task name="Task1">
             
             <htd:documentation xml:lang="en-US">This task is used to handle claims that require manual approval. </htd:documentation>
@@ -68,6 +71,96 @@
                         <htd:argument name="region"> htd:getInput("ClahimApprovalRequest")/region </htd:argument>
                     </htd:from>
                 </htd:businessAdministrators>
+                
+            	<htd:taskStakeholders>
+                    <htd:literal>
+                        <htd:organizationalEntity>
+                            <htd:users>
+                                <htd:user>user3</htd:user>
+                            </htd:users>
+                        </htd:organizationalEntity>
+                    </htd:literal>
+                </htd:taskStakeholders>
+                
+            </htd:peopleAssignments>
+            
+            <htd:delegation potentialDelegatees="nobody"/>
+            
+            <htd:presentationElements>
+                
+                <htd:name xml:lang="en-US"> Approve Claim </htd:name>
+                
+                <htd:presentationParameters>
+                    
+                    <htd:presentationParameter name="firstname" type="xsd:string">
+                        htd:getInput("ClaimApprovalRequest")/cust/firstname </htd:presentationParameter>
+                    
+                    <htd:presentationParameter name="lastname" type="xsd:string">
+                        htd:getInput("ClaimApprovalRequest")/cust/lastname </htd:presentationParameter>
+                    
+                    <htd:presentationParameter name="euroAmount" type="xsd:double">
+                        htd:getInput("ClaimApprovalRequest")/amount </htd:presentationParameter>
+                        
+                </htd:presentationParameters>
+                
+                <htd:subject xml:lang="en-US"> Approve the insurance claim for PLN $euroAmount$ on behalf of $firstname$ $lastname$ </htd:subject>
+
+                <htd:description xml:lang="en-US" contentType="text/plain"> Approve this claim following corporate guideline #4711.0815/7 ... </htd:description>
+
+            </htd:presentationElements>
+            
+        </htd:task>    
+        
+        <!-- Two potential owners -->
+        <htd:task name="Task2">
+            
+            <htd:documentation xml:lang="en-US">This task is used to handle claims that require manual approval. </htd:documentation>
+            <htd:interface portType="tns:ClaimsHandlingPT" operation="approve" responsePortType="tns:ClaimsHandlingCallbackPT" responseOperation="approvalResponse"/>
+            <htd:priority> htd:getInput("ClaimApprovalRequest")/prio </htd:priority>
+            
+            <htd:peopleAssignments>
+            	
+            	<htd:potentialOwners>
+                    <htd:literal>
+                        <htd:organizationalEntity>
+                            <htd:users>
+                                <htd:user>user1</htd:user>
+                                <htd:user>user2</htd:user>
+                            </htd:users>
+                        </htd:organizationalEntity>
+                    </htd:literal>
+                </htd:potentialOwners>
+                
+                <htd:businessAdministrators>
+                    <htd:literal>
+                        <htd:organizationalEntity>
+                            <htd:groups>
+                                <htd:group>group1</htd:group>
+                                <htd:group>group2</htd:group>
+                            </htd:groups>
+                            <htd:users>
+                                <htd:user>user1</htd:user>
+                                <htd:user>user2</htd:user>
+                            </htd:users>
+                        </htd:organizationalEntity>
+                    </htd:literal>
+                </htd:businessAdministrators>
+
+                <htd:businessAdministrators>
+                    <htd:from logicalPeopleGroup="lpg1">
+                        <htd:argument name="region"> htd:getInput("ClahimApprovalRequest")/region </htd:argument>
+                    </htd:from>
+                </htd:businessAdministrators>
+                
+            	<htd:taskStakeholders>
+                    <htd:literal>
+                        <htd:organizationalEntity>
+                            <htd:users>
+                                <htd:user>user3</htd:user>
+                            </htd:users>
+                        </htd:organizationalEntity>
+                    </htd:literal>
+                </htd:taskStakeholders>
                 
             </htd:peopleAssignments>
             

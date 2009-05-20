@@ -94,6 +94,10 @@ public class TaskDefinition {
      * @return
      */
     public String getDescription(String lang, String contentType, Task task) {
+        
+        Validate.notNull(lang);
+        Validate.notNull(contentType);
+        Validate.notNull(task);
 
         XPath xpath = createXPathInstance();
 
@@ -135,6 +139,8 @@ public class TaskDefinition {
      */
     public Map<String, Object> getTaskPresentationParameters(Task task) {
         
+        Validate.notNull(task);
+        
         Map<String, Object> result = new HashMap<String, Object>();
 
         List<TPresentationParameter> presentationParameters = tTask.getPresentationElements().getPresentationParameters().getPresentationParameter();
@@ -166,6 +172,9 @@ public class TaskDefinition {
      * @return list of task assignees or empty list, when no assignments were made to this task.
      */
     public Set<Assignee> evaluateHumanRoleAssignees(GenericHumanRole humanRoleName, Task task) throws HTException {
+        
+        Validate.notNull(humanRoleName);
+        Validate.notNull(task);
         
         Set<Assignee> evaluatedAssigneeList = new HashSet<Assignee>();
         
@@ -245,6 +254,9 @@ public class TaskDefinition {
      */
     public String getSubject(String lang, Task task) {
         
+        Validate.notNull(lang);
+        Validate.notNull(task);
+        
         XPath xpath = createXPathInstance();
         
         try {
@@ -279,7 +291,7 @@ public class TaskDefinition {
     }
 
     /**
-     * TODO ww - javadoc
+     * @see NamespaceContext
      */
     public static class HtdNamespaceContext implements NamespaceContext {
 
@@ -294,25 +306,27 @@ public class TaskDefinition {
             return XMLConstants.NULL_NS_URI;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public String getPrefix(String namespaceURI) {
-            // TODO Auto-generated method stub
-            return null;
+            // TODO ???
+            throw new NullPointerException("???");
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Iterator getPrefixes(String namespaceURI) {
-            // TODO Auto-generated method stub
-            return null;
+            // ???
+            throw new NullPointerException("???");
         }
     }
 
     // ================ GETTERS + SETTERS ===================
 
     public boolean getInstantiable() {
-        return instantiable;
-    }
-
-    public void setInstantiable(boolean instantiable) {
-        this.instantiable = instantiable;
+        return this.instantiable;
     }
 
     public void setDefinition(HumanInteractions definition) {
@@ -320,17 +334,17 @@ public class TaskDefinition {
     }
 
     public HumanInteractions getDefinition() {
-        return humanInteractions;
+        return this.humanInteractions;
     }
 
     public String getTaskName() {
-        return tTask.getName();
+        return this.tTask.getName();
     }
 
     // ================== HELPER METHODS ==================
     
     private XPath createXPathInstance() {
-        XPath xpath = xPathFactory.newXPath();
+        XPath xpath = this.xPathFactory.newXPath();
         xpath.setNamespaceContext(new HtdNamespaceContext());
         return xpath;
     }

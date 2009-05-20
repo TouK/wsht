@@ -15,6 +15,8 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jmock.Mockery;
+import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -62,20 +64,30 @@ public class TaskDefinitionUnitTest {
     @Test
     public void testEvaluateHumanRoleAssignees() throws HTException {
         
+        Mockery mockery = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
+        final Task task = mockery.mock(Task.class);
+        
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
         
-        Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, null);
+        Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, task);
         Assert.assertEquals(1, assigneeList.size());
         
-        Set<Assignee> bussinessAdministrators = td.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, null);
+        Set<Assignee> bussinessAdministrators = td.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, task);
         Assert.assertEquals(4, bussinessAdministrators.size());
     }
     
     @Test
     public void testEvaluateHumanRoleAssigneesUnresolvedGroupOfPeople() throws HTException {
         
+        Mockery mockery = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
+        final Task task = mockery.mock(Task.class);
+        
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
-        Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, null);
+        Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, task);
         
         Assert.assertTrue(assigneeList.contains(new Group("group1")));
         Assert.assertTrue(assigneeList.contains(new Group("group2")));
@@ -84,8 +96,13 @@ public class TaskDefinitionUnitTest {
     @Test
     public void testEvaluateHumanRoleAssigneesPeople() throws HTException {
         
+        Mockery mockery = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
+        final Task task = mockery.mock(Task.class);
+        
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
-        Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, null);
+        Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS, task);
         
         Assert.assertTrue(assigneeList.contains(new Person("user1")));
         Assert.assertTrue(assigneeList.contains(new Person("user2")));
@@ -93,8 +110,14 @@ public class TaskDefinitionUnitTest {
 
     @Test
     public void testGenericHumanRoleNotFoundInTaskDefinition() throws HTException {
+        
+        Mockery mockery = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
+        final Task task = mockery.mock(Task.class);
+        
         TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
-        Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, null);
+        Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS, task);
         Assert.assertEquals(0, assigneeList.size());
     }
 

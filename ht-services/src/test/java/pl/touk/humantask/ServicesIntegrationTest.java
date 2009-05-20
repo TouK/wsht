@@ -54,9 +54,23 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
      */
     public Task createTask_OnePotentialOwner() throws HTException {
         Task task = services.createTask("Task1", null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust><amount>1</amount></ClaimApprovalRequest>");
+        org.junit.Assert.assertTrue(task.getPotentialOwners().size() == 1);
         return task;
     }
     
+    /**
+     * Creates task with two potential owner.
+     * @return
+     * @throws HTException
+     */
+    public Task createTask_TwoPotentialOwners() throws HTException {
+        Task task = services.createTask("Task2", null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust><amount>1</amount></ClaimApprovalRequest>");
+        org.junit.Assert.assertTrue(task.getPotentialOwners().size() == 2);
+        return task;
+    }
+
+    //TESTS
+     
     @Test
     public void testCreateTask() throws HTException {
 
@@ -101,14 +115,14 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         
         Task t = createTask_OnePotentialOwner();
 
-        List<Task> results = services.getMyTasks("user1", TaskTypes.ALL,
+        List<Task> results = this.services.getMyTasks("user1", TaskTypes.ALL,
                 GenericHumanRole.POTENTIAL_OWNERS, null,
                 new ArrayList<Status>(), null, null, null, null, 0);
 
         Assert.assertEquals(1, results.size());
 
         Task taskToCheck = results.get(0);
-        Person p = assigneeDao.getPerson("user1");
+        Person p = this.assigneeDao.getPerson("user1");
         Assert.assertNotNull(p);
         
         log.info(taskToCheck.getPotentialOwners());
@@ -133,7 +147,7 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         Task t = createTask_OnePotentialOwner();
 
-        Task resultTask = services.getTaskInfo(t.getId());
+        Task resultTask = this.services.getTaskInfo(t.getId());
 
         Assert.assertNotNull(resultTask);
         Assert.assertEquals(t.getActualOwner(), resultTask.getActualOwner());
@@ -145,14 +159,37 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Task t = createTask_OnePotentialOwner();
 
         //t.getActualOwner() is already set and cannot claim task once more 
-        services.claimTask(t.getId(), t.getActualOwner().getName());
+        this.services.claimTask(t.getId(), t.getActualOwner().getName());
+    }
+    
+    @Test(expected = HTIllegalStateException.class)
+    public void testClaimTaskReserved() throws HTException {
+
+        Task t = createTask_OnePotentialOwner();
+        org.junit.Assert.assertEquals(Task.Status.RESERVED, t.getStatus());
+
+        this.services.claimTask(t.getId(), "user2");
+    }
+
+    @Test(expected = HTIllegalStateException.class)
+    public void testClaimTaskNotReady() throws HTException {
+
+        Task t = createTask_TwoPotentialOwners();
+        
+        org.junit.Assert.assertEquals(Task.Status.READY, t.getStatus());
+        this.services.claimTask(t.getId(), "user1");
+        
+        t = this.services.getTaskInfo(t.getId());
+        org.junit.Assert.assertEquals(Task.Status.RESERVED, t.getStatus());
+
+        this.services.claimTask(t.getId(), "user2");
     }
 
     /**
      *  This test should not claim the task because the potential owner is incorrect.
      */
     @Test(expected = HTIllegalAccessException.class)
-    public void testClaimNotOwner() throws HTException {
+    public void testClaimTaskNotOwner() throws HTException {
 
         Task t = createTask_OnePotentialOwner();
         
@@ -165,20 +202,57 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         Assert.assertEquals(Task.Status.READY, t2.getStatus());
         
         //claim by incorrect person
-        services.claimTask(t2.getId(), "ImpossibleOwner");
+        this.services.claimTask(t2.getId(), "ImpossibleOwner");
     }
 
     /**
-     * Makes sure that someone that is not actual owner cannot start the Task. 
+     * Makes sure that someone that is not a potential owner cannot start the Task. 
      */
     @Test(expected=HTIllegalAccessException.class)
-    public void testStartNotOwner() throws HTException {
+    public void testStartTaskNotOwner() throws HTException {
 
         Task t = createTask_OnePotentialOwner();
-        
-        Assert.assertNotSame(t.getActualOwner(), "ImpossibleOwner");
+        this.services.startTask(t.getId(), "user2");
+    }
+    
+    /**
+     * READY task can be started by potential owner. 
+     */
+    @Test
+    public void testStartTaskReadyByPotentialOwner() throws HTException {
 
-        services.startTask(t.getId(), "ImpossibleOwner");
+        Task t = createTask_TwoPotentialOwners();
+        this.services.startTask(t.getId(), "user1");
+        
+        org.junit.Assert.assertEquals("user1", t.getActualOwner().getName());
+        org.junit.Assert.assertEquals(Status.IN_PROGRESS, t.getStatus());
+    }
+    
+    /**
+     * RESERVED task can be started by actual owner. 
+     */
+    @Test
+    public void testStartTaskReservedByPotentialOwner() throws HTException {
+
+        Task t = createTask_OnePotentialOwner();
+        org.junit.Assert.assertEquals("user1", t.getActualOwner().getName());
+        org.junit.Assert.assertEquals(Status.RESERVED, t.getStatus());
+        
+        this.services.startTask(t.getId(), "user1");
+        org.junit.Assert.assertEquals(Status.IN_PROGRESS, t.getStatus());
+    }
+    
+    /**
+     * RESERVED task can not be started by not actual owner. 
+     */
+    @Test(expected = HTIllegalAccessException.class)
+    public void testStartTaskReservedByNotActualOwner() throws HTException {
+
+        Task t = createTask_OnePotentialOwner();
+        org.junit.Assert.assertEquals("user1", t.getActualOwner().getName());
+        org.junit.Assert.assertEquals(Status.RESERVED, t.getStatus());
+        
+        this.services.startTask(t.getId(), "user2");
     }
     
     @Test
@@ -186,13 +260,41 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
 
         Task t = createTask_OnePotentialOwner();
 
-        services.releaseTask(t.getId(), t.getActualOwner().getName());
+        this.services.releaseTask(t.getId(), t.getActualOwner().getName());
 
         Assert.assertEquals(Status.READY, t.getStatus());
     }
-
-
     
+    /**
+     * READY -> RESERVED by potential owner.
+     */
+    @Test
+    public void testDelegateTaskReadyByPotentialOwner() throws HTException {
+
+        Task t = createTask_TwoPotentialOwners();
+        Assert.assertEquals(Status.READY, t.getStatus());
+
+        this.services.delegateTask(t.getId(), "user1", "user2");
+        t = this.services.getTaskInfo(t.getId());
+
+        Assert.assertEquals(Status.RESERVED, t.getStatus());
+        Assert.assertEquals("user2", t.getActualOwner().getName());
+    }
+    
+    /**
+     * READY -> RESERVED by not owner nor adminisrator.
+     * @throws HTException
+     */
+    @Test (expected = HTIllegalAccessException.class)
+    public void testDelegateTaskReadyByNotPotentialOwnerNorAdministrator() throws HTException {
+
+        Task t = createTask_TwoPotentialOwners();
+        Assert.assertEquals(Status.READY, t.getStatus());
+
+        this.services.delegateTask(t.getId(), "user3", "user2");
+        t = this.services.getTaskInfo(t.getId());
+    }
+
 //    /***
 //     *  This test should not claim the task becuase the owner was incorrect
 //     */
