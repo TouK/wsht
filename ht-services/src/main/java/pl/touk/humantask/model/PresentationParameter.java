@@ -36,7 +36,7 @@ public class PresentationParameter extends Base {
 
     private String stringValue;
     
-    @Temporal(TemporalType.TIME)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date dateValue;
     
     private BigDecimal bigDecimalValue;

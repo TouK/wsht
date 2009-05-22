@@ -12,33 +12,29 @@ import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
-//TODO use jaxb bidings to move theses into packages
-import org.example.ws_ht.TOrganizationalEntity;
-import org.example.ws_ht.api.TAttachment;
-import org.example.ws_ht.api.TAttachmentInfo;
-import org.example.ws_ht.api.TComment;
-import org.example.ws_ht.api.TStatus;
-import org.example.ws_ht.api.TTask;
-import org.example.ws_ht.api.TTaskAbstract;
-import org.example.ws_ht.api.TTaskQueryResultSet;
-import org.example.ws_ht.api.wsdl.IllegalAccessFault;
-import org.example.ws_ht.api.wsdl.IllegalArgumentFault;
-import org.example.ws_ht.api.wsdl.IllegalOperationFault;
-import org.example.ws_ht.api.wsdl.IllegalStateFault;
-import org.example.ws_ht.api.wsdl.RecipientNotAllowed;
-import org.example.ws_ht.api.wsdl.TaskOperations;
-import org.example.ws_ht.api.xsd.IllegalState;
-import org.example.ws_ht.api.xsd.TTime;
+import pl.touk.humantask.model.htd.TOrganizationalEntity;
+import pl.touk.humantask.model.ws.TAttachment;
+import pl.touk.humantask.model.ws.TAttachmentInfo;
+import pl.touk.humantask.model.ws.TComment;
+import pl.touk.humantask.model.ws.TStatus;
+import pl.touk.humantask.model.ws.TTask;
+import pl.touk.humantask.model.ws.TTaskAbstract;
+import pl.touk.humantask.model.ws.TTaskQueryResultSet;
+
 import org.springframework.beans.factory.annotation.Configurable;
 
 import pl.touk.humantask.HumanTaskServices;
 import pl.touk.humantask.dao.TaskDao;
+
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.HTIllegalArgumentException;
 import pl.touk.humantask.exceptions.HTIllegalOperationException;
+
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.model.Task.TaskTypes;
+import pl.touk.humantask.ws.api.IllegalState;
+import pl.touk.humantask.ws.api.TTime;
 
 /**
  * Implementation of WS-HT API.
@@ -53,7 +49,7 @@ import pl.touk.humantask.model.Task.TaskTypes;
  */
 @WebService
 @Configurable
-public class TaskOperationsImpl implements TaskOperations {
+public class TaskOperationsImpl implements TaskOperationsInterface {
 
     private TaskDao taskDao;
 
@@ -66,20 +62,6 @@ public class TaskOperationsImpl implements TaskOperations {
      * Security context used to retrieve implicit user information.
      */
     private SecurityContextInterface securityContext;
-
-    public void activate(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // String username = Session.getUserName();
-        // TODO Auto-generated method stub
-    }
-
-    public void addAttachment(String identifier, String name, String accessType, Object attachment) throws IllegalArgumentFault, IllegalStateFault,
-            IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void addComment(String identifier, String text) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
 
     //@LogMethodEntranceInfo
     public void claim(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
@@ -103,62 +85,6 @@ public class TaskOperationsImpl implements TaskOperations {
         } catch (NumberFormatException xNF) {
             throw new IllegalArgumentFault("Task identifier must be a number.","Id: " + identifier);
         }
-    }
-
-    public void complete(String identifier, Object taskData) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void delegate(String identifier, TOrganizationalEntity organizationalEntity) throws RecipientNotAllowed, IllegalArgumentFault, IllegalStateFault,
-            IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void deleteAttachments(String identifier, String attachmentName) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void deleteFault(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void deleteOutput(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void fail(String identifier, String faultName, Object faultData) throws IllegalArgumentFault, IllegalStateFault, IllegalOperationFault,
-            IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void forward(String identifier, TOrganizationalEntity organizationalEntity) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public List<TAttachmentInfo> getAttachmentInfos(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<TAttachment> getAttachments(String identifier, String attachmentName) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<TComment> getComments(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Object getInput(String identifier, String part) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<TTaskAbstract> getMyTaskAbstracts(String taskType, String genericHumanRole, String workQueue, List<TStatus> status, String whereClause,
-            String createdOnClause, Integer maxTasks) throws IllegalArgumentFault, IllegalStateFault {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     public List<TTask> getMyTasks(String taskType, String genericHumanRole, String workQueue, List<TStatus> status, String whereClause, String createdOnClause,
@@ -289,26 +215,6 @@ public class TaskOperationsImpl implements TaskOperations {
         return TStatus.fromValue(in.toString());
     }
 
-    public Object getOutput(String identifier, String part) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Object getRendering(Object identifier, QName renderingType) throws IllegalArgumentFault {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<QName> getRenderingTypes(Object identifier) throws IllegalArgumentFault {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public String getTaskDescription(String identifier, String contentType) throws IllegalArgumentFault {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     /**
      * Gets task information by a given identifier.
      * 
@@ -323,10 +229,6 @@ public class TaskOperationsImpl implements TaskOperations {
             this.translateIllegalArgumentException(xHT);
             return null;
         }
-    }
-
-    public void nominate(String identifier, TOrganizationalEntity organizationalEntity) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
     }
 
     public TTaskQueryResultSet query(String selectClause, String whereClause, String orderByClause, Integer maxTasks, Integer taskIndexOffset)
@@ -357,36 +259,6 @@ public class TaskOperationsImpl implements TaskOperations {
         }
     }
 
-    public void remove(String identifier) throws IllegalArgumentFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void resume(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void setFault(String identifier, String faultName, Object faultData) throws IllegalArgumentFault, IllegalStateFault, IllegalOperationFault,
-            IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void setGenericHumanRole(String identifier, String genericHumanRole, TOrganizationalEntity organizationalEntity) throws IllegalArgumentFault,
-            IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void setOutput(String identifier, String part, Object taskData) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void setPriority(String identifier, BigInteger priority) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
-    public void skip(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalOperationFault, IllegalAccessFault {
-        // TODO Auto-generated method stub
-    }
-
     public void start(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
        try {
             services.startTask(translateTaskIdentifier(identifier),securityContext.getLoggedInUser().getUsername());
@@ -396,23 +268,170 @@ public class TaskOperationsImpl implements TaskOperations {
             translateIllegalAccessException(xHT);
         }
     }
-
-    public void stop(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
+    
+    public void activate(String identifier) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
         // TODO Auto-generated method stub
+        
     }
 
-    public void suspend(String identifier) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
+    public void addAttachment(String identifier, String name, String accessType, Object attachment) throws IllegalAccessFault, IllegalStateFault,
+            IllegalArgumentFault {
         // TODO Auto-generated method stub
+        
     }
 
-    public void suspendUntil(String identifier, TTime time) throws IllegalArgumentFault, IllegalStateFault, IllegalAccessFault {
+    public void addComment(String identifier, String text) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
         // TODO Auto-generated method stub
+        
+    }
+
+    public void complete(String identifier, Object taskData) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void delegate(String identifier, TOrganizationalEntity organizationalEntity) throws IllegalAccessFault, IllegalStateFault, RecipientNotAllowed,
+            IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void deleteAttachments(String identifier, String attachmentName) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void deleteFault(String identifier) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void deleteOutput(String identifier) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void fail(String identifier, String faultName, Object faultData) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault,
+            IllegalOperationFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void forward(String identifier, TOrganizationalEntity organizationalEntity) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public List<TAttachmentInfo> getAttachmentInfos(String identifier) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public List<TAttachment> getAttachments(String identifier, String attachmentName) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public List<TComment> getComments(String identifier) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     public void getFault(String identifier, Holder<String> faultName, Holder<Object> faultData) throws IllegalAccessFault, IllegalStateFault,
             IllegalArgumentFault, IllegalOperationFault {
         // TODO Auto-generated method stub
+        
     }
+
+    public Object getInput(String identifier, String part) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public List<TTaskAbstract> getMyTaskAbstracts(String taskType, String genericHumanRole, String workQueue, List<TStatus> status, String whereClause,
+            String createdOnClause, Integer maxTasks) throws IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public Object getOutput(String identifier, String part) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public Object getRendering(Object identifier, QName renderingType) throws IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public List<QName> getRenderingTypes(Object identifier) throws IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String getTaskDescription(String identifier, String contentType) throws IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void nominate(String identifier, TOrganizationalEntity organizationalEntity) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void remove(String identifier) throws IllegalAccessFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void resume(String identifier) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void setFault(String identifier, String faultName, Object faultData) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault,
+            IllegalOperationFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void setGenericHumanRole(String identifier, String genericHumanRole, TOrganizationalEntity organizationalEntity) throws IllegalAccessFault,
+            IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void setOutput(String identifier, String part, Object taskData) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void setPriority(String identifier, BigInteger priority) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void skip(String identifier) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault, IllegalOperationFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void stop(String identifier) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void suspend(String identifier) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void suspendUntil(String identifier, TTime time) throws IllegalAccessFault, IllegalStateFault, IllegalArgumentFault {
+        // TODO Auto-generated method stub
+        
+    }
+
+    //Getters & Setters 
 
     public void setServices(HumanTaskServices services) {
         this.services = services;

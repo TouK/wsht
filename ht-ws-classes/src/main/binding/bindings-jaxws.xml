@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaxws:bindings
+        jxb:extensionBindingPrefixes="jaxws jxb xjc"
+        version="2.0"
+        xmlns="http://java.sun.com/xml/ns/jaxb"
+        xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+        xmlns:htd="http://www.example.org/WS-HT"
+        xmlns:htda="http://www.example.org/WS-HT/api"
+        xmlns:htdt="http://www.example.org/WS-HT/api/xsd"
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:jaxws="http://java.sun.com/xml/ns/jaxws">        
+
+    <jaxws:bindings schemaLocation="../../../target/wsdl/ws-humantask.wsdl">
+    
+        <jaxws:bindings node="wsdl:definitions/wsdl:portType"> 
+            <jaxws:package name="pl.touk.humantask.ws"/>
+            <jaxws:class name="TaskOperationsInterface"/>
+            <jaxws:bindings node="wsdl:operation"/>
+            <!-- 
+            <jaxws:bindings node="wsdl:operation/wsdl:fault">
+                <jaxws:class name="TaskOperationsException"/>
+            </jaxws:bindings>
+            -->
+        </jaxws:bindings>
+       
+    </jaxws:bindings>
+
+</jaxws:bindings>

@@ -42,7 +42,7 @@ public class Comment extends Base {
     private Long id;
 
 	@Column(name = "COMMENT_DATE")
-	@Temporal(TemporalType.TIME)
+	@Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
     @Column(length = 4096)

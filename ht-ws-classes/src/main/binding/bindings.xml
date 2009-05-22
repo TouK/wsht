@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jxb:bindings version="2.0" jxb:extensionBindingPrefixes="jaxws jxb xjc"
+                            xmlns:jxb="http://java.sun.com/xml/ns/jaxb" 
+                            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                            xmlns:htd="http://www.example.org/WS-HT"
+                            xmlns:htda="http://www.example.org/WS-HT/api"
+                            xmlns:htdt="http://www.example.org/WS-HT/api/xsd"
+                            xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+
+    <jxb:bindings schemaLocation="../../../target/wsdl/ws-humantask-api.xsd">
+
+        <jxb:globalBindings xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+            <jxb:javaType name="java.util.Date" xmlType="xs:dateTime" parseMethod="org.apache.cxf.tools.common.DataTypeAdapter.parseDateTime"
+                printMethod="org.apache.cxf.tools.common.DataTypeAdapter.printDateTime" />
+        </jxb:globalBindings>
+        
+        <jxb:bindings>
+            <jxb:bindings scd="x-schema::htd">
+                <jxb:schemaBindings>
+                    <jxb:package name="pl.touk.humantask.model.htd" />
+                </jxb:schemaBindings>
+            </jxb:bindings>
+            <jxb:bindings scd="x-schema::htda">
+                <jxb:schemaBindings>
+                    <jxb:package name="pl.touk.humantask.model.ws" />
+                </jxb:schemaBindings>
+            </jxb:bindings>
+            <jxb:bindings scd="x-schema::htdt">
+                <jxb:schemaBindings>
+                    <jxb:package name="pl.touk.humantask.ws.api" />
+                </jxb:schemaBindings>
+            </jxb:bindings>
+        </jxb:bindings>
+
+    </jxb:bindings>
+
+</jxb:bindings>
+

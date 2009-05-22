@@ -23,10 +23,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.example.ws_ht.THumanInteractions;
-import org.example.ws_ht.TTask;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -37,6 +36,9 @@ import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Message;
 import pl.touk.humantask.model.spec.HumanInteractions;
 import pl.touk.humantask.model.spec.TaskDefinition;
+
+import pl.touk.humantask.model.htd.THumanInteractions;
+import pl.touk.humantask.model.htd.TTask;
 
 /* 
  * Human interactions manager.
@@ -68,7 +70,6 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManager {
         
         Validate.notNull(resources);
         
-        //TODO ???
         this.peopleQuery = peopleQuery;
         
         Map<String, String> taskDefinitionsNamesMap = new HashMap<String, String>();
@@ -88,7 +89,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManager {
                  
                 humanInteractions.setTaskDefinitions(taskDefinitions);
 
-                humanInteractionsList.add(humanInteractions);
+                this.humanInteractionsList.add(humanInteractions);
                 
             } catch (SAXException e) {
                 
@@ -104,6 +105,13 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManager {
                 throw new HTConfigurationException("Error parsing configuration.", e);
             }
         }
+        
+    }
+    
+    /**
+     * Default scope constructor used in Unit Tests.
+     */
+    HumanInteractionsManagerImpl() {
         
     }
 
@@ -167,17 +175,16 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManager {
     }
 
     /**
-     * Unmarshalls human interactions data from the XML file.
+     * Unmarshals human interactions data from the XML file.
      * @param htdXml the Resource containing human interactions definition
      * @return
      * @throws JAXBException
      * @throws IOException
      */
-    private THumanInteractions unmarshallHumanInteractionsData(Resource htdXml) throws JAXBException, IOException {
-        JAXBContext jaxbContext = JAXBContext.newInstance("org.example.ws_ht");
+    protected THumanInteractions unmarshallHumanInteractionsData(Resource htdXml) throws JAXBException, IOException {
+        JAXBContext jaxbContext = JAXBContext.newInstance("pl.touk.humantask.model.htd");
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         InputStream is = htdXml.getInputStream();
-
         return ((JAXBElement<THumanInteractions>) unmarshaller.unmarshal(is)).getValue();
     }
 

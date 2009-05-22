@@ -38,7 +38,7 @@ public class Attachment extends Base {
     private String contentType;
 
     @Column
-    @Temporal(javax.persistence.TemporalType.TIME)
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date attachedAt;
 
     @Column

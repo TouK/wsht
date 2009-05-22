@@ -25,9 +25,7 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.example.ws_ht.TGenericHumanRole;
-import org.example.ws_ht.TPresentationParameter;
-import org.example.ws_ht.TTask;
+
 import org.springframework.beans.factory.annotation.Configurable;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -41,6 +39,10 @@ import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 import pl.touk.humantask.util.TemplateEngine;
 import pl.touk.humantask.util.XmlUtils;
+
+import pl.touk.humantask.model.htd.TGenericHumanRole;
+import pl.touk.humantask.model.htd.TPresentationParameter;
+import pl.touk.humantask.model.htd.TTask;
 
 /**
  * Holds information about task version runnable in TouK Human Task engine. Task
