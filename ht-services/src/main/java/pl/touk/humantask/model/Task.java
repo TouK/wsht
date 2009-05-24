@@ -55,6 +55,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Configurable;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -205,10 +206,17 @@ public class Task extends Base {
     @JoinTable(name = "TASK_MSG_OUTPUT")
     private Map<String, Message> output = new HashMap<String, Message>();
 
+    /**
+     * Task status.
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
 
+    /**
+     * Previous status of SUSPENDED Task. When Task is resumed this
+     * status is copied to the status field.
+     */
     @Enumerated(EnumType.STRING)
     private Status statusBeforeSuspend;
 
@@ -316,14 +324,21 @@ public class Task extends Base {
         this.businessAdministrators = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.BUSINESS_ADMINISTRATORS,   this));
         this.excludedOwners         = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.EXCLUDED_OWNERS,           this));
         this.notificationRecipients = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.NOTIFICATION_RECIPIENTS,   this));
-        //TODO Compliant implementations MUST ensure that at least one person isassociated with this role at runtime
         this.taskStakeholders       = this.assigneeDao.saveNotExistingAssignees(taskDefinition.evaluateHumanRoleAssignees(GenericHumanRole.TASK_STAKEHOLDERS,         this));
+        
+        //TODO test
+        if (this.taskStakeholders.isEmpty()) {
+            log.error("No task stakeholders. Wrong configuration. Cannot create task.");
+            throw new HTConfigurationException("No task stakeholders. Wrong configuration. Cannot create task.", null);
+        }
+
+        this.addOperationComment(Operations.CREATE);
 
         this.createdBy = createdBy;
         this.createdOn = new Date();
         this.activationTime = new Date();
         this.escalated = false;
-        this.status = Status.CREATED;
+        this.setStatus(Status.CREATED);
        
         Person nominatedPerson = this.nominateActualOwner(this.potentialOwners);
         if (nominatedPerson != null) {
@@ -338,9 +353,7 @@ public class Task extends Base {
             
         }
         
-        recalculatePresentationParameters();
-        
-        this.addOperationComment(Operations.CREATE);
+        recalculatePresentationParameters();        
     }
 
     /**
@@ -462,13 +475,14 @@ public class Task extends Base {
      ***************************************************************/
     
     /**
-     * Sets Task status. Not to be called directly, see: @. TODO must not be used from services.
-     * TODO change to private
-     * 
-     * @param status
-     * @throws HTException
+     * Sets Task status. Task status is changed indirectly by operations on tasks. Status
+     * change operation comment is added. If new status is SUSPENDED and transition is
+     * valid, current status is remembered in {@link Task#statusBeforeSuspend}.
+     *
+     * @param status        The new {@link Status}.
+     * @throws HTIllegalStateException thrown when impossible transition is forced by the caller. 
      */
-    public void setStatus(Status status) throws HTIllegalStateException {
+    private void setStatus(Status status) throws HTIllegalStateException {
         
         Validate.notNull(status);
 
@@ -480,34 +494,32 @@ public class Task extends Base {
             switch (this.status) {
 
             case CREATED:
-
                 if (status == Status.READY || status == Status.RESERVED) {
                     isOk = true;
                 }
-
+                
                 break;
 
             case READY:
-
                 if (status == Status.RESERVED || status == Status.IN_PROGRESS ||
-                        status == Status.READY || status == Status.SUSPENDED) {
+                    status == Status.READY || status == Status.SUSPENDED) {
                     isOk = true;
                 }
 
                 break;
 
             case RESERVED:
-
-                if (status == Status.IN_PROGRESS || status == Status.READY || status == Status.SUSPENDED || status == Status.RESERVED) {
+                if (status == Status.IN_PROGRESS || status == Status.READY || 
+                    status == Status.SUSPENDED || status == Status.RESERVED) {
                     isOk = true;
                 }
 
                 break;
 
-
             case IN_PROGRESS:
-
-                if (status == Status.COMPLETED || status == Status.FAILED || status == Status.RESERVED || status == Status.READY || status == Status.SUSPENDED) {
+                if (status == Status.COMPLETED || status == Status.FAILED || 
+                    status == Status.RESERVED || status == Status.READY || 
+                    status == Status.SUSPENDED) {
                     isOk = true;
                 }
 
@@ -524,6 +536,8 @@ public class Task extends Base {
 
                 if (status.equals(Status.SUSPENDED)) {
                     this.statusBeforeSuspend = this.status;
+                } else {
+                    Validate.isTrue(this.statusBeforeSuspend == null);
                 }
 
                 this.addOperationComment(Operations.STATUS, status);
@@ -534,11 +548,11 @@ public class Task extends Base {
                 log.error("Changing Task status: " + this + " status from: " + this.status + " to: " + status + " is not allowed.");
                 throw new pl.touk.humantask.exceptions.HTIllegalStateException("Changing Task's: " + this + " status from: " + this.status + " to: " + status
                         + " is not allowed, or task is SUSPENDED", status);
-
             }
 
         } else {
 
+            //TODO check allowed first statuses
             log.info("Changing Task status: " + this + " status from: NULL to: " + status);
             this.addOperationComment(Operations.STATUS, status);
             this.status = status;

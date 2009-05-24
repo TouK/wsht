@@ -69,8 +69,6 @@ public class Comment extends Base {
      * Creates {@link Comment}.
      */
     public Comment(String content, Task task) {
-        //TODO remove before going to production
-        log.debug(content);
         this.content = content;
         this.date = new Date();
         this.task = task;

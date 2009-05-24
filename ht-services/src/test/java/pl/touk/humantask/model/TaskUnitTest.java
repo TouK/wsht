@@ -54,8 +54,8 @@ public class TaskUnitTest {
         
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("Task1"));
-            one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
-            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
+            //one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
         }});
 
         Task task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
@@ -77,11 +77,16 @@ public class TaskUnitTest {
         }};
 
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
+        final Set<Assignee> assignees = new HashSet<Assignee>();
+        assignees.add(new Person("mateusz"));
         //final Map<String, Message> mockMap = new HashMap<String, Message>();
         //mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message(null));
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("Task1"));
-            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
+            //potential owners
+            one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
+            //other roles
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
         }});
 
         Task task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
@@ -112,8 +117,8 @@ public class TaskUnitTest {
         
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("Task1"));
-            one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
-            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
+            //one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
         }});
 
         Task task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
@@ -157,10 +162,12 @@ public class TaskUnitTest {
         }};
 
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
+        final Set<Assignee> assignees = new HashSet<Assignee>();
+        assignees.add(new Person("mateusz"));
 
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("Task1"));
-            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(Collections.EMPTY_SET));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
         }});
         
         Task t = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");

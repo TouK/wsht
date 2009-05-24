@@ -13,9 +13,7 @@ import pl.touk.humantask.model.Assignee;
 /**
  * A People Query evaluation interface. People queries are evaluated during the creation of a human task or a notification. If a people query fails then the
  * human task or notification is created anyway.
- * 
- * TODO clarify below statement People queries return either one person, a set of people, or the name of one or many groups of people.
- * 
+ *
  * @author Kamil Eisenbart
  * @author Witek Wołejszo
  */

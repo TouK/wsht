@@ -27,7 +27,7 @@ import pl.touk.humantask.model.Assignee;
 public class TestUtil {
     
     /**
-     * Helper method for creating HumanInteractionsManager instance from a given fileset.
+     * Helper method for creating HumanInteractionsManager instance from a given set of definition files.
      *
      * @param htdFiles - files, which contain human interactions definitions.
      * @return

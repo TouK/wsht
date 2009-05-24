@@ -780,12 +780,17 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
         }
     }
 
-    //TODO: move to task
+    /**
+     * Retrieves {@link Task} from DAO.
+     * @param taskId
+     * @return
+     * @throws HTIllegalArgumentException
+     */
     private Task locateTask(Long taskId) throws HTIllegalArgumentException {
         
         Validate.notNull(taskId);
 
-        Task task = taskDao.fetch(taskId);
+        Task task = this.taskDao.fetch(taskId);
 
         if (null == task) {
             throw new HTIllegalArgumentException("Cannot find Task", Long.toString(taskId));
