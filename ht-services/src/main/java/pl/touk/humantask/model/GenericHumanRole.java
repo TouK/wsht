@@ -15,7 +15,6 @@ public enum GenericHumanRole {
     TASK_INITIATOR("taskInitiator"),
     TASK_STAKEHOLDERS("taskStakeholders"),
     POTENTIAL_OWNERS("potentialOwners"),
-    //TODO: ?? spec ?? 
     ACTUAL_OWNER("actualOwner"),
     BUSINESS_ADMINISTRATORS("businessAdministrators"),
     NOTIFICATION_RECIPIENTS("notificationRecipients"),
@@ -25,6 +24,7 @@ public enum GenericHumanRole {
     GenericHumanRole(String value) {
         this.value = value;
     }
+
     private final String value;
 
     public static GenericHumanRole fromValue(String value){
@@ -36,7 +36,7 @@ public enum GenericHumanRole {
     }
     @Override
     public String toString() {
-        return value;
+        return this.value;
     }
 
 }

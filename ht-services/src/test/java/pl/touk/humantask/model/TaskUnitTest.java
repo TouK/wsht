@@ -21,12 +21,12 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
+import org.junit.experimental.theories.suppliers.TestedOn;
 
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.spec.TaskDefinition;
 
 /**
- * TODO integration -> mock interaction manager 
  * {@link Task} class unit tests.
  *
  * @author Witek Wołejszo
@@ -67,6 +67,7 @@ public class TaskUnitTest {
     /**
      * Tests Task constructor.
      * Scenario: no potential owners. Expected status: CREATED.
+     * TODO ready!!! created in case of many ponetial owners!!!
      */
     @Test
     public void testInstatiationNoPotentialOwners() throws HTException {

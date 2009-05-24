@@ -26,6 +26,7 @@ import pl.touk.humantask.model.Task.TaskTypes;
 
 /**
  * {@link HumanTaskServicesImpl} integration tests.
+ * TODO change assertions -> assumptions 
  *
  * @author Witek Wołejszo
  * @author Warren Crossing
@@ -166,8 +167,9 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     public void testClaimTaskReserved() throws HTException {
 
         Task t = createTask_OnePotentialOwner();
-        org.junit.Assert.assertEquals(Task.Status.RESERVED, t.getStatus());
-
+        //org.junit.Assert.assertEquals(Task.Status.RESERVED, t.getStatus());
+        org.junit.Assume.assumeTrue(Task.Status.RESERVED.equals(t.getStatus()));
+        
         this.services.claimTask(t.getId(), "user2");
     }
 
@@ -249,8 +251,10 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
     public void testStartTaskReservedByNotActualOwner() throws HTException {
 
         Task t = createTask_OnePotentialOwner();
-        org.junit.Assert.assertEquals("user1", t.getActualOwner().getName());
-        org.junit.Assert.assertEquals(Status.RESERVED, t.getStatus());
+        //org.junit.Assert.assertEquals("user1", t.getActualOwner().getName());
+        org.junit.Assume.assumeTrue("user1".equals(t.getActualOwner().getName()));
+        //org.junit.Assert.assertEquals(Status.RESERVED, t.getStatus());
+        org.junit.Assume.assumeTrue(Status.RESERVED.equals(t.getStatus()));
         
         this.services.startTask(t.getId(), "user2");
     }

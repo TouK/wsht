@@ -52,7 +52,32 @@
 						<encoding>UTF-8</encoding>
 					</configuration>
 				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <manifestEntries>
+                                <Implementation-Title>${pom.name}</Implementation-Title>
+                                <Implementation-Version>${project.version}</Implementation-Version>
+                                <Implementation-Vendor>TouK sp. z o.o. s.k.a</Implementation-Vendor>
+                            </manifestEntries>
+                            <manifest />
+                        </archive>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <configuration>
+                        <aggregate>true</aggregate>
+                        <encoding>UTF-8</encoding>
+                        <header>TouK</header>
+                        <footer>TouK sp. z o.o. s.k.a.</footer>
+                          <javadocVersion>1.5</javadocVersion>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>

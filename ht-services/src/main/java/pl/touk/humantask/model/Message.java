@@ -17,6 +17,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.parsers.DocumentBuilder;
@@ -24,6 +25,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -36,10 +39,12 @@ import org.xml.sax.SAXException;
 @Table(name = "MESSAGE")
 public class Message extends Base {
     
-    //public static final String  DEFAULT_PART_NAME_KEY = "WSHT_DEFAULT_PART_NAME_KEY";
+    @Transient
+    private final Log log = LogFactory.getLog(Message.class);
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "mssg_seq")
+    @SequenceGenerator(name = "mssg_seq", sequenceName = "mssg_seq")
     private Long id;
     
     private String partName;
@@ -66,7 +71,7 @@ public class Message extends Base {
     }
 
     public Long getId() {
-        return id;
+        return this.id;
     }
     
     public void setMessage(String message) {
@@ -74,7 +79,7 @@ public class Message extends Base {
     }
 
     public String getMessage() {
-        return message;
+        return this.message;
     }
     
     /**
@@ -82,7 +87,7 @@ public class Message extends Base {
      * @return
      */
     private InputStream getMessageInputStream() {
-        return new ByteArrayInputStream(message.getBytes());
+        return new ByteArrayInputStream(this.message.getBytes());
     }
     
     /**
@@ -94,7 +99,7 @@ public class Message extends Base {
      */
     public Document getDomDocument() throws ParserConfigurationException, SAXException, IOException {
         
-        if (messageDocument == null) {
+        if (this.messageDocument == null) {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -117,13 +122,19 @@ public class Message extends Base {
             
         } catch (ParserConfigurationException e) {
             
+            log.error(e);
+            throw new RuntimeException("error gettung messages root element name", e);
+            
         } catch (SAXException e) {
+            
+            log.error(e);
+            throw new RuntimeException("error gettung messages root element name", e);
             
         } catch (IOException e) {
             
+            log.error(e);
+            throw new RuntimeException("error gettung messages root element name", e);
         }
-        
-        return null;
     }
 
     /***************************************************************

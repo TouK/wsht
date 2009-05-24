@@ -32,6 +32,7 @@ import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
@@ -107,9 +108,62 @@ public class Task extends Base {
         ALL, TASKS, NOTIFICATIONS;
     }
 
+    /**
+     * Task statuses.
+     */
     public static enum Status {
-    //TODO: ww sprawdzic ERROR, EXITED, OBSOLETE w specyfikacji
-        CREATED, READY, RESERVED, IN_PROGRESS, SUSPENDED, COMPLETED, FAILED, ERROR, EXITED, OBSOLETE;
+    
+        /**
+         * Upon creation. Remains CREATED if there are no potential owners.
+         */
+        CREATED, 
+        
+        /**
+         * Created task with multiple potential owners.
+         */
+        READY, 
+        
+        /**
+         * Created task with single potential owner. Work started. Actual owner set.
+         */
+        RESERVED, 
+        
+        /**
+         * Work started and task is being worked on now. Actual owner set.
+         */
+        IN_PROGRESS, 
+        
+        /**
+         * In any of its active states (Ready, Reserved, InProgress), a task can be suspended, 
+         * transitioning it into the Suspended state. On resumption of the task, it transitions 
+         * back to the original state from which it had been suspended.
+         */
+        SUSPENDED, 
+        
+        /**
+         * Successful completion of the work.
+         */
+        COMPLETED, 
+        
+        /**
+         * Unsuccessful completion of the work.
+         */
+        FAILED, 
+        
+        /**
+         * Unrecoverable error in human task processing.
+         */
+        ERROR, 
+        
+        /**
+         * TODO javadoc
+         */
+        EXITED, 
+        
+        /**
+         * Task is no longer needed - skipped. This is considered a “good” outcome of a task. 
+         */
+        OBSOLETE;
 
         public String value() {
             return name();
@@ -129,7 +183,8 @@ public class Task extends Base {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "task_seq")
+    @SequenceGenerator(name = "task_seq", sequenceName = "task_seq")
     private Long id;
 
     /**
@@ -272,10 +327,15 @@ public class Task extends Base {
        
         Person nominatedPerson = this.nominateActualOwner(this.potentialOwners);
         if (nominatedPerson != null) {
+            
             this.actualOwner = nominatedPerson;
+            this.addOperationComment(Operations.NOMINATE, nominatedPerson);
             this.setStatus(Status.RESERVED);
+            
         } else if (!this.potentialOwners.isEmpty()) {
+            
             this.setStatus(Status.READY);
+            
         }
         
         recalculatePresentationParameters();
@@ -318,8 +378,6 @@ public class Task extends Base {
                 result = (Person)assignee;
             }
         }
-        
-        this.addOperationComment(Operations.NOMINATE, result);
         
         return (count == 1) ? result : null;
     }
@@ -800,7 +858,7 @@ public class Task extends Base {
         }
         
         if (content != null) {
-            this.comments.add(new Comment(content));
+            this.comments.add(new Comment(content, this));
         }
     }
     
@@ -823,7 +881,7 @@ public class Task extends Base {
         }
         
         if (content != null) {
-            this.comments.add(new Comment(content));
+            this.comments.add(new Comment(content, this));
         }
     }
     

@@ -13,12 +13,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Evaluated value of Task's presentation parameter.
@@ -27,9 +31,13 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @Entity
 @Table(name = "PRESENTATION_PARAMETERS")
 public class PresentationParameter extends Base {
+    
+    @Transient
+    private final Log log = LogFactory.getLog(PresentationParameter.class);
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "prpr_seq")
+    @SequenceGenerator(name = "prpr_seq", sequenceName = "prpr_seq")
     private Long id;
     
     private String name;
@@ -59,7 +67,7 @@ public class PresentationParameter extends Base {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
     
     /**
@@ -131,7 +139,11 @@ public class PresentationParameter extends Base {
      */
     public void setValue(Double doubleValue) {
         cleanValues();
-        this.doubleValue = doubleValue;
+        if (!doubleValue.isNaN()) {
+            this.doubleValue = doubleValue;
+        } else {
+            log.warn("NaN value passed. Storing null");
+        }
     }
     
     /**

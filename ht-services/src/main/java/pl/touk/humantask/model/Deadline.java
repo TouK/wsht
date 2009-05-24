@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 /**
@@ -22,7 +23,8 @@ import javax.persistence.Table;
 public class Deadline extends Base {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "ddln_seq")
+    @SequenceGenerator(name = "ddln_seq", sequenceName = "ddln_seq")
     private Long id;
 
     @Override
