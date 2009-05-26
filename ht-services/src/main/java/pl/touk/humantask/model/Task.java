@@ -573,6 +573,25 @@ public class Task extends Base {
         Validate.notNull(person);
         Validate.notNull(person.getId());
 
+        this.checkCanClaim(person);
+
+        this.actualOwner = person;
+        this.addOperationComment(Operations.CLAIM, person);
+        this.setStatus(Task.Status.RESERVED);
+    }
+    
+    /**
+     * Checks if the task can be claimed by the person. Throws exception if it is not. 
+     * @param person
+     * @return
+     * @throws HTIllegalStateException 
+     * @throws HTIllegalAccessException 
+     */
+    public void checkCanClaim(Person person) throws HTIllegalStateException, HTIllegalAccessException {
+        
+        Validate.notNull(person);
+        Validate.notNull(person.getId());
+        
         //actual owner set
         if (this.getActualOwner() != null) {
             throw new HTIllegalStateException("Task not claimable. Actual owner set: " + this.getActualOwner(), this.getStatus());
@@ -593,10 +612,6 @@ public class Task extends Base {
         if ((this.getExcludedOwners() != null && this.getExcludedOwners().contains(person))) {
             throw new HTIllegalAccessException("Person is excluded from potential owners.", person.getName());
         }
-
-        this.actualOwner = person;
-        this.addOperationComment(Operations.CLAIM, person);
-        this.setStatus(Task.Status.RESERVED);
     }
     
     /**
@@ -688,6 +703,31 @@ public class Task extends Base {
         Validate.notNull(delegatee);
         Validate.notNull(delegatee.getId());
         
+        this.checkCanDelegate(person, delegatee);
+        
+        this.addOperationComment(Operations.DELEGATE, person, delegatee);
+        this.actualOwner = delegatee;
+        
+        if (!this.status.equals(Status.RESERVED)) {
+            this.setStatus(Status.RESERVED);
+        }
+    }
+    
+    /**
+     * Checks if the task can be delegated. Throws exception if it can't.
+     * @param person
+     * @param delegatee
+     * @throws HTIllegalAccessException
+     * @throws HTRecipientNotAllowedException
+     * @throws HTIllegalStateException
+     */
+    public void checkCanDelegate(Person person, Person delegatee) throws HTIllegalAccessException, HTRecipientNotAllowedException, HTIllegalStateException {
+        
+        Validate.notNull(person);
+        Validate.notNull(person.getId());
+        Validate.notNull(delegatee);
+        Validate.notNull(delegatee.getId());
+        
         if (!(this.potentialOwners.contains(person) || this.businessAdministrators.contains(person) || person.equals(this.actualOwner))) {
             throw new HTIllegalAccessException("Person delegating the task is not a: potential owner, bussiness administrator, actual owner.");
         }
@@ -698,14 +738,7 @@ public class Task extends Base {
         
         if (!Arrays.asList(Status.READY, Status.RESERVED, Status.IN_PROGRESS).contains(this.status)) {
             throw new HTIllegalStateException("Only READY, RESERVED, IN_PROGRESS tasks can ne delegated.", this.status);
-        }
-        
-        this.addOperationComment(Operations.DELEGATE, person, delegatee);
-        this.actualOwner = delegatee;
-        
-        if (!this.status.equals(Status.RESERVED)) {
-            this.setStatus(Status.RESERVED);
-        }
+        } 
     }
     
 //  /**
@@ -929,7 +962,8 @@ public class Task extends Base {
         Validate.notNull(xPathString);
         Validate.notNull(returnType);
         
-        log.debug("Evaluating: " + xPathString);
+        log.debug("----------------------------------");
+        log.debug("evaluateXPath(" + xPathString + ")");
         
         Object o = null;
         
@@ -977,6 +1011,8 @@ public class Task extends Base {
             log.error("Error evaluating XPath:  " + xPathString, e);
         }
         
+        log.debug("----------------------------------");
+        
         return o;    
     }
     
@@ -997,7 +1033,7 @@ public class Task extends Base {
          */
         public Object evaluate(List args) throws XPathFunctionException {
             
-            log.debug("Evaluating: " + args);
+            log.debug("Returning: " + args);
             
             String partName = (String) args.get(0);
             
@@ -1045,7 +1081,7 @@ public class Task extends Base {
          */
         public Object evaluate(List args) throws XPathFunctionException {
             
-            log.debug("Evaluating: " + args);
+            log.debug("Returning: " + args);
             
             String partName = (String) args.get(0);
             

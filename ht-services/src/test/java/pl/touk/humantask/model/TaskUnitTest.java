@@ -155,7 +155,7 @@ public class TaskUnitTest {
     }
     
     @Test
-    public void testEvaluateXPathGetInput_String() throws HTException {
+    public void testEvaluateXPathGetInput_StringElement() throws HTException {
         
         Mockery mockery = new Mockery() {{
             setImposteriser(ClassImposteriser.INSTANCE);
@@ -176,6 +176,56 @@ public class TaskUnitTest {
         assertNotNull(o);
         assertTrue(o instanceof String);
         assertEquals("witek", o.toString());
+    }
+    
+    @Test
+    public void testEvaluateXPathGetInput_DoubleElement() throws HTException {
+        
+        Mockery mockery = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
+
+        final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
+        final Set<Assignee> assignees = new HashSet<Assignee>();
+        assignees.add(new Person("mateusz"));
+
+        mockery.checking(new Expectations() {{
+            one(taskDefinition).getTaskName(); will(returnValue("Task1"));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
+        }});
+        
+        Task t = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust><amount>1.2</amount></ClaimApprovalRequest>");
+        
+        Object o = t.evaluateXPath("htd:getInput('ClaimApprovalRequest')/amount", XPathConstants.NUMBER);
+
+        assertNotNull(o);
+        assertTrue(o instanceof Double);
+        assertEquals(Double.valueOf(1.2), o);
+    }
+
+    @Test
+    public void testEvaluateXPathGetInput_DoubleAttr() throws HTException {
+        
+        Mockery mockery = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
+
+        final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
+        final Set<Assignee> assignees = new HashSet<Assignee>();
+        assignees.add(new Person("mateusz"));
+
+        mockery.checking(new Expectations() {{
+            one(taskDefinition).getTaskName(); will(returnValue("Task1"));
+            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
+        }});
+        
+        Task t = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust><amount valuex=\"1.3\"/></ClaimApprovalRequest>");
+
+        Object o = t.evaluateXPath("htd:getInput(\"ClaimApprovalRequest\")/amount/@valuex", XPathConstants.NUMBER);
+        
+        assertNotNull(o);
+        assertTrue(o instanceof Double);
+        assertEquals(Double.valueOf(1.3), o);
     }
 
 }

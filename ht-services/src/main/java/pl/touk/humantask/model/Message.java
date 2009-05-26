@@ -24,6 +24,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,11 +60,23 @@ public class Message extends Base {
 
     /**
      * Constructs Message.
+     */
+    public Message() {
+        super();
+    }
+    
+    /**
+     * Constructs Message.
      * @param message
      */
     public Message(String message) {
+        
         super();
+        
+        Validate.notNull(message);
+        
         this.message = message;
+        this.partName = this.getRootNodeName();
     }
     
     public void setId(Long id) {
@@ -73,14 +86,16 @@ public class Message extends Base {
     public Long getId() {
         return this.id;
     }
-    
-    public void setMessage(String message) {
-        this.message = message;
-    }
 
     public String getMessage() {
         return this.message;
     }
+
+    public String getPartName() {
+        return this.partName;
+    }
+    
+    //operations
     
     /**
      * Returns {@link InputStream} with message contents using platform encoding. 
@@ -97,7 +112,7 @@ public class Message extends Base {
      * @throws SAXException
      * @throws IOException
      */
-    public Document getDomDocument() throws ParserConfigurationException, SAXException, IOException {
+    public synchronized Document getDomDocument() throws ParserConfigurationException, SAXException, IOException {
         
         if (this.messageDocument == null) {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -110,8 +125,7 @@ public class Message extends Base {
     }
     
     /**
-     * Retruns root element name.
-     * TODO exceptions???
+     * Returns root element name.
      * @return the root element name
      */
     public String getRootNodeName() {
@@ -127,18 +141,18 @@ public class Message extends Base {
             
         } catch (SAXException e) {
             
-            log.error(e);
-            throw new RuntimeException("error gettung messages root element name", e);
+            log.error("error getting message's root element name", e);
+            throw new RuntimeException("error getting message's root element name", e);
             
         } catch (IOException e) {
             
-            log.error(e);
-            throw new RuntimeException("error gettung messages root element name", e);
+            log.error("error getting message's root element name", e);
+            throw new RuntimeException("error getting message's root element name", e);
         }
     }
 
     /***************************************************************
-     * Infrastructure methods. *
+     * Infrastructure methods.                                     *
      ***************************************************************/
 
     /**

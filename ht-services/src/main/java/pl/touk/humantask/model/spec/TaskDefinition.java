@@ -106,7 +106,7 @@ public class TaskDefinition {
         try {
 
             //retrieve description template
-            
+
             String XPATH_EXPRESSION_FOR_DESCRIPTION_EVALUATION = "" +
                     "/htd:humanInteractions" +
                     "/htd:tasks" +
@@ -115,15 +115,15 @@ public class TaskDefinition {
                     "/htd:description[@xml:lang='" + lang + "' and @contentType='" + contentType + "']";
 
             XPathExpression expr = xpath.compile(XPATH_EXPRESSION_FOR_DESCRIPTION_EVALUATION);
-            Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);            
+            Node node = (Node) expr.evaluate(this.humanInteractions.getDocument(), XPathConstants.NODE);
             String descriptionTamplate = node.getTextContent();
-            
+
             //retrieve presentation parameters
-            
-            //Map<String, Object> presentationParameters = this.getTaskPresentationParameters(task);            
+
+            //Map<String, Object> presentationParameters = this.getTaskPresentationParameters(task);
             Map<String, Object> presentationParameters = task.getPresentationParameterValues();
-            
-            return new TemplateEngine().merge(descriptionTamplate, presentationParameters);
+
+            return new TemplateEngine().merge(descriptionTamplate, presentationParameters).trim();
 
         } catch (XPathExpressionException e) {
 
@@ -145,7 +145,7 @@ public class TaskDefinition {
         
         Map<String, Object> result = new HashMap<String, Object>();
 
-        List<TPresentationParameter> presentationParameters = tTask.getPresentationElements().getPresentationParameters().getPresentationParameter();
+        List<TPresentationParameter> presentationParameters = this.tTask.getPresentationElements().getPresentationParameters().getPresentationParameter();
 
         for(TPresentationParameter presentationParameter : presentationParameters) {
 
@@ -258,11 +258,11 @@ public class TaskDefinition {
         
         Validate.notNull(lang);
         Validate.notNull(task);
-        
+
         XPath xpath = createXPathInstance();
-        
+
         try {
-            
+
             //retrieve subject template
 
             String XPATH_EXPRESSION_FOR_SUBJECT_EVALUATION = "" +
@@ -274,16 +274,16 @@ public class TaskDefinition {
                     "htd:subject[@xml:lang='" + lang + "']";
 
             XPathExpression expr = xpath.compile(XPATH_EXPRESSION_FOR_SUBJECT_EVALUATION);
-            
+
             Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);
-            
+
             String subjectTemplate = node.getTextContent();
             
             //retrieve presentation parameters
             //Map<String, Object> presentationParameters = this.getTaskPresentationParameters(task);            
             Map<String, Object> presentationParameterValues = task.getPresentationParameterValues();
                 
-            return new TemplateEngine().merge(subjectTemplate, presentationParameterValues);
+            return new TemplateEngine().merge(subjectTemplate, presentationParameterValues).trim();
             
         } catch (XPathExpressionException e) {
             log.error("Error evaluating XPath.", e);
