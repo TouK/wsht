@@ -55,6 +55,11 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManager {
 
     private final List<HumanInteractions> humanInteractionsList = new ArrayList<HumanInteractions>();
     
+    /**
+     * XML namespaces supported in human task definitions.
+     */
+    private Map<String, String> xmlNamespaces;
+    
     private PeopleQuery peopleQuery;
     
     // ============= CONSTRUCTOR ===================
@@ -66,11 +71,12 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManager {
      * @param resources collection of *.xml files with human interactions definitions.
      * @throws HTException thrown when task definition names are not unique 
      */
-    public HumanInteractionsManagerImpl(List<Resource> resources, PeopleQuery peopleQuery) throws HTException {
+    public HumanInteractionsManagerImpl(List<Resource> resources, PeopleQuery peopleQuery, Map<String, String> xmlNamespaces) throws HTException {
         
         Validate.notNull(resources);
         
         this.peopleQuery = peopleQuery;
+        this.xmlNamespaces = xmlNamespaces;
         
         Map<String, String> taskDefinitionsNamesMap = new HashMap<String, String>();
         
@@ -129,7 +135,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManager {
     public TaskDefinition getTaskDefinition(String taskName) {
         Validate.notNull(taskName);
 
-        for (HumanInteractions humanInteractions : humanInteractionsList) {
+        for (HumanInteractions humanInteractions : this.humanInteractionsList) {
             for (TaskDefinition taskDefinition : humanInteractions.getTaskDefinitions()) {
                 if (taskName.equals(taskDefinition.getTaskName())) {
                     return taskDefinition;
@@ -166,7 +172,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManager {
 
         for (TTask tTask : hiDoc.getTasks().getTask()) {
             checkTaskDefinitionUniqueness(tTask.getName(), taskDefinitionNamesMap);
-            TaskDefinition taskDefinition = new TaskDefinition(tTask, peopleQuery);
+            TaskDefinition taskDefinition = new TaskDefinition(tTask, this.peopleQuery, this.xmlNamespaces);
             taskDefinition.setDefinition(humanInteractions);
             taskDefinitions.add(taskDefinition);
             taskDefinitionNamesMap.put(tTask.getName(), "XXX");
@@ -209,7 +215,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManager {
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse(is);
 
-        return new HumanInteractions(document, peopleQuery);
+        return new HumanInteractions(document, this.peopleQuery);
     }
 
     /**

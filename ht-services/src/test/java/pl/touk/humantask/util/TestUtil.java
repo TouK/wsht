@@ -47,6 +47,6 @@ public class TestUtil {
                 return new ArrayList<Assignee>();
             }
             
-        });
+        }, null);
     }
 }

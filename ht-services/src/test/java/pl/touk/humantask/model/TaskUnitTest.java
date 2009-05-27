@@ -20,9 +20,11 @@ import org.apache.commons.logging.LogFactory;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.experimental.theories.suppliers.TestedOn;
 
+import pl.touk.humantask.HumanInteractionsManager;
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.spec.TaskDefinition;
 
@@ -35,6 +37,8 @@ import pl.touk.humantask.model.spec.TaskDefinition;
 public class TaskUnitTest {
 
     private final Log log = LogFactory.getLog(TaskUnitTest.class);
+    
+    private String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust><amount value=\"1.3\">1.2</amount></ClaimApprovalRequest>";
     
     /**
      * Tests Task constructor.
@@ -54,11 +58,10 @@ public class TaskUnitTest {
         
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("Task1"));
-            //one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
         }});
 
-        Task task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
+        Task task = new Task(taskDefinition, null, this.xmlRequest);
         assertEquals(Task.Status.RESERVED, task.getStatus());
 
         mockery.assertIsSatisfied();
@@ -79,8 +82,7 @@ public class TaskUnitTest {
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
         final Set<Assignee> assignees = new HashSet<Assignee>();
         assignees.add(new Person("mateusz"));
-        //final Map<String, Message> mockMap = new HashMap<String, Message>();
-        //mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message(null));
+
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("Task1"));
             //potential owners
@@ -89,7 +91,7 @@ public class TaskUnitTest {
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
         }});
 
-        Task task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
+        Task task = new Task(taskDefinition, null, this.xmlRequest);
         assertEquals(Task.Status.CREATED, task.getStatus());
 
         mockery.assertIsSatisfied();
@@ -108,20 +110,16 @@ public class TaskUnitTest {
 
         final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
         
-//        final Map<String, Message> mockMap = new HashMap<String, Message>();
-//        mockMap.put(Message.DEFAULT_PART_NAME_KEY, new Message(null));
-        
         final Set<Assignee> assignees = new HashSet<Assignee>();
         assignees.add(new Person("mateusz"));
         assignees.add(new Person("witek"));
         
         mockery.checking(new Expectations() {{
             one(taskDefinition).getTaskName(); will(returnValue("Task1"));
-            //one(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
             atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
         }});
 
-        Task task = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
+        Task task = new Task(taskDefinition, null, this.xmlRequest);
         assertEquals(Task.Status.READY, task.getStatus());
 
         mockery.assertIsSatisfied();
@@ -157,20 +155,9 @@ public class TaskUnitTest {
     @Test
     public void testEvaluateXPathGetInput_StringElement() throws HTException {
         
-        Mockery mockery = new Mockery() {{
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }};
+        Task t = new Task();
+        t.getInput().put("ClaimApprovalRequest", new Message(this.xmlRequest));
 
-        final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
-        final Set<Assignee> assignees = new HashSet<Assignee>();
-        assignees.add(new Person("mateusz"));
-
-        mockery.checking(new Expectations() {{
-            one(taskDefinition).getTaskName(); will(returnValue("Task1"));
-            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
-        }});
-        
-        Task t = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust></ClaimApprovalRequest>");
         Object o = t.evaluateXPath("htd:getInput('ClaimApprovalRequest')/cust/firstname", XPathConstants.STRING);
 
         assertNotNull(o);
@@ -179,22 +166,10 @@ public class TaskUnitTest {
     }
     
     @Test
-    public void testEvaluateXPathGetInput_DoubleElement() throws HTException {
+    public void testEvaluateXPathGetInput_DoubleElement() {
         
-        Mockery mockery = new Mockery() {{
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }};
-
-        final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
-        final Set<Assignee> assignees = new HashSet<Assignee>();
-        assignees.add(new Person("mateusz"));
-
-        mockery.checking(new Expectations() {{
-            one(taskDefinition).getTaskName(); will(returnValue("Task1"));
-            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
-        }});
-        
-        Task t = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust><amount>1.2</amount></ClaimApprovalRequest>");
+        Task t = new Task();
+        t.getInput().put("ClaimApprovalRequest", new Message(this.xmlRequest));
         
         Object o = t.evaluateXPath("htd:getInput('ClaimApprovalRequest')/amount", XPathConstants.NUMBER);
 
@@ -204,24 +179,12 @@ public class TaskUnitTest {
     }
 
     @Test
-    public void testEvaluateXPathGetInput_DoubleAttr() throws HTException {
-        
-        Mockery mockery = new Mockery() {{
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }};
+    public void testEvaluateXPathGetInput_DoubleAttr() {
 
-        final TaskDefinition taskDefinition = mockery.mock(TaskDefinition.class);
-        final Set<Assignee> assignees = new HashSet<Assignee>();
-        assignees.add(new Person("mateusz"));
+        Task t = new Task();
+        t.getInput().put("ClaimApprovalRequest", new Message(this.xmlRequest));
 
-        mockery.checking(new Expectations() {{
-            one(taskDefinition).getTaskName(); will(returnValue("Task1"));
-            atLeast(1).of(taskDefinition).evaluateHumanRoleAssignees(with(any(GenericHumanRole.class)), with(any(Task.class))); will(returnValue(assignees));
-        }});
-        
-        Task t = new Task(taskDefinition, null, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>witek</firstname></cust><amount valuex=\"1.3\"/></ClaimApprovalRequest>");
-
-        Object o = t.evaluateXPath("htd:getInput(\"ClaimApprovalRequest\")/amount/@valuex", XPathConstants.NUMBER);
+        Object o = t.evaluateXPath("htd:getInput(\"ClaimApprovalRequest\")/amount/@value", XPathConstants.NUMBER);
         
         assertNotNull(o);
         assertTrue(o instanceof Double);

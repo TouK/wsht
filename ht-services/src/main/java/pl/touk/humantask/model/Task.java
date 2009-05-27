@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -287,6 +290,12 @@ public class Task extends Base {
     @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, mappedBy = "task")
     @MapKey(name = "name")
     private Map<String, PresentationParameter> presentationParameters = new HashMap<String, PresentationParameter>();
+    
+//    /**
+//     * TODO put in separate class
+//     */
+//    @Transient
+//    private XPathFactory xPathFactory = null;
 
     /***************************************************************
      * Constructors                                                *
@@ -943,173 +952,251 @@ public class Task extends Base {
         }
         return result;
     }
+    
+    private class XmlUtils extends TaskXmlUtils {
 
-
-    /**
-     * Evaluates XPath expression in context of the Task. Expression can contain 
-     * XPath Extension functions as defined by WS-HumanTask v1. Following
-     * XPath functions are implemented:
-     * <ul>
-     * <li> {@link GetInputXPathFunction} </li>
-     * <li> {@link GetOutputXPathFunction} </li>
-     * </ul>
-     * @param xPathString The XPath 1.0 expression.
-     * @param returnType The desired return type. See {@link XPathConstants}.
-     * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
-     */
+        public XmlUtils(NamespaceContext namespaceContext) {
+            super(namespaceContext, input, output);
+        }
+    }
+    
     public Object evaluateXPath(String xPathString, QName returnType) {
-        
-        Validate.notNull(xPathString);
-        Validate.notNull(returnType);
-        
-        log.debug("----------------------------------");
-        log.debug("evaluateXPath(" + xPathString + ")");
-        
-        Object o = null;
-        
-        XPathFactory xPathFactory = XPathFactory.newInstance();        
-        XPath xpath = xPathFactory.newXPath();
-        xpath.setNamespaceContext(new TaskDefinition.HtdNamespaceContext());
-        
-        xpath.setXPathFunctionResolver(new XPathFunctionResolver() {
-
-            public XPathFunction resolveFunction(QName functionName, int arity) {
-
-                if (functionName == null) {
-                    throw new NullPointerException("The function name cannot be null.");
-                }
-
-                if (functionName.equals(new QName("http://www.example.org/WS-HT", "getInput", "htd"))) {
-
-                    return new GetInputXPathFunction();
-                }
-                
-                if (functionName.equals(new QName("http://www.example.org/WS-HT", "getOutput", "htd"))) {
-
-                    return new GetOutputXPathFunction();
-                } 
-                    
-                return null;
-            }
-
-        });
-
-        try {
-
-            //TODO create empty document only once
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document emptyDocument = builder.newDocument();
-
-            XPathExpression expr = xpath.compile(xPathString);            
-            o = expr.evaluate(emptyDocument, returnType);
-               
-        } catch (XPathExpressionException e) {
-            
-            log.error("Error evaluating XPath: " + xPathString, e);
-        } catch (ParserConfigurationException e) {
-            
-            log.error("Error evaluating XPath:  " + xPathString, e);
-        }
-        
-        log.debug("----------------------------------");
-        
-        return o;    
+        return new XmlUtils(new TaskNamespaceContext()).evaluateXPath(xPathString, returnType);
     }
+
+//    /**
+//     * Evaluates XPath expression in context of the Task. Expression can contain 
+//     * XPath Extension functions as defined by WS-HumanTask v1. Following
+//     * XPath functions are implemented:
+//     * <ul>
+//     * <li> {@link GetInputXPathFunction} </li>
+//     * <li> {@link GetOutputXPathFunction} </li>
+//     * </ul>
+//     * @param xPathString The XPath 1.0 expression.
+//     * @param returnType The desired return type. See {@link XPathConstants}.
+//     * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
+//     */
+//    public Object evaluateXPath(String xPathString, QName returnType) {
+//        
+//        Validate.notNull(xPathString);
+//        Validate.notNull(returnType);
+//        
+//        log.debug("----------------------------------");
+//        log.debug("evaluateXPath(" + xPathString + ")");
+//        
+//        Object o = null;
+//
+//        XPath xpath = new XmlUtils(new TaskNamespaceContext()).createXPathInstance(); 
+//
+////        xpath.setXPathFunctionResolver(new XPathFunctionResolver() {
+////
+////            public XPathFunction resolveFunction(QName functionName, int arity) {
+////
+////                if (functionName == null) {
+////                    throw new NullPointerException("The function name cannot be null.");
+////                }
+////
+////                if (functionName.equals(new QName("http://www.example.org/WS-HT", "getInput", "htd"))) {
+////
+////                    return new GetInputXPathFunction();
+////                }
+////                
+////                if (functionName.equals(new QName("http://www.example.org/WS-HT", "getOutput", "htd"))) {
+////
+////                    return new GetOutputXPathFunction();
+////                } 
+////                    
+////                return null;
+////            }
+////
+////        });
+//
+//        try {
+//
+//            //TODO create empty document only once
+//            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+//            Document emptyDocument = builder.newDocument();
+//
+//            XPathExpression expr = xpath.compile(xPathString);
+//            o = expr.evaluate(emptyDocument, returnType);
+//               
+//        } catch (XPathExpressionException e) {
+//            
+//            log.error("Error evaluating XPath: " + xPathString, e);
+//
+//        } catch (ParserConfigurationException e) {
+//            
+//            log.error("Error evaluating XPath:  " + xPathString, e);
+//        }
+//        
+//        log.debug("----------------------------------");
+//        
+//        return o;    
+//    }
+    
+//    /**
+//     * Implements getInput {@link XPathFunction} - get the data for the part of the task's input message.
+//     * @author Witek Wołejszo
+//     */
+//    private class GetInputXPathFunction implements XPathFunction {
+//        
+//        private final Log log = LogFactory.getLog(GetInputXPathFunction.class);
+//
+//        /**
+//         * <p>Evaluate the function with the specified arguments.</p>
+//         * @see XPathFunction#evaluate(List)
+//         * @param args The arguments, <code>null</code> is a valid value.
+//         * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
+//         * @throws XPathFunctionException If <code>args</code> cannot be evaluated with this <code>XPath</code> function.
+//         */
+//        public Object evaluate(List args) throws XPathFunctionException {
+//            
+//            log.debug("Returning: " + args);
+//            
+//            String partName = (String) args.get(0);
+//            
+//            Message message = getInput().get(partName);
+//            Document document = null;
+//            
+//            if (message == null) {
+//                throw new XPathFunctionException("Task's input does not contain partName: " + args.get(0));
+//            }
+//
+//            try {
+//                
+//                document = message.getDomDocument();
+//                
+//            } catch (ParserConfigurationException e) {
+//
+//                throw new XPathFunctionException(e);
+//            } catch (SAXException e) {
+//                
+//                throw new XPathFunctionException(e);
+//            } catch (IOException e) {
+//                
+//                throw new XPathFunctionException(e);
+//            }
+//            
+//            return document == null ? null : document.getElementsByTagName(partName);
+//        }
+//
+//    }
+//    
+//    /**
+//     * Implements getOutput {@link XPathFunction} - get the data for the part of the task's output message.
+//     * @author Witek Wołejszo
+//     */
+//    private class GetOutputXPathFunction implements XPathFunction {
+//        
+//        private final Log log = LogFactory.getLog(GetOutputXPathFunction.class);
+//
+//        /**
+//         * <p>Evaluate the function with the specified arguments.</p>
+//         * @see XPathFunction#evaluate(List)
+//         * @param args The arguments, <code>null</code> is a valid value.
+//         * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
+//         * @throws XPathFunctionException If <code>args</code> cannot be evaluated with this <code>XPath</code> function.
+//         */
+//        public Object evaluate(List args) throws XPathFunctionException {
+//            
+//            log.debug("Returning: " + args);
+//            
+//            String partName = (String) args.get(0);
+//            
+//            Message message = getOutput().get(partName);
+//            Document document = null;
+//            
+//            if (message == null) {
+//                throw new XPathFunctionException("Task's output does not contain partName: " + args.get(0));
+//            }
+//
+//            try {
+//                
+//                document = message.getDomDocument();
+//                
+//            } catch (ParserConfigurationException e) {
+//
+//                throw new XPathFunctionException(e);
+//            } catch (SAXException e) {
+//                
+//                throw new XPathFunctionException(e);
+//            } catch (IOException e) {
+//                
+//                throw new XPathFunctionException(e);
+//            }
+//            
+//            return document == null ? null : document.getElementsByTagName(partName);
+//        }
+//
+//    }
+
+    // ================== HELPER METHODS ==================
+    
+//    /**
+//     * Creates {@link XPath} aware of request namespaces.
+//     */
+//    private synchronized XPath createXPathInstance() {
+//        
+//        if (this.xPathFactory == null) {
+//            this.xPathFactory = XPathFactory.newInstance();
+//        }
+//        
+//        //XPathNSResolver namespaces  = evaluator.createNSResolver(root);
+//        //XPath x;
+//        
+//        XPath xpath = this.xPathFactory.newXPath();
+//        xpath.setNamespaceContext(new TaskNamespaceContext());
+//        return xpath;
+//    }
     
     /**
-     * Implements getInput {@link XPathFunction} - get the data for the part of the task's input message.
-     * @author Witek Wołejszo
+     * {@inheritDoc}
      */
-    private class GetInputXPathFunction implements XPathFunction {
-        
-        private final Log log = LogFactory.getLog(GetInputXPathFunction.class);
+    private class TaskNamespaceContext implements NamespaceContext {
 
         /**
-         * <p>Evaluate the function with the specified arguments.</p>
-         * @see XPathFunction#evaluate(List)
-         * @param args The arguments, <code>null</code> is a valid value.
-         * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
-         * @throws XPathFunctionException If <code>args</code> cannot be evaluated with this <code>XPath</code> function.
+         * {@inheritDoc}
          */
-        public Object evaluate(List args) throws XPathFunctionException {
-            
-            log.debug("Returning: " + args);
-            
-            String partName = (String) args.get(0);
-            
-            Message message = getInput().get(partName);
-            Document document = null;
-            
-            if (message == null) {
-                throw new XPathFunctionException("Task's input does not contain partName: " + args.get(0));
-            }
+        public String getNamespaceURI(String prefix) {
 
-            try {
+            if (prefix == null) {
                 
-                document = message.getDomDocument();
+                throw new NullPointerException("Null prefix");
                 
-            } catch (ParserConfigurationException e) {
-
-                throw new XPathFunctionException(e);
-            } catch (SAXException e) {
+            } else if ("htd".equals(prefix)) {
                 
-                throw new XPathFunctionException(e);
-            } catch (IOException e) {
+                return "http://www.example.org/WS-HT";
                 
-                throw new XPathFunctionException(e);
-            }
+            } else if ("xml".equals(prefix)) {
+                
+                return XMLConstants.XML_NS_URI;
+                
+            } else {
+                
+                String namespaceURI = getTaskDefinition().getNamespaceURI(prefix);
+                if (namespaceURI != null) {
+                    return namespaceURI;
+                }
+            } 
             
-            return document == null ? null : document.getElementsByTagName(partName);
+            return XMLConstants.NULL_NS_URI;
         }
-
-    }
-    
-    /**
-     * Implements getOutput {@link XPathFunction} - get the data for the part of the task's output message.
-     * @author Witek Wołejszo
-     */
-    private class GetOutputXPathFunction implements XPathFunction {
         
-        private final Log log = LogFactory.getLog(GetOutputXPathFunction.class);
+        /**
+         * {@inheritDoc}
+         */
+        public String getPrefix(String namespaceURI) {
+            // TODO ???
+            throw new NullPointerException("???");
+        }
 
         /**
-         * <p>Evaluate the function with the specified arguments.</p>
-         * @see XPathFunction#evaluate(List)
-         * @param args The arguments, <code>null</code> is a valid value.
-         * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
-         * @throws XPathFunctionException If <code>args</code> cannot be evaluated with this <code>XPath</code> function.
+         * {@inheritDoc}
          */
-        public Object evaluate(List args) throws XPathFunctionException {
-            
-            log.debug("Returning: " + args);
-            
-            String partName = (String) args.get(0);
-            
-            Message message = getOutput().get(partName);
-            Document document = null;
-            
-            if (message == null) {
-                throw new XPathFunctionException("Task's output does not contain partName: " + args.get(0));
-            }
-
-            try {
-                
-                document = message.getDomDocument();
-                
-            } catch (ParserConfigurationException e) {
-
-                throw new XPathFunctionException(e);
-            } catch (SAXException e) {
-                
-                throw new XPathFunctionException(e);
-            } catch (IOException e) {
-                
-                throw new XPathFunctionException(e);
-            }
-            
-            return document == null ? null : document.getElementsByTagName(partName);
+        public Iterator getPrefixes(String namespaceURI) {
+            // ???
+            throw new NullPointerException("???");
         }
-
     }
     
     /***************************************************************

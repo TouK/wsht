@@ -75,7 +75,7 @@
                         <encoding>UTF-8</encoding>
                         <header>TouK</header>
                         <footer>TouK sp. z o.o. s.k.a.</footer>
-                          <javadocVersion>1.5</javadocVersion>
+                        <javadocVersion>1.5</javadocVersion>
                     </configuration>
                 </plugin>
             </plugins>

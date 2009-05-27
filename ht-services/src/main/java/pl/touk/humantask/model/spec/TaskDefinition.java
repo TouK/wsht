@@ -40,9 +40,11 @@ import pl.touk.humantask.model.Task;
 import pl.touk.humantask.util.TemplateEngine;
 import pl.touk.humantask.util.XmlUtils;
 
+import pl.touk.humantask.model.htd.TDescription;
 import pl.touk.humantask.model.htd.TGenericHumanRole;
 import pl.touk.humantask.model.htd.TPresentationParameter;
 import pl.touk.humantask.model.htd.TTask;
+import pl.touk.humantask.model.htd.TText;
 
 /**
  * Holds information about task version runnable in TouK Human Task engine. Task
@@ -71,10 +73,15 @@ public class TaskDefinition {
     private XPathFactory xPathFactory;
     
     private PeopleQuery peopleQuery;
+    
+    /**
+     * XML namespaces supported in human task definitions.
+     */
+    private Map<String, String> xmlNamespaces;
 
     // ==================== CONSTRUCTOR =========================
 
-    public TaskDefinition(TTask taskDefinition, PeopleQuery peopleQuery) {
+    public TaskDefinition(TTask taskDefinition, PeopleQuery peopleQuery, Map<String, String> xmlNamespaces) {
         
         super();
         
@@ -83,8 +90,9 @@ public class TaskDefinition {
 
         this.tTask = taskDefinition;
         this.peopleQuery = peopleQuery;
+        this.xmlNamespaces = xmlNamespaces;
         
-        xPathFactory = XPathFactory.newInstance();
+        this.xPathFactory = XPathFactory.newInstance();
     }
 
     /**
@@ -96,71 +104,71 @@ public class TaskDefinition {
      * @return
      */
     public String getDescription(String lang, String contentType, Task task) {
-        
+
         Validate.notNull(lang);
         Validate.notNull(contentType);
         Validate.notNull(task);
+        
+        String descriptionTamplate = null;
 
-        XPath xpath = createXPathInstance();
-
-        try {
-
-            //retrieve description template
-
-            String XPATH_EXPRESSION_FOR_DESCRIPTION_EVALUATION = "" +
-                    "/htd:humanInteractions" +
-                    "/htd:tasks" +
-                    "/htd:task[@name='" + tTask.getName() + "']" +
-                    "/htd:presentationElements" +
-                    "/htd:description[@xml:lang='" + lang + "' and @contentType='" + contentType + "']";
-
-            XPathExpression expr = xpath.compile(XPATH_EXPRESSION_FOR_DESCRIPTION_EVALUATION);
-            Node node = (Node) expr.evaluate(this.humanInteractions.getDocument(), XPathConstants.NODE);
-            String descriptionTamplate = node.getTextContent();
-
-            //retrieve presentation parameters
-
-            //Map<String, Object> presentationParameters = this.getTaskPresentationParameters(task);
-            Map<String, Object> presentationParameters = task.getPresentationParameterValues();
-
-            return new TemplateEngine().merge(descriptionTamplate, presentationParameters).trim();
-
-        } catch (XPathExpressionException e) {
-
-            log.error("Error evaluating XPath.", e);
-
+        List<TDescription> tDescriptions = this.tTask.getPresentationElements().getDescription();
+        for (TDescription x : tDescriptions) {
+            if (lang.equals(x.getLang()) && contentType.equals(x.getContentType())) {
+                descriptionTamplate = x.getContent().get(0).toString();
+                break;
+            }
+        }
+        
+        if (descriptionTamplate == null) {
+            return "error";
         }
 
-        return "error";
+        //retrieve presentation parameters
+        Map<String, Object> presentationParameters = task.getPresentationParameterValues();
+
+        return new TemplateEngine().merge(descriptionTamplate, presentationParameters).trim();
     }
 
     /**
      * Return values of Task presentation parameters.
-     * @param task The task presentation parameters values are evaluated for.
-     * @return
+     * @param task      The task presentation parameters values are evaluated for.
+     * @return          Map from parameter name to its value.
      */
     public Map<String, Object> getTaskPresentationParameters(Task task) {
-        
+
         Validate.notNull(task);
-        
+
         Map<String, Object> result = new HashMap<String, Object>();
 
         List<TPresentationParameter> presentationParameters = this.tTask.getPresentationElements().getPresentationParameters().getPresentationParameter();
 
         for(TPresentationParameter presentationParameter : presentationParameters) {
 
-            log.info("Evaluating: " + presentationParameter.getName());
-            log.info("XPath: " + presentationParameter.getContent().get(0).toString().trim());
-            log.info("Type: " + presentationParameter.getType());
-            log.info("Return: " + new XmlUtils().getReturnType(presentationParameter.getType()));
-
             //TODO do not instantiate each time
             QName returnType = new XmlUtils().getReturnType(presentationParameter.getType());
-            Object o = task.evaluateXPath(presentationParameter.getContent().get(0).toString().trim(), returnType);
-
-            log.info("Evaluated to: " + o + " of: " + o.getClass());
+            String parameterName = presentationParameter.getName().trim();
+            String parameterXPath = presentationParameter.getContent().get(0).toString().trim();
             
-            result.put(presentationParameter.getName().trim(), o);
+            Validate.notNull(returnType);
+            Validate.notNull(parameterName);
+            Validate.notNull(parameterXPath);
+            
+            if (log.isDebugEnabled()) {
+                log.debug("Evaluating: " + parameterName);
+                log.debug("XPath: " + parameterXPath);
+                log.debug("Type: " + presentationParameter.getType());
+                log.debug("Return: " + returnType);
+            }
+                
+            Object o = task.evaluateXPath(parameterXPath, returnType);
+
+            if (o != null) {
+                log.info("Evaluated to: " + o + " of: " + o.getClass());
+            } else {
+                log.info("Evaluated to: null");
+            }
+
+            result.put(parameterName, o);
         }
 
         return result;
@@ -168,7 +176,7 @@ public class TaskDefinition {
 
     /**
      * Evaluates assignees of generic human role.
-     *
+     * TODO - get rid of xpaths
      * @param humanRoleName The generic human role.
      * @param task          The task instance we evaluate assignees for.
      * @return list of task assignees or empty list, when no assignments were made to this task.
@@ -196,9 +204,9 @@ public class TaskDefinition {
                 }
             }
         }
-        
+
         XPath xpath = createXPathInstance();
-        
+
         //literal
         String groupsXPath = "" +
             "/htd:humanInteractions" +
@@ -210,7 +218,7 @@ public class TaskDefinition {
             "/htd:organizationalEntity" +
             "/htd:groups" +
             "/htd:group";
-        
+
         String usersXPath = "" +
             "/htd:humanInteractions" +
             "/htd:tasks" +
@@ -225,13 +233,13 @@ public class TaskDefinition {
         try {
         
             XPathExpression expr = xpath.compile(groupsXPath);
-            NodeList nl = (NodeList) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODESET);
+            NodeList nl = (NodeList) expr.evaluate(this.humanInteractions.getDocument(), XPathConstants.NODESET);
             for (int i = 0; i < nl.getLength(); i++) {
                 evaluatedAssigneeList.add(new Group(nl.item(i).getFirstChild().getNodeValue()));
             }
             
             expr = xpath.compile(usersXPath);
-            nl = (NodeList) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODESET);
+            nl = (NodeList) expr.evaluate(this.humanInteractions.getDocument(), XPathConstants.NODESET);
             for (int i = 0; i < nl.getLength(); i++) {
                 evaluatedAssigneeList.add(new Person(nl.item(i).getFirstChild().getNodeValue()));
             }
@@ -258,53 +266,42 @@ public class TaskDefinition {
         
         Validate.notNull(lang);
         Validate.notNull(task);
+        
+        String subjectTemplate = null;
 
-        XPath xpath = createXPathInstance();
-
-        try {
-
-            //retrieve subject template
-
-            String XPATH_EXPRESSION_FOR_SUBJECT_EVALUATION = "" +
-                    "/htd:humanInteractions/" +
-                    "htd:tasks/" +
-                    "htd:task[@name='" +
-                    getTaskName() + "']/" +
-                    "htd:presentationElements/" +
-                    "htd:subject[@xml:lang='" + lang + "']";
-
-            XPathExpression expr = xpath.compile(XPATH_EXPRESSION_FOR_SUBJECT_EVALUATION);
-
-            Node node = (Node) expr.evaluate(humanInteractions.getDocument(), XPathConstants.NODE);
-
-            String subjectTemplate = node.getTextContent();
-            
-            //retrieve presentation parameters
-            //Map<String, Object> presentationParameters = this.getTaskPresentationParameters(task);            
-            Map<String, Object> presentationParameterValues = task.getPresentationParameterValues();
-                
-            return new TemplateEngine().merge(subjectTemplate, presentationParameterValues).trim();
-            
-        } catch (XPathExpressionException e) {
-            log.error("Error evaluating XPath.", e);
+        List<TText> tTexts = this.tTask.getPresentationElements().getSubject();
+        for (TText x : tTexts) {
+            if (lang.equals(x.getLang())) {
+                subjectTemplate = x.getContent().toString();
+                break;
+            }
         }
         
-        return "error";
+        if (subjectTemplate == null) {
+            return "error";
+        }
+        
+        Map<String, Object> presentationParameterValues = task.getPresentationParameterValues();
+
+        return new TemplateEngine().merge(subjectTemplate, presentationParameterValues).trim();
     }
 
     /**
      * @see NamespaceContext
+     * TODO get rid of xpaths in taskdefinition and this class 
      */
     public static class HtdNamespaceContext implements NamespaceContext {
 
         public String getNamespaceURI(String prefix) {
+            
             if (prefix == null) {
                 throw new NullPointerException("Null prefix");
             } else if ("htd".equals(prefix)) {
                 return "http://www.example.org/WS-HT";
             } else if ("xml".equals(prefix)) {
                 return XMLConstants.XML_NS_URI;
-            }
+            } 
+            
             return XMLConstants.NULL_NS_URI;
         }
 
@@ -349,6 +346,15 @@ public class TaskDefinition {
         XPath xpath = this.xPathFactory.newXPath();
         xpath.setNamespaceContext(new HtdNamespaceContext());
         return xpath;
+    }
+
+    /**
+     * Returns namespace URI for namespace registered in HumanInteractionsManager.
+     * @param prefix     The xml namespace prefix.
+     * @return namespace Namespace URI or null if it does not exist for a given prefix.
+     */
+    public String getNamespaceURI(String prefix) {
+        return this.xmlNamespaces == null ? null : this.xmlNamespaces.get(prefix);
     }
 
 }

@@ -45,5 +45,11 @@
             </list>
         </constructor-arg>
         <constructor-arg ref="peopleQuery"/>
-    </bean>    
+        <constructor-arg>
+            <map>
+                <entry key="wsht" value="http://www.wsht/wsht/schema"/>
+            </map>           
+        </constructor-arg>
+    </bean>
+
 </beans>

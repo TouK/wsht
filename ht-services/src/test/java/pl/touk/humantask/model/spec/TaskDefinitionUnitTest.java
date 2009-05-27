@@ -51,10 +51,10 @@ public class TaskDefinitionUnitTest {
 
     @Test
     public void testGetDescriptionPlain() throws HTException {       
-        TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
+        TaskDefinition td = this.humanInteractionsManager.getTaskDefinition("Task1");
         Task task = new Task(td, null, REQUEST);
         String description = td.getDescription("en-US", "text/plain", task);
-        assertEquals("Approve this claim following corporate guideline #4711.0815/7 ...", description.trim());
+        assertEquals("Approve this claim following corporate guideline #4711.0815/7 ...".trim(), description.trim());
     }
 
     /**
