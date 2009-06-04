@@ -4,7 +4,7 @@
 	<groupId>pl.touk.wsht</groupId>
 	<artifactId>wsht</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.14-SNAPSHOT</version>
+	<version>1.0.14</version>
 	<name>TouK Human Task</name>
     <url>https://touk.pl/confluence/display/WSHT/Home</url>
 	<parent>
@@ -13,9 +13,9 @@
 		<version>2.0.3</version>
 	</parent>
     <scm>
-        <connection>scm:svn:https://touk.pl/svn/internal/touk/wsht</connection>
-        <developerConnection>scm:svn:https://touk.pl/svn/internal/touk/wsht</developerConnection>
-        <url>https://touk.pl/svn/internal/touk/wsht</url>
+        <connection>scm:svn:https://touk.pl/svn/internal/touk/wsht/tags/wsht-1.0.14</connection>
+        <developerConnection>scm:svn:https://touk.pl/svn/internal/touk/wsht/tags/wsht-1.0.14</developerConnection>
+        <url>https://touk.pl/svn/internal/touk/wsht/tags/wsht-1.0.14</url>
     </scm>
 	<modules>
 		<module>ht-wsdl</module>
