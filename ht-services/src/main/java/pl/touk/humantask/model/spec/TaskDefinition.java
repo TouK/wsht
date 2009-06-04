@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.NamespaceContext;
@@ -27,17 +28,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.annotation.Configurable;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import pl.touk.humantask.PeopleQuery;
+import pl.touk.humantask.TemplateEngine;
+
 import pl.touk.humantask.exceptions.HTException;
+
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
-import pl.touk.humantask.util.TemplateEngine;
+
 import pl.touk.humantask.util.XmlUtils;
 
 import pl.touk.humantask.model.htd.TDescription;
@@ -65,6 +68,9 @@ public class TaskDefinition {
      * Human Interactions specification containing this {@link TaskDefinition}.
      */
     private HumanInteractions humanInteractions;
+    
+    @Resource
+    private TemplateEngine templateEngine;
 
     private TTask tTask;
 
@@ -82,22 +88,21 @@ public class TaskDefinition {
     // ==================== CONSTRUCTOR =========================
 
     public TaskDefinition(TTask taskDefinition, PeopleQuery peopleQuery, Map<String, String> xmlNamespaces) {
-        
+
         super();
-        
+
         Validate.notNull(taskDefinition);
         Validate.notNull(peopleQuery);
 
         this.tTask = taskDefinition;
         this.peopleQuery = peopleQuery;
         this.xmlNamespaces = xmlNamespaces;
-        
+
         this.xPathFactory = XPathFactory.newInstance();
     }
 
     /**
      * Returns description of the Task.
-     * TODO rewrite xpath - > jaxb
      * @param lang
      * @param contentType
      * @param task
@@ -126,7 +131,7 @@ public class TaskDefinition {
         //retrieve presentation parameters
         Map<String, Object> presentationParameters = task.getPresentationParameterValues();
 
-        return new TemplateEngine().merge(descriptionTamplate, presentationParameters).trim();
+        return this.templateEngine.merge(descriptionTamplate, presentationParameters).trim();
     }
 
     /**
@@ -195,9 +200,9 @@ public class TaskDefinition {
             JAXBElement<TGenericHumanRole> ghr = ghrList.get(i);
             
             if (ghr.getName().getLocalPart().equals(humanRoleName.toString())) {
-                
+
                 if (ghr.getValue().getFrom() != null) { 
-                
+
                     String logicalPeopleGroupName = ghr.getValue().getFrom().getLogicalPeopleGroup().toString();
                     List<Assignee> peopleQueryResult = peopleQuery.evaluate(logicalPeopleGroupName, null);
                     evaluatedAssigneeList.addAll(peopleQueryResult);
@@ -272,7 +277,7 @@ public class TaskDefinition {
         List<TText> tTexts = this.tTask.getPresentationElements().getSubject();
         for (TText x : tTexts) {
             if (lang.equals(x.getLang())) {
-                subjectTemplate = x.getContent().toString();
+                subjectTemplate = x.getContent().get(0).toString();
                 break;
             }
         }
@@ -283,7 +288,7 @@ public class TaskDefinition {
         
         Map<String, Object> presentationParameterValues = task.getPresentationParameterValues();
 
-        return new TemplateEngine().merge(subjectTemplate, presentationParameterValues).trim();
+        return this.templateEngine.merge(subjectTemplate, presentationParameterValues).trim();
     }
 
     /**
@@ -338,6 +343,10 @@ public class TaskDefinition {
 
     public String getTaskName() {
         return this.tTask.getName();
+    }
+
+    public void setTemplateEngine(TemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
     }
 
     // ================== HELPER METHODS ==================

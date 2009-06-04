@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -34,11 +33,10 @@ import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Message;
-import pl.touk.humantask.model.spec.HumanInteractions;
-import pl.touk.humantask.model.spec.TaskDefinition;
-
 import pl.touk.humantask.model.htd.THumanInteractions;
 import pl.touk.humantask.model.htd.TTask;
+import pl.touk.humantask.model.spec.HumanInteractions;
+import pl.touk.humantask.model.spec.TaskDefinition;
 
 /* 
  * Human interactions manager.

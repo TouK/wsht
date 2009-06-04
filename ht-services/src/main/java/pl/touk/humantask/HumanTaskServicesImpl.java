@@ -5,7 +5,6 @@
 package pl.touk.humantask;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;

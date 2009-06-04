@@ -5,7 +5,6 @@
 
 package pl.touk.humantask.model;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -22,6 +21,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -40,17 +40,6 @@ import javax.persistence.Transient;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import javax.xml.xpath.XPathFunction;
-import javax.xml.xpath.XPathFunctionException;
-import javax.xml.xpath.XPathFunctionResolver;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -58,9 +47,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Configurable;
-
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import pl.touk.humantask.HumanInteractionsManager;
 import pl.touk.humantask.HumanTaskServices;
@@ -82,7 +68,7 @@ import pl.touk.humantask.model.spec.TaskDefinition;
  */
 @Entity
 @Table(name = "TASK")
-@Configurable(preConstruction=true)
+@Configurable(preConstruction = true)
 public class Task extends Base {
 
     @Transient
@@ -101,7 +87,7 @@ public class Task extends Base {
     @Transient
     @Resource
     public AssigneeDao assigneeDao;
-    
+
     /**
      * Key {@link Task} definition is looked up in {@link HumanInteractionsManager} by.
      */
@@ -116,12 +102,12 @@ public class Task extends Base {
      * Task statuses.
      */
     public static enum Status {
-    
+
         /**
          * Upon creation. Remains CREATED if there are no potential owners.
          */
         CREATED, 
-        
+
         /**
          * Created task with multiple potential owners.
          */
@@ -131,34 +117,34 @@ public class Task extends Base {
          * Created task with single potential owner. Work started. Actual owner set.
          */
         RESERVED, 
-        
+
         /**
          * Work started and task is being worked on now. Actual owner set.
          */
-        IN_PROGRESS, 
-        
+        IN_PROGRESS,
+
         /**
          * In any of its active states (Ready, Reserved, InProgress), a task can be suspended, 
          * transitioning it into the Suspended state. On resumption of the task, it transitions 
          * back to the original state from which it had been suspended.
          */
         SUSPENDED, 
-        
+
         /**
          * Successful completion of the work.
          */
         COMPLETED, 
-        
+
         /**
          * Unsuccessful completion of the work.
          */
         FAILED, 
-        
+
         /**
          * Unrecoverable error in human task processing.
          */
-        ERROR, 
-        
+        ERROR,
+
         /**
          * TODO javadoc
          */
@@ -178,7 +164,7 @@ public class Task extends Base {
         }
 
     }
-    
+
     /**
      * Task operations. Enumeration used to trigger comments.
      */
@@ -287,15 +273,9 @@ public class Task extends Base {
      * Maps presentation parameter name to its value. Can be used as a where clause parameter
      * in task query operations.
      */
-    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, mappedBy = "task")
+    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, mappedBy = "task", fetch = FetchType.EAGER)
     @MapKey(name = "name")
     private Map<String, PresentationParameter> presentationParameters = new HashMap<String, PresentationParameter>();
-    
-//    /**
-//     * TODO put in separate class
-//     */
-//    @Transient
-//    private XPathFactory xPathFactory = null;
 
     /***************************************************************
      * Constructors                                                *
@@ -376,7 +356,6 @@ public class Task extends Base {
     @PrePersist
     public void prePersist() {
         log.info("Pre persist.");
-        //recalculatePresentationParameters();
     }
 
     /**
@@ -519,7 +498,7 @@ public class Task extends Base {
 
             case RESERVED:
                 if (status == Status.IN_PROGRESS || status == Status.READY || 
-                    status == Status.SUSPENDED || status == Status.RESERVED) {
+                    status == Status.SUSPENDED   || status == Status.RESERVED) {
                     isOk = true;
                 }
 
@@ -527,7 +506,7 @@ public class Task extends Base {
 
             case IN_PROGRESS:
                 if (status == Status.COMPLETED || status == Status.FAILED || 
-                    status == Status.RESERVED || status == Status.READY || 
+                    status == Status.RESERVED  || status == Status.READY || 
                     status == Status.SUSPENDED) {
                     isOk = true;
                 }
@@ -588,7 +567,7 @@ public class Task extends Base {
         this.addOperationComment(Operations.CLAIM, person);
         this.setStatus(Task.Status.RESERVED);
     }
-    
+
     /**
      * Checks if the task can be claimed by the person. Throws exception if it is not. 
      * @param person
@@ -605,7 +584,7 @@ public class Task extends Base {
         if (this.getActualOwner() != null) {
             throw new HTIllegalStateException("Task not claimable. Actual owner set: " + this.getActualOwner(), this.getStatus());
         }
-        
+
         //not ready
         if (!this.getStatus().equals(Task.Status.READY)) {
             throw new HTIllegalStateException("Task not claimable. Not READY.", this.getStatus());
@@ -615,7 +594,7 @@ public class Task extends Base {
         if (!this.getPotentialOwners().contains(person)) {
             throw new HTIllegalAccessException("Not a potential owner.", person.getName());
         }
-        
+
         //TODO test
         // check if the person is excluded from potential owners
         if ((this.getExcludedOwners() != null && this.getExcludedOwners().contains(person))) {
@@ -917,7 +896,7 @@ public class Task extends Base {
             this.comments.add(new Comment(content, this));
         }
     }
-    
+
     /**
      * Adds a comment related to operation taking place.
      * @param operation     performed operation
@@ -964,191 +943,6 @@ public class Task extends Base {
         return new XmlUtils(new TaskNamespaceContext()).evaluateXPath(xPathString, returnType);
     }
 
-//    /**
-//     * Evaluates XPath expression in context of the Task. Expression can contain 
-//     * XPath Extension functions as defined by WS-HumanTask v1. Following
-//     * XPath functions are implemented:
-//     * <ul>
-//     * <li> {@link GetInputXPathFunction} </li>
-//     * <li> {@link GetOutputXPathFunction} </li>
-//     * </ul>
-//     * @param xPathString The XPath 1.0 expression.
-//     * @param returnType The desired return type. See {@link XPathConstants}.
-//     * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
-//     */
-//    public Object evaluateXPath(String xPathString, QName returnType) {
-//        
-//        Validate.notNull(xPathString);
-//        Validate.notNull(returnType);
-//        
-//        log.debug("----------------------------------");
-//        log.debug("evaluateXPath(" + xPathString + ")");
-//        
-//        Object o = null;
-//
-//        XPath xpath = new XmlUtils(new TaskNamespaceContext()).createXPathInstance(); 
-//
-////        xpath.setXPathFunctionResolver(new XPathFunctionResolver() {
-////
-////            public XPathFunction resolveFunction(QName functionName, int arity) {
-////
-////                if (functionName == null) {
-////                    throw new NullPointerException("The function name cannot be null.");
-////                }
-////
-////                if (functionName.equals(new QName("http://www.example.org/WS-HT", "getInput", "htd"))) {
-////
-////                    return new GetInputXPathFunction();
-////                }
-////                
-////                if (functionName.equals(new QName("http://www.example.org/WS-HT", "getOutput", "htd"))) {
-////
-////                    return new GetOutputXPathFunction();
-////                } 
-////                    
-////                return null;
-////            }
-////
-////        });
-//
-//        try {
-//
-//            //TODO create empty document only once
-//            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-//            Document emptyDocument = builder.newDocument();
-//
-//            XPathExpression expr = xpath.compile(xPathString);
-//            o = expr.evaluate(emptyDocument, returnType);
-//               
-//        } catch (XPathExpressionException e) {
-//            
-//            log.error("Error evaluating XPath: " + xPathString, e);
-//
-//        } catch (ParserConfigurationException e) {
-//            
-//            log.error("Error evaluating XPath:  " + xPathString, e);
-//        }
-//        
-//        log.debug("----------------------------------");
-//        
-//        return o;    
-//    }
-    
-//    /**
-//     * Implements getInput {@link XPathFunction} - get the data for the part of the task's input message.
-//     * @author Witek Wołejszo
-//     */
-//    private class GetInputXPathFunction implements XPathFunction {
-//        
-//        private final Log log = LogFactory.getLog(GetInputXPathFunction.class);
-//
-//        /**
-//         * <p>Evaluate the function with the specified arguments.</p>
-//         * @see XPathFunction#evaluate(List)
-//         * @param args The arguments, <code>null</code> is a valid value.
-//         * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
-//         * @throws XPathFunctionException If <code>args</code> cannot be evaluated with this <code>XPath</code> function.
-//         */
-//        public Object evaluate(List args) throws XPathFunctionException {
-//            
-//            log.debug("Returning: " + args);
-//            
-//            String partName = (String) args.get(0);
-//            
-//            Message message = getInput().get(partName);
-//            Document document = null;
-//            
-//            if (message == null) {
-//                throw new XPathFunctionException("Task's input does not contain partName: " + args.get(0));
-//            }
-//
-//            try {
-//                
-//                document = message.getDomDocument();
-//                
-//            } catch (ParserConfigurationException e) {
-//
-//                throw new XPathFunctionException(e);
-//            } catch (SAXException e) {
-//                
-//                throw new XPathFunctionException(e);
-//            } catch (IOException e) {
-//                
-//                throw new XPathFunctionException(e);
-//            }
-//            
-//            return document == null ? null : document.getElementsByTagName(partName);
-//        }
-//
-//    }
-//    
-//    /**
-//     * Implements getOutput {@link XPathFunction} - get the data for the part of the task's output message.
-//     * @author Witek Wołejszo
-//     */
-//    private class GetOutputXPathFunction implements XPathFunction {
-//        
-//        private final Log log = LogFactory.getLog(GetOutputXPathFunction.class);
-//
-//        /**
-//         * <p>Evaluate the function with the specified arguments.</p>
-//         * @see XPathFunction#evaluate(List)
-//         * @param args The arguments, <code>null</code> is a valid value.
-//         * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
-//         * @throws XPathFunctionException If <code>args</code> cannot be evaluated with this <code>XPath</code> function.
-//         */
-//        public Object evaluate(List args) throws XPathFunctionException {
-//            
-//            log.debug("Returning: " + args);
-//            
-//            String partName = (String) args.get(0);
-//            
-//            Message message = getOutput().get(partName);
-//            Document document = null;
-//            
-//            if (message == null) {
-//                throw new XPathFunctionException("Task's output does not contain partName: " + args.get(0));
-//            }
-//
-//            try {
-//                
-//                document = message.getDomDocument();
-//                
-//            } catch (ParserConfigurationException e) {
-//
-//                throw new XPathFunctionException(e);
-//            } catch (SAXException e) {
-//                
-//                throw new XPathFunctionException(e);
-//            } catch (IOException e) {
-//                
-//                throw new XPathFunctionException(e);
-//            }
-//            
-//            return document == null ? null : document.getElementsByTagName(partName);
-//        }
-//
-//    }
-
-    // ================== HELPER METHODS ==================
-    
-//    /**
-//     * Creates {@link XPath} aware of request namespaces.
-//     */
-//    private synchronized XPath createXPathInstance() {
-//        
-//        if (this.xPathFactory == null) {
-//            this.xPathFactory = XPathFactory.newInstance();
-//        }
-//        
-//        //XPathNSResolver namespaces  = evaluator.createNSResolver(root);
-//        //XPath x;
-//        
-//        XPath xpath = this.xPathFactory.newXPath();
-//        xpath.setNamespaceContext(new TaskNamespaceContext());
-//        return xpath;
-//    }
-    
     /**
      * {@inheritDoc}
      */

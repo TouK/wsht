@@ -46,12 +46,11 @@ import pl.touk.humantask.ws.api.TTime;
  * explicitly. They have the same authorization rights as business administrators.
  *
  * @author Witek Wołejszo
+ * @author Warren Crossing
  */
 @WebService
 @Configurable
 public class TaskOperationsImpl implements TaskOperationsInterface {
-
-    private TaskDao taskDao;
 
     /**
      * Implementation of WH-HT services.
@@ -70,7 +69,7 @@ public class TaskOperationsImpl implements TaskOperationsInterface {
                 throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Must specific a Task id.","Id");
             }
 
-            Task task = this.taskDao.fetch(Long.valueOf(identifier));
+            Task task = this.services.getTaskInfo(Long.valueOf(identifier));
 
             if (null == task) {
                 throw new pl.touk.humantask.exceptions.HTIllegalArgumentException("Task not found.","Id: " + identifier);
