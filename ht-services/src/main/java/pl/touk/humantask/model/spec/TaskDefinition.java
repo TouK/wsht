@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.NodeList;
 
 import pl.touk.humantask.PeopleQuery;
@@ -41,6 +42,7 @@ import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
 
+import pl.touk.humantask.util.RegexpTemplateEngine;
 import pl.touk.humantask.util.XmlUtils;
 
 import pl.touk.humantask.model.htd.TDescription;
@@ -59,7 +61,6 @@ import pl.touk.humantask.model.htd.TText;
  * @author Kamil Eisenbart
  * @author Mateusz Lipczyński
  */
-@Configurable(dependencyCheck = true)
 public class TaskDefinition {
 
     private final Log log = LogFactory.getLog(TaskDefinition.class);
@@ -69,16 +70,15 @@ public class TaskDefinition {
      */
     private HumanInteractions humanInteractions;
     
-    @Resource
     private TemplateEngine templateEngine;
+
+    private PeopleQuery peopleQuery;
 
     private TTask tTask;
 
     private boolean instantiable;
 
     private XPathFactory xPathFactory;
-    
-    private PeopleQuery peopleQuery;
     
     /**
      * XML namespaces supported in human task definitions.
@@ -97,6 +97,9 @@ public class TaskDefinition {
         this.tTask = taskDefinition;
         this.peopleQuery = peopleQuery;
         this.xmlNamespaces = xmlNamespaces;
+        
+        //TODO make it confugurable
+        this.templateEngine = new RegexpTemplateEngine();
 
         this.xPathFactory = XPathFactory.newInstance();
     }
@@ -204,7 +207,7 @@ public class TaskDefinition {
                 if (ghr.getValue().getFrom() != null) { 
 
                     String logicalPeopleGroupName = ghr.getValue().getFrom().getLogicalPeopleGroup().toString();
-                    List<Assignee> peopleQueryResult = peopleQuery.evaluate(logicalPeopleGroupName, null);
+                    List<Assignee> peopleQueryResult = this.peopleQuery.evaluate(logicalPeopleGroupName, null);
                     evaluatedAssigneeList.addAll(peopleQueryResult);
                 }
             }
