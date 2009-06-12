@@ -265,6 +265,26 @@ public class TaskDefinition {
     }
 
     /**
+     * TODO test
+     * Returns a task name in a required language.
+     * @param lang subject language according ISO, e.g. en-US, pl, de-DE
+     * @return name
+     */
+    public String getName(String lang) {
+
+        Validate.notNull(lang);
+        
+        List<TText> tTexts = this.tTask.getPresentationElements().getName();
+        for (TText x : tTexts) {
+            if (lang.equals(x.getLang())) {
+                return x.getContent().get(0).toString();
+            }
+        }
+        
+        return "error";
+    }
+
+    /**
      * Returns a task subject in a required language.
      * @param lang subject language according ISO, e.g. en-US, pl, de-DE
      * @param task The task subject value is evaluated for.

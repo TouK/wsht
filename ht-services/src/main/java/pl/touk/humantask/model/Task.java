@@ -382,6 +382,17 @@ public class Task extends Base {
         
         return (count == 1) ? result : null;
     }
+    
+    /**
+     * Returns task's name in a required language.
+     *
+     * @param lang subject language according ISO, e.g. en-US, pl, de-DE
+     * @return name
+     */
+    public String getName(String lang) {
+        Validate.notNull(lang);
+        return this.getTaskDefinition().getName(lang);
+    }
 
     /**
      * Returns a formatted task subject in a required language.
