@@ -66,6 +66,16 @@ public class RegexpTemplateEngineTest {
     }
     
     @Test
+    public void noRemoveTest1() {
+        TemplateEngine te = new RegexpTemplateEngine();
+        Map<String, Object> pp = new HashMap<String, Object>();
+        pp.put("x", "1");
+        pp.put("y", "bleh");
+        String r1 = te.merge("?IF-x?bla $y$ bla?ENDIF-x?", pp);
+        Assert.assertEquals("bla bleh bla", r1);
+    }
+    
+    @Test
     public void combinedTest1() {
         TemplateEngine te = new RegexpTemplateEngine();
         Map<String, Object> pp = new HashMap<String, Object>();

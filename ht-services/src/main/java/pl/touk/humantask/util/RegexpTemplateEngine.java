@@ -5,9 +5,6 @@
 
 package pl.touk.humantask.util;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,27 +34,30 @@ public class RegexpTemplateEngine implements TemplateEngine {
         log.info("merge: " + template);
         log.info("merge: " + presentationParameterValues);
         
-        Pattern blockPattern = Pattern.compile("\\?IF\\-[A-Za-z]*\\?.*\\?ENDIF\\-[A-Za-z]*\\?");
+        Pattern blockPattern = Pattern.compile("\\?IF\\-[A-Za-z0-9]*\\?.*\\?ENDIF\\-[A-Za-z0-9]*\\?");
         Matcher m = blockPattern.matcher(template);
         
-        //remove blocks from template if the key is not in presentationParameterValues.keySet or value is null
+        //- remove blocks from template if the key is not in presentationParameterValues.keySet or value is null
+        //- remove block markers otherwise
         while (m.find() == true) {
             
             String block = m.group();
             String key = m.group().substring(4).replaceAll("\\?.*$", "");
             
-            log.info("Block: " + block);
-            log.info("Key:   " + key);
+            log.debug("Block: " + block);
+            log.debug("Key:   " + key);
             
             if (presentationParameterValues.get(key) == null) {
                 template = m.replaceFirst("");
                 m = blockPattern.matcher(template);
+            } else {
+                template = block.replace("?IF-" + key + "?", "").replace("?ENDIF-" + key + "?", "");
             }
         }
         
-        log.info("xxx: " + template);
+        log.info("template: " + template);
 
-        Pattern replacePattern = Pattern.compile("\\$[A-Za-z]*\\$");
+        Pattern replacePattern = Pattern.compile("\\$[A-Za-z0-9]*\\$");
         m = replacePattern.matcher(template);
         
         while (m.find() == true) {
