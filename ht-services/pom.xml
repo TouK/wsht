@@ -4,12 +4,12 @@
     <parent>
         <groupId>pl.touk.wsht</groupId>
         <artifactId>wsht</artifactId>
-        <version>1.0.18</version>
+        <version>1.0.19-SNAPSHOT</version>
     </parent>
     <groupId>pl.touk.wsht</groupId>
     <artifactId>ht-services</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.18</version>
+    <version>1.0.19-SNAPSHOT</version>
     <name>TouK Human Task Services</name>
     <build>
         <plugins>
