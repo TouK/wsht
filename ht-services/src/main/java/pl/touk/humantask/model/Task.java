@@ -71,6 +71,9 @@ import pl.touk.humantask.model.spec.TaskDefinition;
 @Configurable(preConstruction = true)
 public class Task extends Base {
 
+    /**
+     * Logger.
+     */
     @Transient
     private final Log log = LogFactory.getLog(Task.class);
     
@@ -79,20 +82,20 @@ public class Task extends Base {
      */
     @Transient
     @Resource
-    public HumanInteractionsManager humanInteractionsManager;
+    HumanInteractionsManager humanInteractionsManager;
     
     /**
      * Human interactions manager injected by IoC container.
      */
     @Transient
     @Resource
-    public AssigneeDao assigneeDao;
+    private AssigneeDao assigneeDao;
 
     /**
      * Key {@link Task} definition is looked up in {@link HumanInteractionsManager} by.
      */
     @Column(nullable = false)
-    protected String taskDefinitionKey;
+    private String taskDefinitionKey;
 
     public static enum TaskTypes {
         ALL, TASKS, NOTIFICATIONS;
@@ -379,7 +382,7 @@ public class Task extends Base {
                 result = (Person)assignee;
             }
         }
-        
+
         return (count == 1) ? result : null;
     }
     
@@ -1002,6 +1005,14 @@ public class Task extends Base {
             // ???
             throw new NullPointerException("???");
         }
+    }
+    
+    /**
+     * Sets {@link AssigneeDao}. IoC container method.
+     * @param assigneeDao
+     */
+    public void setAssigneeDao(AssigneeDao assigneeDao) {
+        this.assigneeDao = assigneeDao;
     }
     
     /***************************************************************

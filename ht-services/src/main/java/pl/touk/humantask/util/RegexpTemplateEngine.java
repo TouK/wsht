@@ -30,10 +30,7 @@ public class RegexpTemplateEngine implements TemplateEngine {
      * @return The template string with filled in values.
      */
     public String merge(String template, Map<String, Object> presentationParameterValues) {
-    
-        log.info("merge: " + template);
-        log.info("merge: " + presentationParameterValues);
-        
+         
         Pattern blockPattern = Pattern.compile("\\?IF\\-[A-Za-z0-9]*\\?.*\\?ENDIF\\-[A-Za-z0-9]*\\?");
         Matcher m = blockPattern.matcher(template);
         
@@ -41,21 +38,16 @@ public class RegexpTemplateEngine implements TemplateEngine {
         //- remove block markers otherwise
         while (m.find() == true) {
             
-            String block = m.group();
             String key = m.group().substring(4).replaceAll("\\?.*$", "");
-            
-            log.debug("Block: " + block);
-            log.debug("Key:   " + key);
-            
+
             if (presentationParameterValues.get(key) == null) {
                 template = m.replaceFirst("");
-                m = blockPattern.matcher(template);
             } else {
-                template = block.replace("?IF-" + key + "?", "").replace("?ENDIF-" + key + "?", "");
+                template = template.replace("?IF-" + key + "?", "").replace("?ENDIF-" + key + "?", "");
             }
+            
+            m = blockPattern.matcher(template);
         }
-        
-        log.info("template: " + template);
 
         Pattern replacePattern = Pattern.compile("\\$[A-Za-z0-9]*\\$");
         m = replacePattern.matcher(template);
@@ -71,14 +63,16 @@ public class RegexpTemplateEngine implements TemplateEngine {
                 log.warn("Cannot find presentation parameter: " + key);
                 
             } else {
-                
-                log.debug("Replacing: " + m.group() + " with: " + substitutionString);
+
                 template = m.replaceFirst(substitutionString);
                 m = replacePattern.matcher(template);
             }
         }
         
-        log.info("Returning: " + template);
+        if (log.isDebugEnabled()) {
+            log.debug("Returning: " + template);
+        }
+
         return template;
     }
     

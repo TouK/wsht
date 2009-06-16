@@ -125,11 +125,13 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxws_2.1_spec</artifactId>
             <version>1.0</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
             <version>1.1.2</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -177,11 +179,6 @@
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
             <version>2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jamon</groupId>
-            <artifactId>jamon-runtime</artifactId>
-            <version>2.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

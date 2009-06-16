@@ -76,6 +76,28 @@ public class RegexpTemplateEngineTest {
     }
     
     @Test
+    public void noRemoveTest2() {
+        TemplateEngine te = new RegexpTemplateEngine();
+        Map<String, Object> pp = new HashMap<String, Object>();
+        pp.put("correctedItemName1", "pozycja");
+        pp.put("correctedItemNewNetValue1", "1");
+        String r1 = te.merge("?IF-correctedItemName1?Pozycja: $correctedItemName1$ Na: $correctedItemNewNetValue1$?ENDIF-correctedItemName1?", pp);
+        Assert.assertEquals("Pozycja: pozycja Na: 1", r1);
+    }
+    
+    @Test
+    public void noRemoveTest3() {
+        TemplateEngine te = new RegexpTemplateEngine();
+        Map<String, Object> pp = new HashMap<String, Object>();
+        pp.put("correctedItemName1", "pozycja");
+        pp.put("correctedItemNewNetValue1", "1");
+        pp.put("correctedItemName2", null);
+        pp.put("correctedItemNewNetValue2", null);
+        String r1 = te.merge("?IF-correctedItemName1?Pozycja: $correctedItemName1$ Na: $correctedItemNewNetValue1$?ENDIF-correctedItemName1??IF-correctedItemName2?Pozycja: $correctedItemName2$ Na: $correctedItemNewNetValue2$?ENDIF-correctedItemName2?", pp);
+        Assert.assertEquals("Pozycja: pozycja Na: 1", r1);
+    }
+    
+    @Test
     public void combinedTest1() {
         TemplateEngine te = new RegexpTemplateEngine();
         Map<String, Object> pp = new HashMap<String, Object>();
