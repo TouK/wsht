@@ -180,9 +180,7 @@ public class JpaTaskDao implements TaskDao {
         }
         
         List result = query.getResultList();
-        
-        log.debug("returning: " + result.size());
-        
+
         return result;
     }
 

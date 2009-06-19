@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.annotations.Index;
 
 /**
  * Evaluated value of Task's presentation parameter.
@@ -60,6 +61,7 @@ public class PresentationParameter extends Base {
      */
     @ManyToOne
     @JoinColumn(name = "task_id", nullable = false)
+    @Index(name = "prpr_task_id_idx")
     private Task task;
 
     public void setName(String name) {
@@ -232,7 +234,7 @@ public class PresentationParameter extends Base {
             return true;
         }
         PresentationParameter pp = (PresentationParameter) obj;
-        return new EqualsBuilder().append(id, pp.id).isEquals();
+        return new EqualsBuilder().append(this.id, pp.id).isEquals();
     }
 
 }

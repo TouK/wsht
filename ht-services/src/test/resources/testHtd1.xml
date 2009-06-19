@@ -37,7 +37,7 @@
             
             <htd:documentation xml:lang="en-US">This task is used to handle claims that require manual approval. </htd:documentation>
             <htd:interface portType="tns:ClaimsHandlingPT" operation="approve" responsePortType="tns:ClaimsHandlingCallbackPT" responseOperation="approvalResponse"/>
-            <htd:priority> htd:getInput("ClaimApprovalRequest")/prio </htd:priority>
+            <htd:priority> htd:getInput("ClaimApprovalRequest")/priority </htd:priority>
             
             <htd:peopleAssignments>
             	

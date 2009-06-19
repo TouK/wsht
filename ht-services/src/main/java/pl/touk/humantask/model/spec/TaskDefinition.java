@@ -138,7 +138,28 @@ public class TaskDefinition {
     }
 
     /**
-     * Return values of Task presentation parameters.
+     * Returns task's priority. 0 is the highest priority, larger numbers identify lower priorities.
+     * @param task  The task priority is evaluated for.
+     * @return      Priority or null if it is not specified.
+     */
+    public Integer getPriority(Task task) {
+        
+        Validate.notNull(task);
+        
+        if (this.tTask.getPriority() != null) {
+            String priorityXPath = this.tTask.getPriority().getContent().get(0).toString().trim();
+            Validate.notNull(priorityXPath);
+            
+            Double d = (Double) task.evaluateXPath(priorityXPath, XPathConstants.NUMBER);
+            
+            return d.intValue();
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Returns values of Task presentation parameters.
      * @param task      The task presentation parameters values are evaluated for.
      * @return          Map from parameter name to its value.
      */
@@ -160,21 +181,8 @@ public class TaskDefinition {
             Validate.notNull(returnType);
             Validate.notNull(parameterName);
             Validate.notNull(parameterXPath);
-            
-            if (log.isDebugEnabled()) {
-                log.debug("Evaluating: " + parameterName);
-                log.debug("XPath: " + parameterXPath);
-                log.debug("Type: " + presentationParameter.getType());
-                log.debug("Return: " + returnType);
-            }
-                
-            Object o = task.evaluateXPath(parameterXPath, returnType);
 
-            if (o != null) {
-                log.info("Evaluated to: " + o + " of: " + o.getClass());
-            } else {
-                log.info("Evaluated to: null");
-            }
+            Object o = task.evaluateXPath(parameterXPath, returnType);
 
             result.put(parameterName, o);
         }
@@ -254,11 +262,8 @@ public class TaskDefinition {
             
         } catch (XPathExpressionException e) {
             
-            if (log.isErrorEnabled()) {
-                log.error("Error evaluating XPath for task: " + tTask.getName(), e);
-            }
-            
-            throw  new HTException("Error evaluating XPath for task: " + tTask.getName());
+            log.error("Error evaluating XPath for task: " + this.tTask.getName(), e);
+            throw  new HTException("Error evaluating XPath for task: " + this.tTask.getName());
         }
 
         return evaluatedAssigneeList;

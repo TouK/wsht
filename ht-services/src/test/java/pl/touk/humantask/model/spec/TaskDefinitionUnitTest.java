@@ -41,7 +41,7 @@ public class TaskDefinitionUnitTest {
 
     private HumanInteractionsManager humanInteractionsManager;
     
-    private static final String REQUEST = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><cust><firstname>jan</firstname><lastname>kowalski</lastname></cust><amount>1</amount></ClaimApprovalRequest>";
+    private static final String REQUEST = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ClaimApprovalRequest><priority>7</priority><cust><firstname>jan</firstname><lastname>kowalski</lastname></cust><amount>1</amount></ClaimApprovalRequest>";
 
     @Before
     public void setUpTestContext() throws HTException {
@@ -55,6 +55,14 @@ public class TaskDefinitionUnitTest {
         Task task = new Task(td, null, REQUEST);
         String description = td.getDescription("en-US", "text/plain", task);
         assertEquals("Approve this claim following corporate guideline #4711.0815/7 ...".trim(), description.trim());
+    }
+    
+    @Test
+    public void testGetPriority() throws HTException {       
+        TaskDefinition td = this.humanInteractionsManager.getTaskDefinition("Task1");
+        Task task = new Task(td, null, REQUEST);
+        Integer priority = td.getPriority(task);
+        assertEquals(Integer.valueOf(7), priority);
     }
 
     /**

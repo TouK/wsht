@@ -93,10 +93,7 @@ class TaskXmlUtils {
         
         Validate.notNull(xPathString);
         Validate.notNull(returnType);
-        
-        log.debug("----------------------------------");
-        log.debug("evaluateXPath(" + xPathString + ")");
-        
+
         Object o = null;
 
         XPath xpath = createXPathInstance();
@@ -118,9 +115,7 @@ class TaskXmlUtils {
             
             log.error("Error evaluating XPath:  " + xPathString, e);
         }
-        
-        log.debug("----------------------------------");
-        
+
         return o;    
     }
     
@@ -140,11 +135,9 @@ class TaskXmlUtils {
          * @throws XPathFunctionException If <code>args</code> cannot be evaluated with this <code>XPath</code> function.
          */
         public Object evaluate(List args) throws XPathFunctionException {
-            
-            log.debug("Returning: " + args);
-            
+
             String partName = (String) args.get(0);
-            
+
             Message message = input.get(partName);
             Document document = null;
             
@@ -188,9 +181,7 @@ class TaskXmlUtils {
          * @throws XPathFunctionException If <code>args</code> cannot be evaluated with this <code>XPath</code> function.
          */
         public Object evaluate(List args) throws XPathFunctionException {
-            
-            log.debug("Returning: " + args);
-            
+
             String partName = (String) args.get(0);
             
             Message message = output.get(partName);

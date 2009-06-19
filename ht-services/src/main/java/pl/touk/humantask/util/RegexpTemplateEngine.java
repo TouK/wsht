@@ -68,10 +68,6 @@ public class RegexpTemplateEngine implements TemplateEngine {
                 m = replacePattern.matcher(template);
             }
         }
-        
-        if (log.isDebugEnabled()) {
-            log.debug("Returning: " + template);
-        }
 
         return template;
     }

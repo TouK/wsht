@@ -46,7 +46,7 @@ public final class PropertyBasedPeopleQuery implements PeopleQuery {
         
         try {
             
-            p.load(configuration.getInputStream());
+            p.load(this.configuration.getInputStream());
             String value = (String) p.get(logicalPeopleGroupName);
             // parse
             String[] peopleInGroup = value.split(",");
@@ -56,13 +56,14 @@ public final class PropertyBasedPeopleQuery implements PeopleQuery {
             
         } catch (IOException e) {
             
-            //Access error should not affect evaluation TODO: ref to specs
             try {
                 
-                log.error("Error reading: " + configuration.getURL());
+                log.error("Error reading: " + this.configuration.getURL());
             
             } catch (IOException e1) {
-                
+
+                //Access error should not affect evaluation TODO: ref to specs
+
             } finally {
                 
                 log.error("Error reading file.", e);
@@ -76,7 +77,7 @@ public final class PropertyBasedPeopleQuery implements PeopleQuery {
     }
 
     public Resource getConfiguration() {
-        return configuration;
+        return this.configuration;
     }
 
 }
