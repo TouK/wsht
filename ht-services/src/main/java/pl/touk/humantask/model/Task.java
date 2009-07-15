@@ -48,6 +48,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Index;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
 
 import pl.touk.humantask.HumanInteractionsManager;
 import pl.touk.humantask.HumanTaskServices;
@@ -55,6 +56,8 @@ import pl.touk.humantask.dao.AssigneeDao;
 import pl.touk.humantask.exceptions.HTConfigurationException;
 import pl.touk.humantask.exceptions.HTException;
 import pl.touk.humantask.exceptions.HTIllegalAccessException;
+import pl.touk.humantask.exceptions.HTIllegalArgumentException;
+import pl.touk.humantask.exceptions.HTIllegalOperationException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HTRecipientNotAllowedException;
 import pl.touk.humantask.model.spec.TaskDefinition;
@@ -135,27 +138,27 @@ public class Task extends Base {
         SUSPENDED, 
 
         /**
-         * Successful completion of the work.
+         * Successful completion of the work. One of the final states.
          */
         COMPLETED, 
 
         /**
-         * Unsuccessful completion of the work.
+         * Unsuccessful completion of the work. One of the final states.
          */
         FAILED, 
 
         /**
-         * Unrecoverable error in human task processing.
+         * Unrecoverable error in human task processing. One of the final states.
          */
         ERROR,
 
         /**
-         * TODO javadoc
+         * TODO javadoc, One of the final states.
          */
         EXITED, 
         
         /**
-         * Task is no longer needed - skipped. This is considered a “good” outcome of a task. 
+         * Task is no longer needed - skipped. This is considered a “good” outcome of a task. One of the final states.
          */
         OBSOLETE;
 
@@ -173,7 +176,7 @@ public class Task extends Base {
      * Task operations. Enumeration used to trigger comments.
      */
     private static enum Operations {
-        CREATE, STATUS, NOMINATE, CLAIM, START, DELEGATE, RELEASE; 
+        CREATE, STATUS, NOMINATE, CLAIM, START, DELEGATE, RELEASE, COMPLETE, FAIL; 
     }
 
     /**
@@ -275,6 +278,11 @@ public class Task extends Base {
 
     @OneToMany(mappedBy = "task", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<Attachment> attachments = new ArrayList<Attachment>();
+    
+    /**
+     * Fault information. Set when task fail method is called.
+     */
+    private Fault fault;
     
     /**
      * Task presentation parameters recalculated on input message change. 
@@ -755,26 +763,74 @@ public class Task extends Base {
         } 
     }
     
-//  /**
-//  * Resumes suspended task.
-//  */
-// public void resume() {
-//
-//     if ((statusBeforeSuspend == Status.READY || statusBeforeSuspend == Status.IN_PROGRESS || statusBeforeSuspend == Status.RESERVED)
-//             && this.status == Status.SUSPENDED) {
-//         this.status = statusBeforeSuspend;
-//     }
-//     // TODO exception
-//     /* else throw new HumanTaskException("status before suspend is invalid: "+statusBeforeSuspend.toString()); */
-// }
-//
-// /**
-//  * Reserves the task.
-//  */
-// public void reserve() throws HTIllegalStateException {
-//     this.setStatus(Status.RESERVED);
-// }    
+    /**
+     * Completes the task. Can be performed by actual owner only.
+     *
+     * @param person		Person completing the task
+     * @param responseXml	Xml message sent in response
+     * @throws HTIllegalStateException		Task's current state does not allow completion.
+     * @throws HTIllegalArgumentException	If no output data is set the operation fails.
+     * @throws HTIllegalAccessException		Passed person is not task's actual owner.
+     */
+    public void complete(Person person, String responseXml) throws HTIllegalStateException, HTIllegalArgumentException, HTIllegalAccessException {
+
+	if (responseXml == null) {
+	    throw new HTIllegalArgumentException("Task must be completed with a response.");
+	}
+	
+	if (!person.equals(this.actualOwner)) {
+	    throw new HTIllegalAccessException("Task can be completed only by actual owner.");
+	}
+
+	this.addOperationComment(Operations.COMPLETE, person);
+	
+	this.setStatus(Status.COMPLETED);
+	
+	//presentation parameters can depend on output message
+	this.recalculatePresentationParameters();
+    }
     
+    /**
+     * Fails the task. Actual owner completes the execution of the task raising a fault. Method
+     * updates task's status and fault information. 
+     *
+     * @param person
+     * @param fault
+     * @throws HTIllegalAccessException 
+     * @throws HTIllegalStateException 
+     */
+    public void fail(Person person, Fault fault) throws HTIllegalAccessException, HTIllegalStateException {
+	
+	if (!person.equals(this.actualOwner)) {
+	    throw new HTIllegalAccessException("Task can be failed only by actual owner.");
+	}
+	
+	//TODO check if task interface defines fault
+	
+	this.fault = fault;
+
+	this.addOperationComment(Operations.FAIL, person);
+	
+	this.setStatus(Status.FAILED);
+    }
+    
+    /**
+     * Changes tasks priority. Must be actual owner or business administrator.
+     * @param person
+     * @param priority
+     * @throws HTIllegalAccessException 
+     */
+    public void changePriority(Person person, int priority) throws HTIllegalAccessException {
+	
+	if (!person.equals(this.actualOwner) && !this.businessAdministrators.contains(person)) {
+	    throw new HTIllegalAccessException("Task priority can be changed by actual owner or business administrator only.");
+	}
+	
+	this.setPriority(priority);
+	
+	//TODO log operation?
+    }
+
     /**
      * Returns task definition of this task.
      * @return
@@ -880,6 +936,14 @@ public class Task extends Base {
         return this.output;
     }
     
+    public void setFault(Fault fault) {
+	this.fault = fault;
+    }
+
+    public Fault getFault() {
+	return this.fault;
+    }
+    
     /***************************************************************
      * Infrastructure methods.                                     *
      ***************************************************************/
@@ -913,6 +977,12 @@ public class Task extends Base {
             break;
         case RELEASE:            
             content = "Released by " + people[0];
+            break;
+        case COMPLETE:            
+            content = "Completed by " + people[0];
+            break;
+        case FAIL:            
+            content = "Failed by " + people[0];
             break;
         default:
             break;
@@ -1044,7 +1114,7 @@ public class Task extends Base {
      */
     @Override
     public int hashCode() {
-        return (this.id == null ? 0 : this.id.hashCode());
+        return this.id == null ? 0 : this.id.hashCode();
     }
 
     /**

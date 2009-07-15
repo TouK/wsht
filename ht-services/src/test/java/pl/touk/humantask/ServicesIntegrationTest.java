@@ -298,6 +298,43 @@ public class ServicesIntegrationTest extends AbstractTransactionalJUnit4SpringCo
         this.services.delegateTask(t.getId(), "user3", "user2");
         t = this.services.getTaskInfo(t.getId());
     }
+    
+    @Test
+    public void testCompleteTask() throws HTException {
+
+        Task t = createTask_TwoPotentialOwners();
+        this.services.claimTask(t.getId(), "user1");
+        this.services.startTask(t.getId(), "user1");
+        
+        Assert.assertEquals(Status.IN_PROGRESS, t.getStatus());
+        
+        this.services.completeTask(t.getId(), "user1", "</a>");
+
+        Assert.assertEquals(Status.COMPLETED, t.getStatus());
+    }
+    
+    @Test(expected = HTIllegalAccessException.class)
+    public void testCompleteTaskNotByActualOwner() throws HTException {
+
+	Task t = createTask_TwoPotentialOwners();
+
+        this.services.claimTask(t.getId(), "user1");
+        this.services.startTask(t.getId(), "user1");
+        
+        this.services.completeTask(t.getId(), "user2", "</a>");
+    }
+    
+    @Test(expected = HTIllegalStateException.class)
+    public void testCompleteTaskNotInProgress() throws HTException {
+
+	Task t = createTask_TwoPotentialOwners();
+
+        this.services.claimTask(t.getId(), "user1");
+        
+        Assert.assertEquals(Status.RESERVED, t.getStatus());
+        
+        this.services.completeTask(t.getId(), "user1", "</a>");
+    }
 
 //    /***
 //     *  This test should not claim the task becuase the owner was incorrect

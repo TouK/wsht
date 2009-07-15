@@ -171,7 +171,7 @@ public class HumanInteractionsManagerImpl implements HumanInteractionsManager {
         for (TTask tTask : hiDoc.getTasks().getTask()) {
             checkTaskDefinitionUniqueness(tTask.getName(), taskDefinitionNamesMap);
             TaskDefinition taskDefinition = new TaskDefinition(tTask, this.peopleQuery, this.xmlNamespaces);
-            taskDefinition.setDefinition(humanInteractions);
+            //taskDefinition.setDefinition(humanInteractions);
             taskDefinitions.add(taskDefinition);
             taskDefinitionNamesMap.put(tTask.getName(), "XXX");
         }

@@ -166,4 +166,40 @@ public interface HumanTaskServices {
      * @since 1.0.8
      */
     void delegateTask(Long taskId, String personName, String delegateeName) throws HTIllegalArgumentException, HTIllegalAccessException, HTIllegalStateException, HTRecipientNotAllowedException;
+
+    /**
+     * Completes the task. Can be performed by actual owner only.
+     *
+     * @param taskId		The task to complete
+     * @param personName	Person completing the task
+     * @param responseXml	Xml message sent in response
+     * @throws HTIllegalStateException		Task's current state does not allow completion.
+     * @throws HTIllegalArgumentException	If no output data is set the operation fails.
+     * @throws HTIllegalAccessException		Passed person is not task's actual owner.
+     */
+    void completeTask(Long taskId, String personName, String responseXml) throws HTIllegalStateException, HTIllegalArgumentException, HTIllegalAccessException;
+    
+    /**
+     * Fails the Task. Can be performed by actual owner only.
+     * @param taskId		The task to complete
+     * @param personName	Person completing the task
+     * @param faultName
+     * @param faultData
+     * 
+     * @throws HTIllegalArgumentException	TODO ???
+     * @throws HTIllegalStateException		Task's current state does not allow failing.
+     * @throws HTIllegalAccessException		Passed person is not task's actual owner.
+     */
+    void failTask(Long taskId, String personName, String faultName, String faultData) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException;
+    
+    /**
+     * Changes task priority. Can be set by actual owner or business administrator.
+     * 
+     * @param taskId		The task which prriority is to be changed
+     * @param personName	Person changing priority
+     * @param priority		New priority
+     * @throws HTIllegalAccessException 
+     * @throws HTIllegalArgumentException 
+     */
+    public void changeTaskPrioity(Long taskId, String personName, int priority) throws HTIllegalAccessException, HTIllegalArgumentException;
 }

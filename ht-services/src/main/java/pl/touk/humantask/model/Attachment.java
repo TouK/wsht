@@ -18,6 +18,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 @Entity
 @Table(name = "ATTACHMENT")
 public class Attachment extends Base {
@@ -55,11 +58,11 @@ public class Attachment extends Base {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public String getAccessType() {
-        return accessType;
+        return this.accessType;
     }
 
     public void setAccessType(String accessType) {
@@ -67,7 +70,7 @@ public class Attachment extends Base {
     }
 
     public String getContentType() {
-        return contentType;
+        return this.contentType;
     }
 
     public void setContentType(String contentType) {
@@ -83,7 +86,7 @@ public class Attachment extends Base {
     }
 
     public long getUserId() {
-        return userId;
+        return this.userId;
     }
 
     public void setUserId(long userId) {
@@ -91,7 +94,7 @@ public class Attachment extends Base {
     }
 
     public String getAttachment() {
-        return attachment;
+        return this.attachment;
     }
 
     public void setAttachment(String attachment) {
@@ -99,7 +102,7 @@ public class Attachment extends Base {
     }
 
     public Task getTask() {
-        return task;
+        return this.task;
     }
 
     public void setTask(Task task) {
@@ -112,16 +115,7 @@ public class Attachment extends Base {
      */
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 17 * hash + (this.id != null ? this.id.hashCode() : 0);
-        hash = 17 * hash + (this.attachment != null ? this.attachment.hashCode() : 0);
-        hash = 17 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 17 * hash + (this.accessType != null ? this.accessType.hashCode() : 0);
-        hash = 17 * hash + (this.contentType != null ? this.contentType.hashCode() : 0);
-        hash = 17 * hash + (this.attachedAt != null ? this.attachedAt.hashCode() : 0);
-        hash = 17 * hash + (int) (this.userId ^ (this.userId >>> 32));
-        hash = 17 * hash + (this.task != null ? this.task.hashCode() : 0);
-        return hash;
+        return this.id == null ? 0 : this.id.hashCode();
     }
 
     /**
@@ -131,38 +125,19 @@ public class Attachment extends Base {
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
+        if (obj instanceof Attachment == false) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
+        if (this == obj) {
+            return true;
         }
-        final Attachment other = (Attachment) obj;
-        if (this.id != other.id && (this.id == null || !this.id.equals(other.id))) {
-            return false;
-        }
-        if ((this.attachment == null) ? (other.attachment != null) : !this.attachment.equals(other.attachment)) {
-            return false;
-        }
-        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
-            return false;
-        }
-        if ((this.accessType == null) ? (other.accessType != null) : !this.accessType.equals(other.accessType)) {
-            return false;
-        }
-        if ((this.contentType == null) ? (other.contentType != null) : !this.contentType.equals(other.contentType)) {
-            return false;
-        }
-        if (this.attachedAt != other.attachedAt && (this.attachedAt == null || !this.attachedAt.equals(other.attachedAt))) {
-            return false;
-        }
-        if (this.userId != other.userId) {
-            return false;
-        }
-        if (this.task != other.task && (this.task == null || !this.task.equals(other.task))) {
-            return false;
-        }
-        return true;
+        Attachment rhs = (Attachment) obj;
+        return new EqualsBuilder().append(this.id, rhs.id).isEquals();
+    }
+    
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("id", this.id).append("name", this.getName()).toString();
     }
 
 }

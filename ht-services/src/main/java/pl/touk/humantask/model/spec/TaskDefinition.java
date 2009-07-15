@@ -7,49 +7,41 @@ package pl.touk.humantask.model.spec;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.NamespaceContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.stereotype.Component;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import pl.touk.humantask.PeopleQuery;
 import pl.touk.humantask.TemplateEngine;
-
 import pl.touk.humantask.exceptions.HTException;
-
 import pl.touk.humantask.model.Assignee;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Group;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
-
-import pl.touk.humantask.util.RegexpTemplateEngine;
-import pl.touk.humantask.util.XmlUtils;
-
 import pl.touk.humantask.model.htd.TDescription;
 import pl.touk.humantask.model.htd.TGenericHumanRole;
+import pl.touk.humantask.model.htd.TGrouplist;
+import pl.touk.humantask.model.htd.TOrganizationalEntity;
 import pl.touk.humantask.model.htd.TPresentationParameter;
 import pl.touk.humantask.model.htd.TTask;
 import pl.touk.humantask.model.htd.TText;
+import pl.touk.humantask.model.htd.TUserlist;
+import pl.touk.humantask.util.RegexpTemplateEngine;
+import pl.touk.humantask.util.XmlUtils;
 
 /**
  * Holds information about task version runnable in TouK Human Task engine. Task
@@ -64,22 +56,15 @@ import pl.touk.humantask.model.htd.TText;
 public class TaskDefinition {
 
     private final Log log = LogFactory.getLog(TaskDefinition.class);
-
-    /**
-     * Human Interactions specification containing this {@link TaskDefinition}.
-     */
-    private HumanInteractions humanInteractions;
     
     private TemplateEngine templateEngine;
 
-    private PeopleQuery peopleQuery;
+    private final PeopleQuery peopleQuery;
 
-    private TTask tTask;
+    private final TTask tTask;
 
-    private boolean instantiable;
+    private final boolean instantiable = true;
 
-    private XPathFactory xPathFactory;
-    
     /**
      * XML namespaces supported in human task definitions.
      */
@@ -100,8 +85,6 @@ public class TaskDefinition {
         
         //TODO make it confugurable
         this.templateEngine = new RegexpTemplateEngine();
-
-        this.xPathFactory = XPathFactory.newInstance();
     }
 
     /**
@@ -192,7 +175,6 @@ public class TaskDefinition {
 
     /**
      * Evaluates assignees of generic human role.
-     * TODO - get rid of xpaths
      * @param humanRoleName The generic human role.
      * @param task          The task instance we evaluate assignees for.
      * @return list of task assignees or empty list, when no assignments were made to this task.
@@ -221,49 +203,44 @@ public class TaskDefinition {
             }
         }
 
-        XPath xpath = createXPathInstance();
+        //look for human role
+        for (JAXBElement<TGenericHumanRole> ghr : this.tTask.getPeopleAssignments().getGenericHumanRole()) {
 
-        //literal
-        String groupsXPath = "" +
-            "/htd:humanInteractions" +
-            "/htd:tasks" +
-            "/htd:task[@name='" + tTask.getName() + "']" +
-            "/htd:peopleAssignments" +
-            "/htd:" + humanRoleName.toString() +
-            "/htd:literal" +
-            "/htd:organizationalEntity" +
-            "/htd:groups" +
-            "/htd:group";
-
-        String usersXPath = "" +
-            "/htd:humanInteractions" +
-            "/htd:tasks" +
-            "/htd:task[@name='" + tTask.getName() + "']" +
-            "/htd:peopleAssignments" +
-            "/htd:" + humanRoleName.toString() +
-            "/htd:literal" +
-            "/htd:organizationalEntity" +
-            "/htd:users" +
-            "/htd:user";
-        
-        try {
-        
-            XPathExpression expr = xpath.compile(groupsXPath);
-            NodeList nl = (NodeList) expr.evaluate(this.humanInteractions.getDocument(), XPathConstants.NODESET);
-            for (int i = 0; i < nl.getLength(); i++) {
-                evaluatedAssigneeList.add(new Group(nl.item(i).getFirstChild().getNodeValue()));
+            if (humanRoleName.toString().equals(ghr.getName().getLocalPart())) {
+                
+                //get extension element by localPart name
+                Element e = (Element) new XmlUtils().getElementByLocalPart(ghr.getValue().getAny(), "literal");
+                if (e != null) {
+                    
+                    Node organizationalEntityNode = e.getFirstChild();
+                    
+                    try {
+                        
+                        JAXBContext jaxbContext = JAXBContext.newInstance("pl.touk.humantask.model.htd");
+                        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+                        //InputStream is = organizationalEntity
+                        JAXBElement<TOrganizationalEntity> organizationalEntity = (JAXBElement<TOrganizationalEntity>) unmarshaller.unmarshal(organizationalEntityNode);
+                        
+                        TGrouplist groupList =  organizationalEntity.getValue().getGroups();
+                        if (groupList != null) {
+                            for (String group : groupList.getGroup()) {
+                                evaluatedAssigneeList.add(new Group(group));
+                            }
+                        }
+                        
+                        TUserlist userList =  organizationalEntity.getValue().getUsers();
+                        if (userList != null) {
+                            for (String user : userList.getUser()) {
+                                evaluatedAssigneeList.add(new Person(user));
+                            }
+                        }
+                        
+                    } catch (JAXBException e2) {
+                        log.error(e2);
+                        throw  new HTException("Error evaluating human role for task: " + this.tTask.getName());
+                    }
+                }
             }
-            
-            expr = xpath.compile(usersXPath);
-            nl = (NodeList) expr.evaluate(this.humanInteractions.getDocument(), XPathConstants.NODESET);
-            for (int i = 0; i < nl.getLength(); i++) {
-                evaluatedAssigneeList.add(new Person(nl.item(i).getFirstChild().getNodeValue()));
-            }
-            
-        } catch (XPathExpressionException e) {
-            
-            log.error("Error evaluating XPath for task: " + this.tTask.getName(), e);
-            throw  new HTException("Error evaluating XPath for task: " + this.tTask.getName());
         }
 
         return evaluatedAssigneeList;
@@ -271,7 +248,7 @@ public class TaskDefinition {
 
     /**
      * TODO test
-     * Returns a task name in a required language.
+     * Returns task's presentation name in a required language.
      * @param lang subject language according ISO, e.g. en-US, pl, de-DE
      * @return name
      */
@@ -319,54 +296,10 @@ public class TaskDefinition {
         return this.templateEngine.merge(subjectTemplate, presentationParameterValues).trim();
     }
 
-    /**
-     * @see NamespaceContext
-     * TODO get rid of xpaths in taskdefinition and this class 
-     */
-    public static class HtdNamespaceContext implements NamespaceContext {
-
-        public String getNamespaceURI(String prefix) {
-            
-            if (prefix == null) {
-                throw new NullPointerException("Null prefix");
-            } else if ("htd".equals(prefix)) {
-                return "http://www.example.org/WS-HT";
-            } else if ("xml".equals(prefix)) {
-                return XMLConstants.XML_NS_URI;
-            } 
-            
-            return XMLConstants.NULL_NS_URI;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public String getPrefix(String namespaceURI) {
-            // TODO ???
-            throw new NullPointerException("???");
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public Iterator getPrefixes(String namespaceURI) {
-            // ???
-            throw new NullPointerException("???");
-        }
-    }
-
     // ================ GETTERS + SETTERS ===================
 
     public boolean getInstantiable() {
         return this.instantiable;
-    }
-
-    public void setDefinition(HumanInteractions definition) {
-        this.humanInteractions = definition;
-    }
-
-    public HumanInteractions getDefinition() {
-        return this.humanInteractions;
     }
 
     public String getTaskName() {
@@ -378,12 +311,6 @@ public class TaskDefinition {
     }
 
     // ================== HELPER METHODS ==================
-    
-    private XPath createXPathInstance() {
-        XPath xpath = this.xPathFactory.newXPath();
-        xpath.setNamespaceContext(new HtdNamespaceContext());
-        return xpath;
-    }
 
     /**
      * Returns namespace URI for namespace registered in HumanInteractionsManager.

@@ -21,6 +21,7 @@ import pl.touk.humantask.exceptions.HTIllegalOperationException;
 import pl.touk.humantask.exceptions.HTIllegalStateException;
 import pl.touk.humantask.exceptions.HTRecipientNotAllowedException;
 import pl.touk.humantask.model.Assignee;
+import pl.touk.humantask.model.Fault;
 import pl.touk.humantask.model.GenericHumanRole;
 import pl.touk.humantask.model.Person;
 import pl.touk.humantask.model.Task;
@@ -173,7 +174,7 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
 
         task.release(person);
 
-        taskDao.update(task);
+        this.taskDao.update(task);
     }
 
     /**
@@ -201,6 +202,73 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
         task.delegate(person, delegatee);
         
         this.taskDao.update(task);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void completeTask(Long taskId, String personName, String responseXml)
+	    throws HTIllegalStateException, HTIllegalArgumentException, HTIllegalAccessException {
+
+	Validate.notNull(taskId);
+	Validate.notNull(personName);
+        Validate.notNull(responseXml);
+        
+        final Person person = this.assigneeDao.getPerson(personName);
+        
+        if (person == null) {
+            throw new HTIllegalAccessException("Person not found: ", personName);
+        }
+        
+        final Task task = locateTask(taskId);
+
+        task.complete(person, responseXml);
+        
+        this.taskDao.update(task);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void failTask(Long taskId, String personName, String faultName, String faultData) throws HTIllegalAccessException, HTIllegalArgumentException, HTIllegalStateException {
+
+	Validate.notNull(taskId);
+	Validate.notNull(personName);
+        Validate.notNull(faultName);
+        
+        final Person person = this.assigneeDao.getPerson(personName);
+        
+        if (person == null) {
+            throw new HTIllegalAccessException("Person not found: ", personName);
+        }
+        
+        final Task task = locateTask(taskId);
+        final Fault fault = new Fault();
+        fault.setName(faultName);
+        fault.setData(faultData);
+
+        task.fail(person, fault);
+        
+        this.taskDao.update(task);
+	
+    }
+    
+    /**
+     * {@inheritDoc} 
+     */
+    public void changeTaskPrioity(Long taskId, String personName, int priority) throws HTIllegalAccessException, HTIllegalArgumentException {
+
+	final Person person = this.assigneeDao.getPerson(personName);
+        
+        if (person == null) {
+            throw new HTIllegalAccessException("Person not found: ", personName);
+        }
+        
+	Task task = locateTask(taskId);
+
+	task.changePriority(person, priority);
+	
+	this.taskDao.update(task);
     }
     
     /**
@@ -340,34 +408,7 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
 ////        return null;
 //    }
 //
-//    /**
-//     * Changes task priority.
-//     *
-//     * @param task Task to process
-//     * @param priority Priority to set
-//     */
-//    public void changeTaskPrioity(Long taskId, int priority) throws HTIllegalArgumentException{
 //
-//        Task task = locateTask(taskId);
-//        
-//        task.setPriority(priority);
-//        taskDao.update(task);
-//    }
-//
-//    /**
-//     * Sets task status to COMPLETED.
-//     * TODO implement assignee check ?
-//     * 
-//     * @param task Task to process
-//     * @param person Person processing task
-//     * @throws HTException Thrown in case of problems while updating task
-//     */
-//    public void finishTask(Long taskId, Assignee person) throws HTException {
-//
-//        final Task task = locateTask(taskId);
-//        task.setStatus(Status.COMPLETED);
-//        taskDao.update(task);
-//    }
 //
 //    /**
 //     * Suspends task.
@@ -773,11 +814,11 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
     * @see pl.touk.humantask.HumanTaskServices#getTaskInfo(java.lang.Long) 
      */
     public Task getTaskInfo(Long taskId) throws HTIllegalArgumentException {
-        if (taskDao.exists(taskId)) {
-            return taskDao.fetch(taskId);
-        } else {
-            throw new HTIllegalArgumentException("Task not found");
+        if (this.taskDao.exists(taskId)) {
+            return this.taskDao.fetch(taskId);
         }
+
+        throw new HTIllegalArgumentException("Task not found.");
     }
 
     /**
@@ -798,4 +839,5 @@ public class HumanTaskServicesImpl implements HumanTaskServices {
 
         return task;
     }
+
 }

@@ -77,7 +77,7 @@ public class TaskDefinitionUnitTest {
         }};
         final Task task = mockery.mock(Task.class);
         
-        TaskDefinition td = humanInteractionsManager.getTaskDefinition("Task1");
+        TaskDefinition td = this.humanInteractionsManager.getTaskDefinition("Task1");
         
         Set<Assignee> assigneeList = td.evaluateHumanRoleAssignees(GenericHumanRole.POTENTIAL_OWNERS, task);
         Assert.assertEquals(1, assigneeList.size());
