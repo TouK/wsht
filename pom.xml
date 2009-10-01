@@ -21,6 +21,7 @@
 		<module>ht-wsdl</module>
 		<module>ht-ws-classes</module>
 		<module>ht-services</module>
+		<module>ht-web</module>
 	</modules>
 	<properties>
 		<cxf.version>2.2.1</cxf.version>

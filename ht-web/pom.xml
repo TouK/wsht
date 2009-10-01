@@ -4,11 +4,11 @@
     <parent>
         <groupId>pl.touk.wsht</groupId>
         <artifactId>wsht</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.0.21-SNAPSHOT</version>
     </parent>
     <artifactId>ht-web</artifactId>
     <packaging>war</packaging>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.21-SNAPSHOT</version>
     <name>TouK Human Task Web Service</name>
     <properties>
         <cxf.version>2.2.1</cxf.version>
