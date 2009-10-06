@@ -8,8 +8,9 @@
     <context-param>
       <param-name>contextConfigLocation</param-name>
       <param-value>
+        classpath:/ht-ds.xml,
         classpath:/cxf-server.xml,
-        classpath:/applicationContext.xml
+        classpath:/htConfiguration/applicationContext.xml
       </param-value>
     </context-param>
 
