@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="htEntityManagerFactory" />
+        <property name="dataSource" ref="htDataSource"/>
+    </bean>
+
+    <tx:annotation-driven />
+
+    <bean name="peopleQuery" class="pl.touk.humantask.PropertyBasedPeopleQuery">
+        <property name="configuration" value="classpath:peopleGroups.properties" />
+    </bean>
+
+    <bean id="taskManager" class="pl.touk.humantask.HumanInteractionsManagerImpl">
+        <constructor-arg index="0">
+            <list>
+                <value>classpath:testHtd1.xml</value>
+            </list>
+        </constructor-arg>
+        <constructor-arg ref="peopleQuery" index="1"/>
+        <constructor-arg index="2">
+            <map>
+                <entry key="wsht" value="http://www.wsht/wsht/schema"/>
+            </map>           
+        </constructor-arg>
+    </bean>
+</beans>
