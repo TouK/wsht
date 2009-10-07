@@ -22,10 +22,12 @@
   <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
   <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
   
-  <bean name="impl" class="pl.touk.humantask.HumanTaskServicesImpl" />
-
   <bean name="impl2" class="pl.touk.humantask.ws.TaskOperationsImpl">
-    <property name="services" ref="impl"/>
+    <property name="services" ref="humanTaskServices"/>
+    <property name="securityContext">
+      <bean class="pl.touk.humantask.ws.MockSecurityContext">
+      </bean>
+    </property>
   </bean>
 
   <jaxws:endpoint id="ToukTaskServiceEndPoint"
